@@ -1,3 +1,10 @@
+/**
+ * Update a comment by id
+ */
+export async function updateComment(id, comment_text) {
+  const { error } = await supabase.from('comments').update({ comment_text }).eq('id', id);
+  if (error) throw error;
+}
 // comments.js
 // Comment logic for Poetry Share app
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env.js';

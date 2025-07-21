@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poetry Share</title>
+  <title>AnoTitle?</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
   <!-- Custom cursor & cozy literature-inspired global styles -->
@@ -95,7 +95,7 @@
 <body class="bg-gray-50 min-h-screen flex flex-col" style="min-height: 100vh;">
   <!-- Navigation -->
   <nav class="flex justify-between items-center p-4">
-    <div class="nav-title flex items-center gap-2">
+    <div id="nav-title" class="nav-title flex items-center gap-2" style="cursor:pointer;">
       <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
       AnoTitle?
     </div>
@@ -151,5 +151,16 @@
   <script type="module" src="./auth.js"></script>
   <script type="module" src="./router.js"></script>
   <script type="module" src="./main.js"></script>
+  <script>
+    // Clickable nav title/logo to go to homepage
+    document.addEventListener('DOMContentLoaded', function() {
+      const navTitle = document.getElementById('nav-title');
+      if (navTitle) {
+        navTitle.addEventListener('click', function() {
+          window.location.hash = '';
+        });
+      }
+    });
+  </script>
 </body>
 </html>
