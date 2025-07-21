@@ -77,16 +77,39 @@ export async function renderDiscover(dom) {
             ]);
           };
 
-          // Like and comment logic
-          // Like button
-          const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
-          if (currentUser) {
-            likeBtn.onclick = async () => {
-              // Implement like/unlike logic as in home.js if needed
-            };
-          } else {
-            likeBtn.onclick = () => alert('Login to like poems!');
-          }
+          // Like button logic
+          import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
+            const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
+            const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
+            if (!likeBtn) return;
+            async function updateLikeBtn() {
+              if (!currentUser) return;
+              const liked = await hasUserLiked(poem.id, currentUser.id);
+              if (liked) {
+                likeBtn.classList.remove('bg-gray-200', 'text-gray-800');
+                likeBtn.classList.add('bg-pink-600', 'text-white');
+              } else {
+                likeBtn.classList.remove('bg-pink-600', 'text-white');
+                likeBtn.classList.add('bg-gray-200', 'text-gray-800');
+              }
+              const count = await fetchLikeCount(poem.id);
+              if (likeCountSpan) likeCountSpan.textContent = `(${count})`;
+            }
+            if (currentUser) {
+              updateLikeBtn();
+              likeBtn.onclick = async () => {
+                const liked = await hasUserLiked(poem.id, currentUser.id);
+                if (liked) {
+                  await unlikePoem(poem.id, currentUser.id);
+                } else {
+                  await likePoem(poem.id, currentUser.id);
+                }
+                updateLikeBtn();
+              };
+            } else {
+              likeBtn.onclick = () => utils.showModal(dom, 'Login to like poems!');
+            }
+          });
 
           // Fetch and render comments
           const commentsList = dom.app.querySelector(`#comments-list-${poem.id}`);

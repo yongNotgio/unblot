@@ -39,6 +39,21 @@ export async function renderHome(dom) {
         </li>
       `).join('');
     }
+    // Show like and comment counts for each poem
+    import('../likes.js').then(({ fetchLikeCount }) => {
+      import('../comments.js').then(({ fetchComments }) => {
+        poems.forEach(async poem => {
+          // Like count
+          const likeCount = await fetchLikeCount(poem.id);
+          const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
+          if (likeCountSpan) likeCountSpan.textContent = `(${likeCount})`;
+          // Comment count
+          const comments = await fetchComments(poem.id);
+          const commentsCountSpan = dom.app.querySelector(`#comments-count-${poem.id}`);
+          if (commentsCountSpan) commentsCountSpan.textContent = comments.length;
+        });
+      });
+    });
     html += `</ul></div>`;
     dom.app.innerHTML = html;
 
@@ -48,6 +63,41 @@ export async function renderHome(dom) {
     import('../auth.js').then(({ currentUser }) => {
       import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment }) => {
         poems.forEach(poem => {
+          // Like button logic
+          import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
+            const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
+            const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
+            if (!likeBtn) return;
+            (async () => {
+              if (currentUser) {
+                const liked = await hasUserLiked(poem.id, currentUser.id);
+                if (liked) {
+                  likeBtn.classList.remove('bg-gray-200', 'text-gray-800');
+                  likeBtn.classList.add('bg-pink-600', 'text-white');
+                } else {
+                  likeBtn.classList.remove('bg-pink-600', 'text-white');
+                  likeBtn.classList.add('bg-gray-200', 'text-gray-800');
+                }
+                likeBtn.onclick = async () => {
+                  const isLiked = await hasUserLiked(poem.id, currentUser.id);
+                  if (isLiked) {
+                    await unlikePoem(poem.id, currentUser.id);
+                    likeBtn.classList.remove('bg-pink-600', 'text-white');
+                    likeBtn.classList.add('bg-gray-200', 'text-gray-800');
+                  } else {
+                    await likePoem(poem.id, currentUser.id);
+                    likeBtn.classList.remove('bg-gray-200', 'text-gray-800');
+                    likeBtn.classList.add('bg-pink-600', 'text-white');
+                  }
+                  const newCount = await fetchLikeCount(poem.id);
+                  if (likeCountSpan) likeCountSpan.textContent = `(${newCount})`;
+                };
+              } else {
+                likeBtn.onclick = () => utils.showModal(dom, 'Login to like poems!');
+              }
+            })();
+          });
+
           // Share button
           const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
           shareBtn.onclick = () => {
