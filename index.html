@@ -6,6 +6,28 @@
   <title>Poetry Share</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
+  <!-- Custom cursor: quill/pen -->
+  <style>
+    /* Bulky cartoon quill SVG cursor */
+    :root {
+      --quill-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="%2344bfa3" stroke="%23000" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="%23000" stroke-width="2.2" fill="none"/><ellipse cx="10" cy="36" rx="2.2" ry="1.2" fill="%23000"/><ellipse cx="36" cy="13" rx="1.2" ry="2.2" fill="%23fff"/></svg>') 0 36, pointer;
+    }
+    body, html {
+      cursor: var(--quill-cursor);
+    }
+    button, a, [role="button"], .cursor-pointer {
+      cursor: var(--quill-cursor);
+    }
+    input, textarea, [contenteditable="true"], .cursor-text {
+      cursor: var(--quill-cursor);
+    }
+    *:active, *:focus {
+      cursor: var(--quill-cursor) !important;
+    }
+    ::selection {
+      background: #fefcbf;
+    }
+  </style>
   <!-- Load .env values into window for browser modules -->
   <script src="./env.loader.js"></script>
   <!-- Supabase JS via CDN -->
