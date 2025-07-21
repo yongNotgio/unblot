@@ -15,7 +15,7 @@ export async function renderMyPoems(dom) {
     const poems = await fetchPoems(currentUser.id);
     let html = `<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
-        <div class="font-bold text-xl">My Poems</div>
+        <div class="font-bold text-xl">The Unsaid</div>
         <button id="add-poem-btn" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold">Add New Poem</button>
       </div>
       <div class="mb-2 text-gray-500">User: <span class="font-mono">${currentUser.id}</span></div>

@@ -15,14 +15,14 @@ export async function renderEditPoem(dom, poemId) {
       return;
     }
     dom.app.innerHTML = `
-      <form id="edit-poem-form" class="max-w-md mx-auto p-6 bg-white rounded-lg shadow flex flex-col gap-4">
-        <h2 class="text-2xl font-bold mb-2 text-center">Edit Poem</h2>
-        <input type="text" id="poem-title" class="rounded-lg border px-3 py-2" placeholder="Title" value="${utils.escapeHTML(poem.title)}" required />
-        <textarea id="poem-content" class="rounded-lg border px-3 py-2" placeholder="Poem content" rows="6" required>${utils.escapeHTML(poem.content)}</textarea>
-        <input type="text" id="poem-tags" class="rounded-lg border px-3 py-2" placeholder="Tags (comma separated)" value="${utils.tagsToString(poem.tags)}" />
+      <form id="edit-poem-form" class="cozy-card flex flex-col gap-4" style="max-width: 480px; margin: 0 auto;">
+        <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Edit Poem</h2>
+        <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Title" value="${utils.escapeHTML(poem.title)}" required style="font-family: 'EB Garamond', serif; font-size: 1.1em;" />
+        <textarea id="poem-content" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Poem content" rows="6" required style="font-family: 'EB Garamond', serif; font-size: 1.08em;">${utils.escapeHTML(poem.content)}</textarea>
+        <input type="text" id="poem-tags" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Tags (comma separated)" value="${utils.tagsToString(poem.tags)}" style="font-size: 1em;" />
         <div class="flex gap-2">
-          <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold flex-1">Save Changes</button>
-          <button type="button" id="cancel-btn" class="bg-gray-300 text-gray-800 rounded-lg px-4 py-2 font-semibold flex-1">Cancel</button>
+          <button type="submit" class="nav-btn flex-1">Save Changes</button>
+          <button type="button" id="cancel-btn" class="nav-btn flex-1" style="background: #f1f5f9; color: #64748b;">Cancel</button>
         </div>
       </form>
     `;

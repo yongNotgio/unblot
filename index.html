@@ -6,26 +6,85 @@
   <title>Poetry Share</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
-  <!-- Custom cursor: quill/pen -->
+  <!-- Custom cursor & cozy literature-inspired global styles -->
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Bulky cartoon quill SVG cursor */
     :root {
       --quill-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="%2344bfa3" stroke="%23000" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="%23000" stroke-width="2.2" fill="none"/><ellipse cx="10" cy="36" rx="2.2" ry="1.2" fill="%23000"/><ellipse cx="36" cy="13" rx="1.2" ry="2.2" fill="%23fff"/></svg>') 0 36, pointer;
+      --main-blue: #2563eb;
+      --main-blue-light: #e0e7ff;
+      --main-bg: #f8fafc;
+      --paper: #fff;
+      --shadow: 0 4px 24px 0 rgba(37,99,235,0.07);
     }
-    body, html {
+    html, body {
+      height: 100%;
+      background: var(--main-bg);
+      font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif;
+      color: #1e293b;
       cursor: var(--quill-cursor);
     }
-    button, a, [role="button"], .cursor-pointer {
+    h1, h2, h3, .poem-title, .poem-content {
+      font-family: 'EB Garamond', serif;
+      letter-spacing: 0.01em;
+    }
+    .poem-content {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: #334155;
+      background: var(--paper);
+      border-radius: 1.2em 1.2em 1.2em 1.2em/1.5em 1.5em 1.2em 1.2em;
+      box-shadow: var(--shadow);
+      padding: 1.5em 2em;
+      margin: 1.5em 0;
+    }
+    nav {
+      background: linear-gradient(90deg, var(--main-blue-light) 0%, #fff 100%);
+      box-shadow: var(--shadow);
+      border-bottom: 2px solid var(--main-blue-light);
+    }
+    .nav-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 2rem;
+      color: var(--main-blue);
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 8px #e0e7ff;
+    }
+    .nav-btn {
+      background: var(--main-blue-light);
+      color: var(--main-blue);
+      border-radius: 0.7em;
+      padding: 0.4em 1.1em;
+      font-weight: 600;
+      font-family: 'Quicksand', Arial, sans-serif;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px 0 rgba(37,99,235,0.04);
+      border: none;
       cursor: var(--quill-cursor);
     }
-    input, textarea, [contenteditable="true"], .cursor-text {
-      cursor: var(--quill-cursor);
+    .nav-btn:hover, .nav-btn:focus {
+      background: var(--main-blue);
+      color: #fff;
+      box-shadow: 0 4px 16px 0 rgba(37,99,235,0.10);
     }
-    *:active, *:focus {
-      cursor: var(--quill-cursor) !important;
+    .cozy-card {
+      background: var(--paper);
+      border-radius: 1.2em 1.2em 1.2em 1.2em/1.5em 1.5em 1.2em 1.2em;
+      box-shadow: var(--shadow);
+      padding: 2em 2.5em;
+      margin: 2em 0;
     }
     ::selection {
-      background: #fefcbf;
+      background: #e0e7ff;
+    }
+    /* Custom scroll for cozy feel */
+    ::-webkit-scrollbar {
+      width: 10px;
+      background: #e0e7ff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a5b4fc;
+      border-radius: 6px;
     }
   </style>
   <!-- Load .env values into window for browser modules -->
@@ -33,35 +92,56 @@
   <!-- Supabase JS via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-gray-50 min-h-screen flex flex-col" style="min-height: 100vh;">
   <!-- Navigation -->
-  <nav class="flex justify-between items-center p-4 bg-white shadow">
-    <div class="font-bold text-xl">PiyaManhid</div>
-    <div class="flex gap-4">
-      <button id="nav-login" class="text-blue-600">Login</button>
-      <button id="nav-register" class="text-blue-600">Register</button>
-      <button id="nav-my-poems" class="text-blue-600">My Poems</button>
-      <button id="nav-add-poem" class="text-blue-600">Add Poem</button>
-      <button id="nav-logout" class="text-red-600">Logout</button>
+  <nav class="flex justify-between items-center p-4">
+    <div class="nav-title flex items-center gap-2">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+      AnoTitle?
+    </div>
+    <div class="flex gap-3">
+      <button id="nav-login" class="nav-btn">Login</button>
+      <button id="nav-register" class="nav-btn">Register</button>
+      <button id="nav-my-poems" class="nav-btn">By You</button>
+      <button id="nav-add-poem" class="nav-btn">Add Poem</button>
+      <button id="nav-logout" class="nav-btn" style="color:#dc2626;">Logout</button>
       <span id="current-user-id" class="ml-2 text-gray-500"></span>
     </div>
   </nav>
 
   <!-- Loading Indicator -->
   <div id="loading-indicator" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 hidden">
-    <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
+    <div class="loader ease-linear rounded-full border-8 border-t-8 border-blue-200 h-16 w-16 shadow-lg" style="border-top-color: var(--main-blue);"></div>
+    <style>
+      .loader {
+        border-top-color: var(--main-blue);
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </div>
 
   <!-- Modal -->
-  <div id="modal-bg" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div id="modal" class="bg-white p-6 rounded shadow-lg">
-      <div id="modal-message" class="mb-4"></div>
+  <div id="modal-bg" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div id="modal" class="cozy-card" style="max-width: 95vw; min-width: 320px; border: 2px solid var(--main-blue-light);">
+      <div id="modal-message" class="mb-4 text-lg font-serif text-blue-900"></div>
       <div id="modal-actions" class="flex justify-end gap-2"></div>
     </div>
   </div>
 
   <!-- Main Content Container for App -->
-  <main id="app" class="flex-1 flex flex-col items-center py-8 px-2 sm:px-0"></main>
+  <main class="flex-1 flex flex-col">
+    <div id="app" class="flex flex-col items-center justify-center w-full h-full py-8 px-2 sm:px-0" style="max-width:700px; margin:0 auto;"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full flex flex-col items-center justify-center py-6 mt-auto" style="background: var(--main-blue-light); border-top: 2px solid #e0e7ff;">
+    <div class="text-xl font-serif text-blue-900" style="font-family: 'EB Garamond', serif; letter-spacing: 0.04em;">Unsaid but Written</div>
+    <div class="text-xs text-gray-400 mt-1">&copy; 2025 PiyaManhid</div>
+  </footer>
 
   <!-- Poetry Share App Modules -->
   <script type="module" src="./env.js"></script>

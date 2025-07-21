@@ -6,13 +6,13 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export function renderLogin(dom) {
   dom.app.innerHTML = `
-    <form id="login-form" class="max-w-md mx-auto p-6 bg-white rounded-lg shadow flex flex-col gap-4">
-      <h2 class="text-2xl font-bold mb-2 text-center">Login</h2>
-      <input type="email" id="login-email" class="rounded-lg border px-3 py-2" placeholder="Email" required />
-      <input type="password" id="login-password" class="rounded-lg border px-3 py-2" placeholder="Password" required />
-      <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold">Login</button>
-      <button type="button" id="to-register" class="text-blue-600 underline">Don't have an account? Register</button>
-      <button type="button" id="to-reset" class="text-blue-600 underline">Forgot password?</button>
+    <form id="login-form" class="cozy-card flex flex-col gap-4" style="max-width: 400px; margin: 0 auto;">
+      <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Login</h2>
+      <input type="email" id="login-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
+      <input type="password" id="login-password" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Password" required />
+      <button type="submit" class="nav-btn">Login</button>
+      <button type="button" id="to-register" class="text-blue-600 underline">Tanga ka rin ba? Register</button>
+      <button type="button" id="to-reset" class="text-blue-600 underline">Kinalimutan mo pati password?</button>
     </form>
   `;
   document.getElementById('to-register').onclick = () => window.location.hash = '#register';

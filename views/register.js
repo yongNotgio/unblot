@@ -6,11 +6,11 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export function renderRegister(dom) {
   dom.app.innerHTML = `
-    <form id="register-form" class="max-w-md mx-auto p-6 bg-white rounded-lg shadow flex flex-col gap-4">
-      <h2 class="text-2xl font-bold mb-2 text-center">Register</h2>
-      <input type="email" id="register-email" class="rounded-lg border px-3 py-2" placeholder="Email" required />
-      <input type="password" id="register-password" class="rounded-lg border px-3 py-2" placeholder="Password" required />
-      <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold">Register</button>
+    <form id="register-form" class="cozy-card flex flex-col gap-4" style="max-width: 400px; margin: 0 auto;">
+      <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Register</h2>
+      <input type="email" id="register-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
+      <input type="password" id="register-password" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Password" required />
+      <button type="submit" class="nav-btn">Register</button>
       <button type="button" id="to-login" class="text-blue-600 underline">Already have an account? Login</button>
     </form>
   `;

@@ -6,10 +6,10 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export function renderReset(dom) {
   dom.app.innerHTML = `
-    <form id="reset-form" class="max-w-md mx-auto p-6 bg-white rounded-lg shadow flex flex-col gap-4">
-      <h2 class="text-2xl font-bold mb-2 text-center">Reset Password</h2>
-      <input type="email" id="reset-email" class="rounded-lg border px-3 py-2" placeholder="Email" required />
-      <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold">Send Reset Link</button>
+    <form id="reset-form" class="cozy-card flex flex-col gap-4" style="max-width: 400px; margin: 0 auto;">
+      <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Reset Password</h2>
+      <input type="email" id="reset-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
+      <button type="submit" class="nav-btn">Send Reset Link</button>
       <button type="button" id="to-login" class="text-blue-600 underline">Back to Login</button>
     </form>
   `;
