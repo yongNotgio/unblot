@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poetry Share</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <!-- Load .env values into window for browser modules -->
+  <script src="./env.loader.js"></script>
+  <!-- Supabase JS via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- Navigation -->
+  <nav class="flex justify-between items-center p-4 bg-white shadow">
+    <div class="font-bold text-xl">PiyaManhid</div>
+    <div class="flex gap-4">
+      <button id="nav-login" class="text-blue-600">Login</button>
+      <button id="nav-register" class="text-blue-600">Register</button>
+      <button id="nav-my-poems" class="text-blue-600">My Poems</button>
+      <button id="nav-add-poem" class="text-blue-600">Add Poem</button>
+      <button id="nav-logout" class="text-red-600">Logout</button>
+      <span id="current-user-id" class="ml-2 text-gray-500"></span>
+    </div>
+  </nav>
+
+  <!-- Loading Indicator -->
+  <div id="loading-indicator" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 hidden">
+    <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-bg" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div id="modal" class="bg-white p-6 rounded shadow-lg">
+      <div id="modal-message" class="mb-4"></div>
+      <div id="modal-actions" class="flex justify-end gap-2"></div>
+    </div>
+  </div>
+
+  <!-- Main Content Container for App -->
+  <main id="app" class="flex-1 flex flex-col items-center py-8 px-2 sm:px-0"></main>
+
+  <!-- Poetry Share App Modules -->
+  <script type="module" src="./env.js"></script>
+  <script type="module" src="./dom.js"></script>
+  <script type="module" src="./utils.js"></script>
+  <script type="module" src="./auth.js"></script>
+  <script type="module" src="./router.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
