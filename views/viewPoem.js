@@ -66,11 +66,31 @@ export async function renderViewPoem(dom, poemId) {
       }
     };
     // Share button
+    let exportPoemAsImage;
+    import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
     document.getElementById('share-btn').onclick = () => {
       const url = window.location.origin + '/#view-poem/' + poemId;
-      navigator.clipboard.writeText(url).then(() => {
-        utils.showToast(dom, 'Link copied!');
-      });
+      utils.showModal(dom, 'Share this poem', [
+        {
+          label: 'Copy Link',
+          class: 'nav-btn px-2 py-1 text-xs',
+          onClick: () => {
+            navigator.clipboard.writeText(url);
+            utils.showToast(dom, 'Link copied!');
+            utils.hideModal(dom);
+          }
+        },
+        {
+          label: 'Download as Image',
+          class: 'nav-btn px-2 py-1 text-xs',
+          onClick: async () => {
+            utils.hideModal(dom);
+            setTimeout(async () => {
+              if (exportPoemAsImage) await exportPoemAsImage(poemId);
+            }, 300);
+          }
+        }
+      ]);
     };
     // Edit/Delete buttons
     if (currentUser && currentUser.id === poem.user_id) {
