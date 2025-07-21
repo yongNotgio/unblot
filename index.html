@@ -95,10 +95,14 @@
 <body class="bg-gray-50 min-h-screen flex flex-col" style="min-height: 100vh;">
   <!-- Navigation -->
   <nav class="flex justify-between items-center p-4">
-    <div id="nav-title" class="nav-title flex items-center gap-2" style="cursor:pointer;">
-      <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
-      AnoTitle?
+    <div id="nav-title" class="nav-title flex flex-col items-start gap-0" style="cursor:pointer;">
+      <div class="flex items-center gap-2">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+        <strong>Unblot</strong>
+      </div>
+      <div class="text-xs italic text-blue-700 ml-10" style="font-family: 'EB Garamond', serif;">For the words that won't disappear.</div>
     </div>
+    
     <div class="flex gap-3">
       <button id="nav-login" class="nav-btn">Login</button>
       <button id="nav-register" class="nav-btn">Register</button>
@@ -139,9 +143,11 @@
   </main>
 
   <!-- Footer -->
-  <footer class="w-full flex flex-col items-center justify-center py-6 mt-auto" style="background: var(--main-blue-light); border-top: 2px solid #e0e7ff;">
+  <footer class="w-full flex flex-col items-center justify-center py-1 mt-auto" style="background: var(--main-blue-light); border-top: 2px solid #e0e7ff;">
     <div class="text-xl font-serif text-blue-900" style="font-family: 'EB Garamond', serif; letter-spacing: 0.04em;">Unsaid but Written</div>
+    <div class="text-xs italic text-blue-700 ml-1" style="font-family: 'EB Garamond', serif;">For the words that won't disappear.</div>
     <div class="text-xs text-gray-400 mt-1">&copy; 2025 PiyaManhid</div>
+
   </footer>
 
   <!-- Poetry Share App Modules -->

@@ -6,12 +6,12 @@ import { utils } from '../utils.js';
 
 export function renderAddPoem(dom) {
   if (!currentUser) {
-    dom.app.innerHTML = `<div class="text-center text-lg mt-12">You must be logged in to add a thought.</div>`;
+    dom.app.innerHTML = `<div class="text-center text-lg mt-12">You must be logged in to add a poem.</div>`;
     return;
   }
   dom.app.innerHTML = `
     <form id="add-poem-form" class="cozy-card flex flex-col gap-5 border border-blue-100 shadow-lg bg-white/90" style="max-width: 520px; margin: 2.5em auto 0 auto;">
-      <h2 class="text-3xl font-bold mb-0 text-center text-blue-800" style="font-family: 'EB Garamond', serif;">Add a new thought</h2>
+      <h2 class="text-3xl font-bold mb-0 text-center text-blue-800" style="font-family: 'EB Garamond', serif;">Add a new poem</h2>
       <div class="text-center text-gray-500 text-base mb-2" style="font-family: 'Quicksand', sans-serif;">Share your thoughts, feelings, or stories in verse.</div>
       <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-lg font-serif" placeholder="Title" required style="font-family: 'EB Garamond', serif;" />
       <textarea id="poem-content" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-base font-serif" placeholder="Your thoughts..." rows="7" required style="font-family: 'EB Garamond', serif;"></textarea>
