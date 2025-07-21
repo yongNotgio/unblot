@@ -9,6 +9,7 @@ export const dom = {
   navLogin: document.getElementById('nav-login'),
   navRegister: document.getElementById('nav-register'),
   navLogout: document.getElementById('nav-logout'),
+  navDiscover: document.getElementById('nav-discover'),
   navMyPoems: document.getElementById('nav-my-poems'),
   navAddPoem: document.getElementById('nav-add-poem'),
   currentUserId: document.getElementById('current-user-id'),

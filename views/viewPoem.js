@@ -28,7 +28,7 @@ export async function renderViewPoem(dom, poemId) {
       </div>
       <div class="mb-2 text-gray-600">Views: ${poem.views_count + 1}</div>
       <div class="mb-4 whitespace-pre-wrap">${utils.escapeHTML(poem.content)}</div>
-      <div class="mb-4 text-sm text-gray-500">Tags: ${utils.tagsToString(poem.tags)}</div>
+      <div class="mb-4 text-sm text-gray-500">${utils.tagsToString(poem.tags)}</div>
       <div class="flex gap-2 mb-4">
         <button id="like-btn" class="rounded-lg px-4 py-2 font-semibold ${userLiked ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-800'}">❤️ Like (${likeCount})</button>
         <button id="share-btn" class="rounded-lg px-4 py-2 font-semibold bg-blue-200 text-blue-800">🔗 Share</button>

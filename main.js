@@ -11,6 +11,7 @@ import { renderMyPoems } from './views/myPoems.js';
 import { renderAddPoem } from './views/addPoem.js';
 import { renderViewPoem } from './views/viewPoem.js';
 import { renderEditPoem } from './views/editPoem.js';
+import { renderDiscover } from './views/discover.js';
 
 // --- ENVIRONMENT VARIABLES ---
 const SUPABASE_URL = 'https://ioflunfjwnirkakrsxuw.supabase.co';
@@ -25,11 +26,15 @@ const routes = {
   '#login': async () => { renderLogin(dom); },
   '#register': async () => { renderRegister(dom); },
   '#reset': async () => { renderReset(dom); },
+  '#discover': async () => { renderDiscover(dom); },
   '#my-poems': async () => { renderMyPoems(dom); },
   '#add-poem': async () => { renderAddPoem(dom); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
   '#edit-poem': async (id) => { renderEditPoem(dom, id); },
 };
+
+// --- DISCOVER TAB HANDLER ---
+dom.navDiscover.onclick = (e) => { e.preventDefault(); window.location.hash = '#discover'; };
 
 // --- ROUTER ---
 const { navigate, routeHandler } = setupRouter(routes, supabase);
