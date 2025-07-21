@@ -6,18 +6,19 @@ import { utils } from '../utils.js';
 
 export function renderAddPoem(dom) {
   if (!currentUser) {
-    dom.app.innerHTML = `<div class="text-center text-lg">You must be logged in to add a poem.</div>`;
+    dom.app.innerHTML = `<div class="text-center text-lg mt-12">You must be logged in to add a thought.</div>`;
     return;
   }
   dom.app.innerHTML = `
-    <form id="add-poem-form" class="cozy-card flex flex-col gap-4" style="max-width: 480px; margin: 0 auto;">
-      <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Add New Poem</h2>
-      <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Title" required style="font-family: 'EB Garamond', serif; font-size: 1.1em;" />
-      <textarea id="poem-content" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Poem content" rows="6" required style="font-family: 'EB Garamond', serif; font-size: 1.08em;"></textarea>
-      <input type="text" id="poem-tags" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Tags (comma separated)" style="font-size: 1em;" />
-      <div class="flex gap-2">
-        <button type="submit" class="nav-btn flex-1">Add Poem</button>
-        <button type="button" id="cancel-btn" class="nav-btn flex-1" style="background: #f1f5f9; color: #64748b;">Cancel</button>
+    <form id="add-poem-form" class="cozy-card flex flex-col gap-5 border border-blue-100 shadow-lg bg-white/90" style="max-width: 520px; margin: 2.5em auto 0 auto;">
+      <h2 class="text-3xl font-bold mb-0 text-center text-blue-800" style="font-family: 'EB Garamond', serif;">Add a new thought</h2>
+      <div class="text-center text-gray-500 text-base mb-2" style="font-family: 'Quicksand', sans-serif;">Share your thoughts, feelings, or stories in verse.</div>
+      <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-lg font-serif" placeholder="Title" required style="font-family: 'EB Garamond', serif;" />
+      <textarea id="poem-content" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-base font-serif" placeholder="Your thoughts..." rows="7" required style="font-family: 'EB Garamond', serif;"></textarea>
+      <input type="text" id="poem-tags" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-base" placeholder="Tags (comma separated)" style="font-family: 'Quicksand', sans-serif;" />
+      <div class="flex gap-3 mt-2">
+        <button type="submit" class="nav-btn flex-1 text-lg">Add Thought</button>
+        <button type="button" id="cancel-btn" class="nav-btn flex-1 bg-gray-100 text-blue-700 border border-blue-100 hover:bg-blue-100" style="color: #64748b;">Cancel</button>
       </div>
     </form>
   `;
