@@ -190,15 +190,23 @@ export async function renderHome(dom) {
           // Comment form
           const commentForm = dom.app.querySelector(`.comment-form[data-id='${poem.id}']`);
           if (commentForm) {
-            commentForm.onsubmit = async (e) => {
-              e.preventDefault();
-              const input = commentForm.querySelector('.comment-input');
-              const text = input.value.trim();
-              if (!text) return;
+          commentForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const input = commentForm.querySelector('.comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            try {
+              if (!currentUser || !currentUser.id) {
+                utils.showModal(dom, 'Login to comment on poems!');
+                return;
+              }
               await addComment({ poem_id: poem.id, user_id: currentUser.id, comment_text: text });
               input.value = '';
               await renderComments();
-            };
+            } catch (err) {
+              utils.showModal(dom, 'Login to comment on poems!');
+            }
+          };
           }
         });
       });
