@@ -104,13 +104,16 @@
         margin-left: 0.5em;
       }
       .nav-actions {
-        display: none !important;
-      }
-      #side-panel.open {
-        transform: translateX(0);
-      }
-      #side-panel {
-        transform: translateX(-100%);
+        position: absolute;
+        right: 1rem;
+        top: 3.5rem;
+        background: #fff;
+        box-shadow: 0 2px 8px 0 rgba(37,99,235,0.10);
+        border-radius: 0.7em;
+        flex-direction: column;
+        gap: 0.5em;
+        z-index: 100;
+        display: none;
       }
     }
     @media (min-width: 701px) {
@@ -157,7 +160,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col" style="min-height: 100vh;">
   <!-- Navigation -->
-  <nav class="flex justify-between items-center p-4 relative">
+  <nav class="flex justify-between items-center p-4 fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-blue-100 to-white shadow border-b-2 border-blue-100" style="background: linear-gradient(90deg, var(--main-blue-light) 0%, #fff 100%);">
     <div id="nav-title" class="nav-title flex flex-col items-start gap-0" style="cursor:pointer;">
       <div class="flex items-center gap-2">
         <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
@@ -166,12 +169,12 @@
       <div class="text-xs italic text-blue-700 ml-10 header-tagline" style="font-family: 'EB Garamond', serif;">For the words that won't disappear.</div>
     </div>
     <!-- Hamburger for mobile -->
-    <button class="hamburger flex flex-col justify-center items-center w-10 h-10 bg-transparent border-none cursor-pointer" aria-label="Open navigation" id="hamburger-menu" style="margin-left:auto;">
+    <button class="hamburger flex flex-col justify-center items-center w-10 h-10 bg-transparent border-none cursor-pointer md:hidden" aria-label="Open navigation" id="hamburger-menu" style="margin-left:auto;">
       <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
       <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
       <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
     </button>
-    <div class="nav-actions flex gap-3" id="nav-actions">
+    <div class="nav-actions flex gap-3 flex-col md:flex-row absolute md:static right-4 top-16 bg-white md:bg-transparent shadow md:shadow-none rounded md:rounded-none p-4 md:p-0 transition-all duration-300 ease-in-out" id="nav-actions" style="display:none;">
       <button id="nav-login" class="nav-btn">Login</button>
       <button id="nav-register" class="nav-btn">Register</button>
       <button id="nav-discover" class="nav-btn">Discover</button>
@@ -180,17 +183,7 @@
       <button id="nav-logout" class="nav-btn" style="color:#dc2626;">Logout</button>
       <span id="current-user-id" class="ml-2 text-gray-500" style="display:none;"></span>
     </div>
-    <!-- Collapsible side panel for mobile nav -->
-    <div id="side-panel" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out" style="max-width:80vw;">
-      <div class="flex flex-col p-6 gap-2" id="side-panel-options">
-        <button id="side-login" class="nav-btn side-nav-btn">Login</button>
-        <button id="side-register" class="nav-btn side-nav-btn">Register</button>
-        <button id="side-discover" class="nav-btn side-nav-btn">Discover</button>
-        <button id="side-my-poems" class="nav-btn side-nav-btn">By You</button>
-        <button id="side-add-poem" class="nav-btn side-nav-btn">Add Poem</button>
-        <button id="side-logout" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
-      </div>
-    </div>
+    <!-- Removed side-panel for mobile nav -->
   </nav>
 
   <!-- Loading Indicator -->
@@ -217,7 +210,7 @@
   </div>
 
   <!-- Main Content Container for App -->
-  <main class="flex-1 flex flex-col">
+  <main class="flex-1 flex flex-col" style="padding-top:5.5rem;">
     <div id="app" class="flex flex-col items-center justify-center w-full h-full py-8 px-2 sm:px-0" style="max-width:700px; margin:0 auto;"></div>
   </main>
 
@@ -245,79 +238,32 @@
           window.location.hash = '';
         });
       }
-      // Hamburger menu toggle for mobile (side panel)
+      // Hamburger menu toggle for mobile (show/hide nav actions)
       const hamburger = document.getElementById('hamburger-menu');
-      const sidePanel = document.getElementById('side-panel');
-      const sidePanelOptions = document.getElementById('side-panel-options');
-      // Simulate user login state (replace with your actual logic)
-      let isLoggedIn = false;
-      if (window.localStorage.getItem('user_id')) {
-        isLoggedIn = true;
-      }
-      function updateLoginState() {
-        isLoggedIn = !!window.localStorage.getItem('user_id');
-      }
-      function updateSidePanelOptions() {
-        updateLoginState();
-        const loginBtn = document.getElementById('side-login');
-        const registerBtn = document.getElementById('side-register');
-        const logoutBtn = document.getElementById('side-logout');
-        if (isLoggedIn) {
-          loginBtn.style.display = 'none';
-          registerBtn.style.display = 'none';
-          logoutBtn.style.display = '';
+      const navActions = document.getElementById('nav-actions');
+      function showNavActions(show) {
+        if (window.innerWidth <= 700) {
+          navActions.style.display = show ? 'flex' : 'none';
         } else {
-          loginBtn.style.display = '';
-          registerBtn.style.display = '';
-          logoutBtn.style.display = 'none';
+          navActions.style.display = 'flex';
         }
       }
-      updateSidePanelOptions();
-      function setActiveSideNavBtn(hash) {
-        updateLoginState();
-        Array.from(sidePanelOptions.querySelectorAll('.side-nav-btn')).forEach(btn => {
-          btn.classList.remove('active');
-        });
-        if (hash === 'login' && !isLoggedIn) document.getElementById('side-login').classList.add('active');
-        if (hash === 'register' && !isLoggedIn) document.getElementById('side-register').classList.add('active');
-        if (hash === 'discover') document.getElementById('side-discover').classList.add('active');
-        if (hash === 'my-poems') document.getElementById('side-my-poems').classList.add('active');
-        if (hash === 'add-poem') document.getElementById('side-add-poem').classList.add('active');
-      }
-      window.addEventListener('hashchange', function() {
-        updateSidePanelOptions();
-        setActiveSideNavBtn(window.location.hash.replace('#',''));
-      });
-      setActiveSideNavBtn(window.location.hash.replace('#',''));
-      if (hamburger && sidePanel) {
-        hamburger.addEventListener('click', function() {
-          updateSidePanelOptions();
-          setActiveSideNavBtn(window.location.hash.replace('#',''));
-          sidePanel.classList.add('open');
-        });
-        // Blur/Click outside closes side panel
-        document.addEventListener('mousedown', function(e) {
-          if (window.innerWidth <= 700 && sidePanel.classList.contains('open')) {
-            if (!sidePanel.contains(e.target) && !hamburger.contains(e.target)) {
-              sidePanel.classList.remove('open');
-            }
-          }
-        });
-        // Navigation actions for side panel
-        document.getElementById('side-login').addEventListener('click', function() { window.location.hash = 'login'; sidePanel.classList.remove('open'); });
-        document.getElementById('side-register').addEventListener('click', function() { window.location.hash = 'register'; sidePanel.classList.remove('open'); });
-        document.getElementById('side-discover').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); });
-        document.getElementById('side-my-poems').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); });
-        document.getElementById('side-add-poem').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); });
-        document.getElementById('side-logout').addEventListener('click', function() { window.location.hash = 'logout'; sidePanel.classList.remove('open'); });
-      }
-      // Call updateSidePanelOptions on login/logout events
-      window.addEventListener('storage', function(e) {
-        if (e.key === 'user_id') {
-          updateSidePanelOptions();
-          setActiveSideNavBtn(window.location.hash.replace('#',''));
+      hamburger.addEventListener('click', function() {
+        if (navActions.style.display === 'flex') {
+          navActions.style.display = 'none';
+        } else {
+          navActions.style.display = 'flex';
         }
       });
+      window.addEventListener('resize', function() { showNavActions(false); });
+      showNavActions(false);
+      // Navigation actions for nav buttons
+      document.getElementById('nav-login').addEventListener('click', function() { window.location.hash = 'login'; showNavActions(false); });
+      document.getElementById('nav-register').addEventListener('click', function() { window.location.hash = 'register'; showNavActions(false); });
+      document.getElementById('nav-discover').addEventListener('click', function() { window.location.hash = 'discover'; showNavActions(false); });
+      document.getElementById('nav-my-poems').addEventListener('click', function() { window.location.hash = 'my-poems'; showNavActions(false); });
+      document.getElementById('nav-add-poem').addEventListener('click', function() { window.location.hash = 'add-poem'; showNavActions(false); });
+      document.getElementById('nav-logout').addEventListener('click', function() { window.location.hash = 'logout'; showNavActions(false); });
     });
   </script>
 </body>
