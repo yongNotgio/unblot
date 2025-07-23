@@ -11,7 +11,7 @@ export function renderRegister(dom) {
       <input type="email" id="register-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
       <input type="password" id="register-password" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Password" required />
       <button type="submit" class="nav-btn">Register</button>
-      <button type="button" id="to-login" class="text-blue-600 underline">Already have an account? Login</button>
+      <button type="button" id="to-login" class="text-blue-600 ">Already have an account? Login</button>
     </form>
   `;
   document.getElementById('to-login').onclick = () => window.location.hash = '#login';
