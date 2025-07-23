@@ -20,6 +20,7 @@ export function updateNav() {
     dom.navAddPoem.classList.remove('hidden');
     dom.currentUserId.textContent = `User: ${currentUser.id}`;
     dom.currentUserId.classList.remove('hidden');
+    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(true);
   } else {
     dom.navLogin.classList.remove('hidden');
     dom.navRegister.classList.remove('hidden');
@@ -27,5 +28,6 @@ export function updateNav() {
     dom.navMyPoems.classList.add('hidden');
     dom.navAddPoem.classList.add('hidden');
     dom.currentUserId.classList.add('hidden');
+    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(false);
   }
 }

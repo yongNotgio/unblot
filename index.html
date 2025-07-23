@@ -203,12 +203,12 @@
     <!-- Side panel for mobile nav -->
     <div id="side-panel" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between md:hidden" style="max-width:80vw;">
       <div class="flex flex-col gap-0 pt-12">
-        <button id="side-login" class="nav-btn side-nav-btn">Login</button>
-        <button id="side-register" class="nav-btn side-nav-btn">Register</button>
-        <button id="side-discover" class="nav-btn side-nav-btn">Discover</button>
-        <button id="side-my-poems" class="nav-btn side-nav-btn">By You</button>
-        <button id="side-add-poem" class="nav-btn side-nav-btn">Add Poem</button>
-        <button id="side-logout" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
+        <button id="nav-login-mobile" class="nav-btn side-nav-btn">Login</button>
+        <button id="nav-register-mobile" class="nav-btn side-nav-btn">Register</button>
+        <button id="nav-discover-mobile" class="nav-btn side-nav-btn">Discover</button>
+        <button id="nav-my-poems-mobile" class="nav-btn side-nav-btn">By You</button>
+        <button id="nav-add-poem-mobile" class="nav-btn side-nav-btn">Add Poem</button>
+        <button id="nav-logout-mobile" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
       </div>
       <div class="flex flex-col items-center mb-8">
         <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle mb-2"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
@@ -261,6 +261,28 @@
   <script type="module" src="./router.js"></script>
   <script type="module" src="./main.js"></script>
   <script>
+    // Utility to show/hide nav buttons based on login state
+    window.setNavAuthState = function setNavAuthState(isLoggedIn) {
+      // Mobile nav only (desktop uses hidden class via updateNav)
+      const show = el => el.classList.remove('hidden');
+      const hide = el => el.classList.add('hidden');
+      // Always show discover
+      show(document.getElementById('nav-discover-mobile'));
+      if (isLoggedIn) {
+        hide(document.getElementById('nav-login-mobile'));
+        hide(document.getElementById('nav-register-mobile'));
+        show(document.getElementById('nav-my-poems-mobile'));
+        show(document.getElementById('nav-add-poem-mobile'));
+        show(document.getElementById('nav-logout-mobile'));
+      } else {
+        show(document.getElementById('nav-login-mobile'));
+        show(document.getElementById('nav-register-mobile'));
+        hide(document.getElementById('nav-my-poems-mobile'));
+        hide(document.getElementById('nav-add-poem-mobile'));
+        hide(document.getElementById('nav-logout-mobile'));
+      }
+    }
+
     // Clickable nav title/logo to go to homepage
     document.addEventListener('DOMContentLoaded', function() {
       const navTitle = document.getElementById('nav-title');
@@ -286,13 +308,13 @@
           }
         }
       });
-      // Navigation actions for side panel
-      document.getElementById('side-login').addEventListener('click', function() { window.location.hash = 'login'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('side-register').addEventListener('click', function() { window.location.hash = 'register'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('side-discover').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('side-my-poems').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('side-add-poem').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('side-logout').addEventListener('click', function() { window.location.hash = 'logout'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      // Navigation actions for side panel (mobile)
+      document.getElementById('nav-login-mobile').addEventListener('click', function() { window.location.hash = 'login'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-register-mobile').addEventListener('click', function() { window.location.hash = 'register'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-discover-mobile').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-my-poems-mobile').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-add-poem-mobile').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-logout-mobile').addEventListener('click', function() { window.location.hash = 'logout'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
       // Hide side panel on resize
       window.addEventListener('resize', function() {
         if (window.innerWidth > 700) {
@@ -300,6 +322,7 @@
           sidePanel.style.transform = '';
         }
       });
+      // setNavAuthState is now called automatically by updateNav in auth.js
     });
   </script>
 </body>
