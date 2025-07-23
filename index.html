@@ -104,16 +104,33 @@
         margin-left: 0.5em;
       }
       .nav-actions {
-        position: absolute;
-        right: 1rem;
-        top: 3.5rem;
+        display: none !important;
+      }
+      #side-panel {
+        box-shadow: 0 8px 32px 0 rgba(37,99,235,0.10);
+        border-radius: 0 1.5em 1.5em 0;
+        min-width: 220px;
+        max-width: 80vw;
+        width: 70vw;
         background: #fff;
-        box-shadow: 0 2px 8px 0 rgba(37,99,235,0.10);
-        border-radius: 0.7em;
-        flex-direction: column;
-        gap: 0.5em;
-        z-index: 100;
-        display: none;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      #side-panel .side-nav-btn {
+        background: none;
+        color: #2563eb;
+        font-size: 1.1rem;
+        text-align: left;
+        padding: 1rem 2rem;
+        border-radius: 0;
+        transition: background 0.2s;
+      }
+      #side-panel .side-nav-btn.active, #side-panel .side-nav-btn:focus, #side-panel .side-nav-btn:hover {
+        background: #e0e7ff !important;
+        color: #2563eb !important;
+      }
+      #side-panel .font-bold {
+        font-family: 'EB Garamond', serif;
       }
     }
     @media (min-width: 701px) {
@@ -183,7 +200,21 @@
       <button id="nav-logout" class="nav-btn" style="color:#dc2626;">Logout</button>
       <span id="current-user-id" class="ml-2 text-gray-500" style="display:none;"></span>
     </div>
-    <!-- Removed side-panel for mobile nav -->
+    <!-- Side panel for mobile nav -->
+    <div id="side-panel" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between md:hidden" style="max-width:80vw;">
+      <div class="flex flex-col gap-0 pt-12">
+        <button id="side-login" class="nav-btn side-nav-btn">Login</button>
+        <button id="side-register" class="nav-btn side-nav-btn">Register</button>
+        <button id="side-discover" class="nav-btn side-nav-btn">Discover</button>
+        <button id="side-my-poems" class="nav-btn side-nav-btn">By You</button>
+        <button id="side-add-poem" class="nav-btn side-nav-btn">Add Poem</button>
+        <button id="side-logout" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
+      </div>
+      <div class="flex flex-col items-center mb-8">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle mb-2"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+        <div class="font-bold text-blue-700 text-lg">Unblot</div>
+      </div>
+    </div>
   </nav>
 
   <!-- Loading Indicator -->
@@ -238,32 +269,37 @@
           window.location.hash = '';
         });
       }
-      // Hamburger menu toggle for mobile (show/hide nav actions)
+      // Hamburger menu toggle for mobile (side panel)
       const hamburger = document.getElementById('hamburger-menu');
-      const navActions = document.getElementById('nav-actions');
-      function showNavActions(show) {
-        if (window.innerWidth <= 700) {
-          navActions.style.display = show ? 'flex' : 'none';
-        } else {
-          navActions.style.display = 'flex';
-        }
-      }
+      const sidePanel = document.getElementById('side-panel');
+      // Open side panel
       hamburger.addEventListener('click', function() {
-        if (navActions.style.display === 'flex') {
-          navActions.style.display = 'none';
-        } else {
-          navActions.style.display = 'flex';
+        sidePanel.classList.add('open');
+        sidePanel.style.transform = 'translateX(0)';
+      });
+      // Close side panel on click outside or swipe
+      document.addEventListener('mousedown', function(e) {
+        if (window.innerWidth <= 700 && sidePanel.classList.contains('open')) {
+          if (!sidePanel.contains(e.target) && !hamburger.contains(e.target)) {
+            sidePanel.classList.remove('open');
+            sidePanel.style.transform = '';
+          }
         }
       });
-      window.addEventListener('resize', function() { showNavActions(false); });
-      showNavActions(false);
-      // Navigation actions for nav buttons
-      document.getElementById('nav-login').addEventListener('click', function() { window.location.hash = 'login'; showNavActions(false); });
-      document.getElementById('nav-register').addEventListener('click', function() { window.location.hash = 'register'; showNavActions(false); });
-      document.getElementById('nav-discover').addEventListener('click', function() { window.location.hash = 'discover'; showNavActions(false); });
-      document.getElementById('nav-my-poems').addEventListener('click', function() { window.location.hash = 'my-poems'; showNavActions(false); });
-      document.getElementById('nav-add-poem').addEventListener('click', function() { window.location.hash = 'add-poem'; showNavActions(false); });
-      document.getElementById('nav-logout').addEventListener('click', function() { window.location.hash = 'logout'; showNavActions(false); });
+      // Navigation actions for side panel
+      document.getElementById('side-login').addEventListener('click', function() { window.location.hash = 'login'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('side-register').addEventListener('click', function() { window.location.hash = 'register'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('side-discover').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('side-my-poems').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('side-add-poem').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('side-logout').addEventListener('click', function() { window.location.hash = 'logout'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      // Hide side panel on resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 700) {
+          sidePanel.classList.remove('open');
+          sidePanel.style.transform = '';
+        }
+      });
     });
   </script>
 </body>
