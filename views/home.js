@@ -146,29 +146,29 @@ export async function renderHome(dom) {
 
           // Like and comment logic
           // Fetch and render comments
-const commentsList = dom.app.querySelector(`#comments-list-${poem.id}`);
-const commentsSection = dom.app.querySelector(`#comments-section-${poem.id}`);
-const toggleCommentsBtn = dom.app.querySelector(`.toggle-comments-btn[data-id='${poem.id}']`);
-let commentsVisible = false;
-let comments = [];
+        const commentsList = dom.app.querySelector(`#comments-list-${poem.id}`);
+        const commentsSection = dom.app.querySelector(`#comments-section-${poem.id}`);
+        const toggleCommentsBtn = dom.app.querySelector(`.toggle-comments-btn[data-id='${poem.id}']`);
+        let commentsVisible = false;
+        let comments = [];
 
-async function renderComments() {
-  comments = await fetchComments(poem.id);
-  commentsList.innerHTML = comments.map(c => `
-    <li class="flex flex-col gap-1 py-2">
-      <div class="text-xs text-gray-400">${utils.formatDate(c.created_at)}</div>
-      <div class="flex items-start gap-2">
-        <span class="font-semibold">${c.user_id.slice(0, 8)}</span>:
-        <span class="flex-1">${utils.escapeHTML(c.comment_text)}</span>
-      </div>
-      ${currentUser && currentUser.id === c.user_id ? `
-        <div class="flex gap-2 pl-20">
-          <button class="edit-comment-btn text-xs text-blue-600" data-cid="${c.id}" data-pid="${poem.id}">Edit</button>
-          <button class="delete-comment-btn text-xs text-red-600" data-cid="${c.id}" data-pid="${poem.id}">Delete</button>
-        </div>
-      ` : ''}
-    </li>
-  `).join('');
+          async function renderComments() {
+            comments = await fetchComments(poem.id);
+            commentsList.innerHTML = comments.map(c => `
+              <li class="flex flex-col gap-1 py-2">
+                <div class="text-xs text-gray-400">${utils.formatDate(c.created_at)}</div>
+                <div class="flex items-start gap-2">
+                  <span class="font-semibold">${c.user_id.slice(0, 8)}</span>:
+                  <span class="flex-1">${utils.escapeHTML(c.comment_text)}</span>
+                </div>
+                ${currentUser && currentUser.id === c.user_id ? `
+                  <div class="flex gap-2 pl-20">
+                    <button class="edit-comment-btn text-xs text-blue-600" data-cid="${c.id}" data-pid="${poem.id}">Edit</button>
+                    <button class="delete-comment-btn text-xs text-red-600" data-cid="${c.id}" data-pid="${poem.id}">Delete</button>
+                  </div>
+                ` : ''}
+              </li>
+            `).join('');
 
             // Attach edit/delete handlers
             commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
