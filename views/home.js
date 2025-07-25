@@ -37,6 +37,7 @@ export async function renderHome(dom) {
           <div class="text-gray-700 mb-2 poem-content" data-id="${poem.id}" style="font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7;">
             <span style="white-space: pre-line;">${shortContent}${isLong ? '... ' : ''}${isLong ? `<button class=\"see-more-btn text-blue-600 ml-0\" data-id=\"${poem.id}\" style=\"font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7; border:none;background:none;padding:0;\">see more</button>` : ''}</span>
           </div>
+          <div class="mb-4 text-sm text-gray-500">Tags: ${utils.tagsToString(poem.tags)}</div>
           <div class="flex gap-2 mb-2">
             <button class="like-btn rounded px-2 py-1 text-sm font-semibold bg-gray-200 text-gray-800" data-id="${poem.id}">❤️ Like</button>
             <span class="like-count text-xs text-gray-600" id="like-count-${poem.id}"></span>
