@@ -45,21 +45,22 @@ dom.navRegister.onclick = (e) => { e.preventDefault(); window.location.hash = '#
 dom.navMyPoems.onclick = (e) => { e.preventDefault(); window.location.hash = '#my-poems'; };
 dom.navAddPoem.onclick = (e) => { e.preventDefault(); window.location.hash = '#add-poem'; };
 dom.currentUserId.onclick = (e) => { e.preventDefault(); window.location.hash = '#my-poems'; };
-dom.navLogout.onclick = async (e) => {
-  e.preventDefault();
+export async function handleLogout(e) {
+  if (e) e.preventDefault();
   utils.showLoading(dom, true);
   try {
     await supabase.auth.signOut();
     utils.showToast(dom, 'Logged out!');
     setTimeout(() => window.location.hash = '#home', 1000);
-  } catch (e) {
-    utils.showModal(dom, 'Logout failed: ' + (e.message || e), [
+  } catch (err) {
+    utils.showModal(dom, 'Logout failed: ' + (err.message || err), [
       { label: 'OK', className: 'bg-blue-600 text-white' }
     ]);
   } finally {
     utils.showLoading(dom, false);
   }
-};
+}
+dom.navLogout.onclick = handleLogout;
 
 dom.modalBg.onclick = e => { if (e.target === dom.modalBg) utils.hideModal(dom); };
 

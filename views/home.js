@@ -17,8 +17,8 @@ export async function renderHome(dom) {
       html += poems.map(poem => `
         <li class="p-6 bg-white rounded-lg shadow flex flex-col gap-2" data-poem-id="${poem.id}">
           <div class="flex justify-between items-center mb-1">
-            <div class="text-xl font-semibold text-blue-700">${utils.escapeHTML(poem.title)}</div>
-            <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
+          <a href="#view-poem/${poem.id}" class="poem-title-link text-xl font-semibold text-blue-700 hover:underline focus:underline" style="cursor:pointer;" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
+          <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
           </div>
           <div class="text-xs text-gray-400 mb-2">By: <span class="font-mono">${poem.user_id.slice(0, 8)}</span></div>
           <div class="text-gray-700 whitespace-pre-line mb-2">${utils.escapeHTML(poem.content)}</div>
@@ -36,8 +36,20 @@ export async function renderHome(dom) {
               <button type="submit" class="nav-btn px-2 py-1 text-xs">Post</button>
             </form>
           </div>
+          
         </li>
       `).join('');
+    // Add click handler to poem title links to show only the clicked poem
+    setTimeout(() => {
+      const links = dom.app.querySelectorAll('.poem-title-link');
+      links.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const poemId = link.getAttribute('data-poem-id');
+          window.location.hash = '#view-poem/' + poemId;
+        });
+      });
+    }, 0);
     }
     // Show like and comment counts for each poem
     import('../likes.js').then(({ fetchLikeCount }) => {

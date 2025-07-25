@@ -313,7 +313,22 @@
       document.getElementById('nav-discover-mobile').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
       document.getElementById('nav-my-poems-mobile').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
       document.getElementById('nav-add-poem-mobile').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('nav-logout-mobile').addEventListener('click', function() { window.location.hash = 'logout'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-logout-mobile').addEventListener('click', async function() {
+        try {
+          // Dynamically import the logout logic from main.js
+          const main = await import('./main.js');
+          if (main && typeof main.handleLogout === 'function') {
+            await main.handleLogout();
+          } else {
+            // fallback: go to home
+            window.location.hash = '#home';
+          }
+        } catch (e) {
+          window.location.hash = '#home';
+        }
+        sidePanel.classList.remove('open');
+        sidePanel.style.transform = '';
+      });
       // Hide side panel on resize
       window.addEventListener('resize', function() {
         if (window.innerWidth > 700) {
