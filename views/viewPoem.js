@@ -40,12 +40,26 @@ export async function renderViewPoem(dom, poemId) {
       <div class="mb-4">
         <button id="toggle-comments-btn" class="nav-btn mb-2">💬 Comments (${comments.length})</button>
         <div id="comments-section" class="hidden">
-          <ul class="divide-y mb-2">
-            ${comments.map(c => `<li class="py-2"><span class="font-semibold">${c.user_id.slice(0, 8)}</span>: ${utils.escapeHTML(c.comment_text)} <span class="text-xs text-gray-400">${utils.formatDate(c.created_at)}</span></li>`).join('')}
+          <ul class="comments-list text-sm mb-2" id="comments-list-${poemId}">
+            ${comments.map(c => `
+              <li class="flex flex-col gap-1 py-2">
+                <div class="text-xs text-gray-400">${utils.formatDate(c.created_at)}</div>
+                <div class="flex items-start gap-2">
+                  <span class="font-semibold">${c.user_id.slice(0, 8)}</span>:
+                  <span class="flex-1">${utils.escapeHTML(c.comment_text)}</span>
+                </div>
+                ${(currentUser && currentUser.id === c.user_id) ? `
+                  <div class="flex gap-2 pl-20">
+                    <button class="edit-comment-btn text-xs bg-yellow-100 text-yellow-800 rounded px-2 py-1" data-cid="${c.id}" data-pid="${poemId}">Edit</button>
+                    <button class="delete-comment-btn text-xs bg-red-100 text-red-800 rounded px-2 py-1" data-cid="${c.id}" data-pid="${poemId}">Delete</button>
+                  </div>
+                ` : ''}
+              </li>
+            `).join('')}
           </ul>
           <form id="comment-form" class="flex gap-2 mt-2">
-            <input id="comment-input" class="flex-1 rounded-lg border px-3 py-2" placeholder="Add a comment..." required ${!currentUser ? 'disabled' : ''} />
-            <button type="submit" id="comment-post-btn" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold" ${!currentUser ? 'disabled' : ''}>Post</button>
+            <input id="comment-input" class="comment-input flex-1 rounded border px-2 py-1 text-sm" placeholder="Add a comment..." required ${!currentUser ? 'disabled' : ''} />
+            <button type="submit" id="comment-post-btn" class="nav-btn px-2 py-1 text-xs" ${!currentUser ? 'disabled' : ''}>Post</button>
           </form>
           ${!currentUser ? '<div class="text-gray-500">Login to comment.</div>' : ''}
         </div>
@@ -125,7 +139,8 @@ export async function renderViewPoem(dom, poemId) {
     }
     // Always start collapsed when rendering
     commentsSection.classList.add('hidden');
-    // Comment form
+    // Comment form and edit/delete logic
+    const commentsList = document.getElementById(`comments-list-${poemId}`);
     const commentForm = document.getElementById('comment-form');
     const commentInput = document.getElementById('comment-input');
     const commentPostBtn = document.getElementById('comment-post-btn');
@@ -138,25 +153,60 @@ export async function renderViewPoem(dom, poemId) {
         }
       });
     }
-    if (commentPostBtn) {
-      commentPostBtn.onclick = async (e) => {
+    if (commentForm) {
+      commentForm.onsubmit = async (e) => {
+        e.preventDefault();
         if (!currentUser) {
           utils.showModal(dom, 'Login to comment on poems!');
           return;
         }
-        // Only allow posting if logged in
-        if (commentForm) {
-          e.preventDefault();
-          const text = document.getElementById('comment-input').value.trim();
-          if (!text) return;
-          try {
-            await addComment({ poem_id: poemId, user_id: currentUser.id, comment_text: text });
-            renderViewPoem(dom, poemId); // Refresh
-          } catch (err) {
-            utils.showModal(dom, 'Failed to add comment: ' + (err.message || err));
-          }
+        const text = commentInput.value.trim();
+        if (!text) return;
+        try {
+          await addComment({ poem_id: poemId, user_id: currentUser.id, comment_text: text });
+          renderViewPoem(dom, poemId); // Refresh
+        } catch (err) {
+          utils.showModal(dom, 'Failed to add comment: ' + (err.message || err));
         }
       };
+    }
+    // Edit/Delete comment logic
+    if (commentsList) {
+      commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
+        btn.onclick = () => {
+          const cid = btn.getAttribute('data-cid');
+          const orig = comments.find(c => c.id === cid);
+          if (!orig) return;
+          const editDiv = document.createElement('div');
+          editDiv.innerHTML = `
+            <input class="edit-comment-input border rounded px-2 py-1 text-sm w-full" value="${utils.escapeHTML(orig.comment_text)}" />
+            <button class="save-edit-btn nav-btn px-2 py-1 text-xs">Save</button>
+            <button class="cancel-edit-btn nav-btn px-2 py-1 text-xs">Cancel</button>
+          `;
+          btn.parentElement.appendChild(editDiv);
+          editDiv.querySelector('.save-edit-btn').onclick = async () => {
+            const newText = editDiv.querySelector('.edit-comment-input').value.trim();
+            if (newText && newText !== orig.comment_text) {
+              // You need to import updateComment from comments.js if not already
+              const { updateComment } = await import('../comments.js');
+              await updateComment(cid, newText);
+              renderViewPoem(dom, poemId); // Refresh
+            }
+          };
+          editDiv.querySelector('.cancel-edit-btn').onclick = () => {
+            editDiv.remove();
+          };
+        };
+      });
+      commentsList.querySelectorAll('.delete-comment-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const cid = btn.getAttribute('data-cid');
+          // You need to import deleteComment from comments.js if not already
+          const { deleteComment } = await import('../comments.js');
+          await deleteComment(cid);
+          renderViewPoem(dom, poemId); // Refresh
+        };
+      });
     }
   } catch (err) {
     dom.app.innerHTML = `<div class="text-center text-red-600">Failed to load poem: ${err.message || err}</div>`;
