@@ -21,13 +21,13 @@ export async function renderViewPoem(dom, poemId) {
     let userLiked = false;
     if (currentUser) userLiked = await hasUserLiked(poemId, currentUser.id);
     // Render poem
-    let html = `<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
+    let html = `<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow" data-poem-id="${poemId}">
       <div class="flex justify-between items-center mb-2">
-        <div class="text-2xl font-bold">${utils.escapeHTML(poem.title)}</div>
+        <div class="text-2xl font-bold poem-title-link" style="font-family: 'Quicksand', sans-serif;">${utils.escapeHTML(poem.title)}</div>
         <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
       </div>
       <div class="mb-2 text-gray-600">Views: ${poem.views_count + 1}</div>
-      <div class="mb-4 whitespace-pre-wrap">${utils.escapeHTML(poem.content)}</div>
+      <div class="mb-4 whitespace-pre-wrap poem-content" style="font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7;">${utils.escapeHTML(poem.content)}</div>
       <div class="mb-4 text-sm text-gray-500">${utils.tagsToString(poem.tags)}</div>
       <div class="flex gap-2 mb-4">
         <button id="like-btn" class="rounded-lg px-4 py-2 font-semibold ${userLiked ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-800'}">❤️ Like (${likeCount})</button>
