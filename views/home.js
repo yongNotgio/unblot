@@ -20,14 +20,23 @@ export async function renderHome(dom) {
     if (poems.length === 0) {
       html += `<li class="text-center text-gray-500">No poems found. Be the first to share!</li>`;
     } else {
-      html += poems.map(poem => `
+      html += poems.map(poem => {
+        const content = utils.escapeHTML(poem.content);
+        const isLong = content.length > 500;
+        let shortContent = content;
+        if (isLong) {
+          shortContent = content.slice(0, 500);
+        }
+        return `
         <li class="p-6 bg-white rounded-lg shadow flex flex-col gap-2" data-poem-id="${poem.id}">
           <div class="flex justify-between items-center mb-1">
           <a href="#view-poem/${poem.id}" class="poem-title-link text-xl font-semibold text-blue-700 hover:underline focus:underline" style="cursor:pointer;" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
           </div>
           <div class="text-xs text-gray-400 mb-2">By: <span class="font-mono">${poem.user_id.slice(0, 8)}</span></div>
-          <div class="text-gray-700 whitespace-pre-line mb-2">${utils.escapeHTML(poem.content)}</div>
+          <div class="text-gray-700 mb-2 poem-content" data-id="${poem.id}" style="font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7;">
+            <span style="white-space: pre-line;">${shortContent}${isLong ? '... ' : ''}${isLong ? `<button class=\"see-more-btn text-blue-600 ml-0\" data-id=\"${poem.id}\" style=\"font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7; border:none;background:none;padding:0;\">see more</button>` : ''}</span>
+          </div>
           <div class="flex gap-2 mb-2">
             <button class="like-btn rounded px-2 py-1 text-sm font-semibold bg-gray-200 text-gray-800" data-id="${poem.id}">❤️ Like</button>
             <span class="like-count text-xs text-gray-600" id="like-count-${poem.id}"></span>
@@ -42,9 +51,9 @@ export async function renderHome(dom) {
               <button type="submit" class="nav-btn px-2 py-1 text-xs">Post</button>
             </form>
           </div>
-          
         </li>
-      `).join('');
+      `;
+      }).join('');
     // Add click handler to poem title links to show only the clicked poem
     setTimeout(() => {
       const links = dom.app.querySelectorAll('.poem-title-link');
@@ -55,6 +64,21 @@ export async function renderHome(dom) {
           window.location.hash = '#view-poem/' + poemId;
         });
       });
+      // See more functionality
+            dom.app.querySelectorAll('.see-more-btn').forEach(btn => {
+              btn.addEventListener('click', function(e) {
+                const id = btn.getAttribute('data-id');
+                const poem = poems.find(p => p.id == id);
+                if (!poem) return;
+                const contentDiv = dom.app.querySelector(`.poem-content[data-id='${id}']`);
+                if (contentDiv) {
+                  contentDiv.innerHTML = utils.escapeHTML(poem.content);
+                  contentDiv.style.fontFamily = "'Quicksand', sans-serif";
+                  contentDiv.style.fontSize = "1.15rem";
+                  contentDiv.style.lineHeight = "1.7";
+                }
+              });
+            });
     }, 0);
     }
     // Show like and comment counts for each poem
