@@ -17,19 +17,10 @@ export async function fetchPoems(userId = null) {
       const { data, error } = await query;
       if (error) throw error;
       const search = userId.search.trim().toLowerCase();
-      return data.filter(poem => {
-        // Check title/content
-        if (poem.title.toLowerCase().includes(search) || poem.content.toLowerCase().includes(search)) return true;
-        // Check tags (array or string)
-        if (poem.tags) {
-          if (Array.isArray(poem.tags)) {
-            return poem.tags.some(tag => tag.toLowerCase().includes(search));
-          } else if (typeof poem.tags === 'string') {
-            return poem.tags.toLowerCase().includes(search);
-          }
-        }
-        return false;
-      });
+      return data.filter(poem =>
+        poem.title.toLowerCase().includes(search) ||
+        poem.content.toLowerCase().includes(search)
+      );
     }
   }
   const { data, error } = await query;
