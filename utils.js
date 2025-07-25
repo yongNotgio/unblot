@@ -5,11 +5,14 @@ export const utils = {
   },
   showModal(dom, message, actions = []) {
     dom.modalMessage.textContent = message;
+    dom.modalMessage.style.setProperty('font-family', "'Quicksand', sans-serif", 'important');
+    dom.modalMessage.style.textAlign = 'center';
     dom.modalActions.innerHTML = '';
     actions.forEach(({ label, onClick, className = '' }) => {
       const btn = document.createElement('button');
       btn.textContent = label;
       btn.className = `rounded-lg px-4 py-2 font-semibold ${className}`;
+      btn.style.fontFamily = "'Quicksand', sans-serif";
       btn.onclick = () => {
         utils.hideModal(dom);
         if (onClick) onClick();
@@ -23,6 +26,7 @@ export const utils = {
   },
   showToast(dom, message, duration = 2000) {
     utils.showModal(dom, message);
+    if (dom.modalMessage) dom.modalMessage.style.fontFamily = "'Quicksand', sans-serif";
     setTimeout(() => utils.hideModal(dom), duration);
   },
   parseTags(str) {
