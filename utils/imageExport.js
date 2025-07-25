@@ -19,15 +19,14 @@ export async function exportPoemAsImage(poemId) {
   container.style.maxWidth = '100%';
   // Header: logo and tagline
   container.innerHTML = `
-    <div style="display:flex;align-items:center;gap:1em;margin-bottom:0.5em;">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
-      <span style="font-family:'EB Garamond',serif;font-size:2rem;color:#2563eb;letter-spacing:0.04em;text-shadow:0 2px 8px #e0e7ff;font-weight:bold;">Unblot</span>
+    <div style="display:flex;align-items:center;gap:0.7em;margin-bottom:0.5em;">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+      <span style="font-family:'EB Garamond',serif;font-size:2rem;color:#2563eb;letter-spacing:0.04em;text-shadow:0 2px 8px #e0e7ff;font-weight:bold;display:flex;align-items:center;">Unblot</span>
     </div>
     <div style="font-family:'EB Garamond',serif;font-size:1.1em;color:#2563eb;font-style:italic;margin-bottom:1.5em;">For the words that won't disappear.</div>
     <div style="background:#fff;border-radius:1.2em;box-shadow:0 4px 24px 0 rgba(37,99,235,0.07);padding:1.5em 2em;margin-bottom:1em;">
       <div style="font-family:'EB Garamond',serif;font-size:1.5em;font-weight:bold;color:#2563eb;margin-bottom:0.5em;">${title}</div>
       <div style="font-size:1.15em;line-height:1.7;color:#334155;white-space:pre-line;margin-bottom:1em;">${content}</div>
-      <div style="font-size:0.95em;color:#64748b;margin-bottom:0.5em;">${tags}</div>
     </div>
     <div style="font-size:0.9em;color:#a5b4fc;text-align:right;">unblot.vercel.app</div>
   `;
