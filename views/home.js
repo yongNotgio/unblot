@@ -4,10 +4,16 @@ import { fetchPoems } from '../poems.js';
 import { utils } from '../utils.js';
 
 export async function renderHome(dom) {
+  // Get search query from location hash if present
+  let search = '';
+  if (window.location.hash.startsWith('#discover?q=')) {
+    const q = window.location.hash.split('=')[1];
+    if (q) search = decodeURIComponent(q);
+  }
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poems...</div>`;
   utils.showLoading(dom, true);
   try {
-    const poems = await fetchPoems(); // Fetch all poems, most recent first
+    const poems = search ? await fetchPoems({ search }) : await fetchPoems(); // Fetch all poems or filtered
     let html = `<div class="w-full max-w-2xl mx-auto">
       <div class="font-bold text-2xl mb-4 text-center">The Unsaid</div>
       <ul class="grid gap-6">`;

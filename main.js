@@ -66,3 +66,40 @@ dom.modalBg.onclick = e => { if (e.target === dom.modalBg) utils.hideModal(dom);
 
 // --- INITIAL LOAD ---
 fetchCurrentUser(supabase).then(routeHandler);
+
+// --- SEARCH BAR HANDLER ---
+if (dom.headerSearchForm && dom.headerSearchInput) {
+  dom.headerSearchForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const query = dom.headerSearchInput.value.trim();
+    if (query) {
+      window.location.hash = `#discover?q=${encodeURIComponent(query)}`;
+    }
+  });
+}
+
+// Mobile searchbar expand/collapse
+if (dom.headerSearchIcon && dom.headerSearchFormMobile && dom.headerSearchInputMobile) {
+  dom.headerSearchIcon.addEventListener('click', function() {
+    // Show mobile searchbar, focus input
+    dom.headerSearchFormMobile.style.display = 'flex';
+    dom.headerSearchInputMobile.focus();
+    dom.headerSearchIcon.style.display = 'none';
+  });
+  // Hide mobile searchbar on blur (optional, or add a close button if needed)
+  dom.headerSearchInputMobile.addEventListener('blur', function() {
+    setTimeout(() => {
+      dom.headerSearchFormMobile.style.display = 'none';
+      dom.headerSearchIcon.style.display = 'flex';
+    }, 200);
+  });
+  dom.headerSearchFormMobile.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const query = dom.headerSearchInputMobile.value.trim();
+    if (query) {
+      window.location.hash = `#discover?q=${encodeURIComponent(query)}`;
+      dom.headerSearchFormMobile.style.display = 'none';
+      dom.headerSearchIcon.style.display = 'flex';
+    }
+  });
+}

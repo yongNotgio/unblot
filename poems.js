@@ -8,7 +8,21 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 export async function fetchPoems(userId = null) {
   let query = supabase.from('poems').select('*').order('created_at', { ascending: false });
-  if (userId) query = query.eq('user_id', userId);
+  if (userId && typeof userId === 'string') query = query.eq('user_id', userId);
+  // If userId is an object, treat as options
+  if (userId && typeof userId === 'object') {
+    if (userId.userId) query = query.eq('user_id', userId.userId);
+    if (userId.search && userId.search.trim()) {
+      // Supabase doesn't support LIKE on multiple columns, so filter after fetch
+      const { data, error } = await query;
+      if (error) throw error;
+      const search = userId.search.trim().toLowerCase();
+      return data.filter(poem =>
+        poem.title.toLowerCase().includes(search) ||
+        poem.content.toLowerCase().includes(search)
+      );
+    }
+  }
   const { data, error } = await query;
   if (error) throw error;
   return data;

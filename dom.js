@@ -13,4 +13,9 @@ export const dom = {
   navMyPoems: document.getElementById('nav-my-poems'),
   navAddPoem: document.getElementById('nav-add-poem'),
   currentUserId: document.getElementById('current-user-id'),
+  headerSearchForm: document.getElementById('header-search-form'),
+  headerSearchInput: document.getElementById('header-search-input'),
+  headerSearchIcon: document.getElementById('header-search-icon'),
+  headerSearchFormMobile: document.getElementById('header-search-form-mobile'),
+  headerSearchInputMobile: document.getElementById('header-search-input-mobile'),
 };
