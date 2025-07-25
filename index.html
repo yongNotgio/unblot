@@ -10,6 +10,8 @@
   <!-- Custom cursor & cozy literature-inspired global styles -->
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* Force hide utility for elements that Tailwind overrides */
+    .force-hide { display: none !important; }
     :root {
       --quill-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="%2344bfa3" stroke="%23000" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="%23000" stroke-width="2.2" fill="none"/><ellipse cx="10" cy="36" rx="2.2" ry="1.2" fill="%23000"/><ellipse cx="36" cy="13" rx="1.2" ry="2.2" fill="%23fff"/></svg>') 0 36, pointer;
       --main-blue: #2563eb;
@@ -205,7 +207,7 @@
       </button>
     </form>
     <!-- Mobile searchbar, hidden by default -->
-    <form id="header-search-form-mobile" class="flex md:hidden items-center ml-2" style="display:none;flex:1;max-width:320px;" autocomplete="off">
+    <form id="header-search-form-mobile" class="flex md:hidden items-center ml-2 hidden" style="flex:1;max-width:320px;" autocomplete="off">
       <input id="header-search-input-mobile" type="text" placeholder="Search entries..." class="border border-blue-200 rounded-lg px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-300" style="font-family:'Quicksand',Arial,sans-serif;" />
       <button type="submit" class="ml-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200" aria-label="Search">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -319,6 +321,51 @@
 
     // Clickable nav title/logo to go to homepage
     document.addEventListener('DOMContentLoaded', function() {
+      // Mobile search toggle logic
+      const searchIcon = document.getElementById('header-search-icon');
+      const searchFormMobile = document.getElementById('header-search-form-mobile');
+      const searchInputMobile = document.getElementById('header-search-input-mobile');
+      if (searchIcon && searchFormMobile && searchInputMobile) {
+        // Show search bar, remove icon from DOM
+        const searchIconParent = searchIcon.parentNode;
+        let searchIconNextSibling = searchIcon.nextSibling;
+        searchIcon.addEventListener('click', function() {
+          if (searchIcon.parentNode) {
+            searchIconParent.removeChild(searchIcon);
+          }
+          setTimeout(function() {
+            searchFormMobile.classList.remove('hidden');
+            searchInputMobile.focus();
+          }, 0);
+        });
+        // Hide search bar, show icon on blur or submit
+        searchFormMobile.addEventListener('submit', function(e) {
+          searchFormMobile.classList.add('hidden');
+          // Re-insert search icon if not present
+          if (!document.getElementById('header-search-icon')) {
+            if (searchIconNextSibling) {
+              searchIconParent.insertBefore(searchIcon, searchIconNextSibling);
+            } else {
+              searchIconParent.appendChild(searchIcon);
+            }
+          }
+        });
+        searchInputMobile.addEventListener('blur', function() {
+          setTimeout(function() {
+            if (document.activeElement !== searchInputMobile) {
+              searchFormMobile.classList.add('hidden');
+              // Re-insert search icon if not present
+              if (!document.getElementById('header-search-icon')) {
+                if (searchIconNextSibling) {
+                  searchIconParent.insertBefore(searchIcon, searchIconNextSibling);
+                } else {
+                  searchIconParent.appendChild(searchIcon);
+                }
+              }
+            }
+          }, 100);
+        });
+      }
       const navTitle = document.getElementById('nav-title');
       if (navTitle) {
         navTitle.addEventListener('click', function() {
@@ -335,19 +382,7 @@
       });
 
       // Hide mobile search icon after click
-      const searchIcon = document.getElementById('header-search-icon');
-      const searchFormMobile = document.getElementById('header-search-form-mobile');
-      if (searchIcon && searchFormMobile) {
-        searchIcon.addEventListener('click', function() {
-          searchIcon.classList.add('hidden');
-          searchIcon.style.display = 'none';
-          searchFormMobile.classList.remove('hidden');
-          searchFormMobile.classList.add('flex');
-          searchFormMobile.style.display = 'flex';
-          const input = document.getElementById('header-search-input-mobile');
-          if (input) input.focus();
-        });
-      }
+      // ...existing code...
       // Close side panel on click outside or swipe
       document.addEventListener('mousedown', function(e) {
         if (window.innerWidth <= 700 && sidePanel.classList.contains('open')) {
