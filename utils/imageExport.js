@@ -29,7 +29,7 @@ export async function exportPoemAsImage(poemId) {
       <div style="font-size:1.15em;line-height:1.7;color:#334155;white-space:pre-line;margin-bottom:1em;">${content}</div>
       <div style="font-size:0.95em;color:#64748b;margin-bottom:0.5em;">${tags}</div>
     </div>
-    <div style="font-size:0.9em;color:#a5b4fc;text-align:right;">unblot.app</div>
+    <div style="font-size:0.9em;color:#a5b4fc;text-align:right;">unblot.vercel.app</div>
   `;
   document.body.appendChild(container);
   const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm')).default;
