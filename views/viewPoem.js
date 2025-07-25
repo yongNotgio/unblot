@@ -50,8 +50,8 @@ export async function renderViewPoem(dom, poemId) {
                 </div>
                 ${(currentUser && currentUser.id === c.user_id) ? `
                   <div class="flex gap-2 pl-20">
-                    <button class="edit-comment-btn text-xs bg-yellow-100 text-yellow-800 rounded px-2 py-1" data-cid="${c.id}" data-pid="${poemId}">Edit</button>
-                    <button class="delete-comment-btn text-xs bg-red-100 text-red-800 rounded px-2 py-1" data-cid="${c.id}" data-pid="${poemId}">Delete</button>
+                    <button class="edit-comment-btn text-xs text-blue-800" data-cid="${c.id}" data-pid="${poemId}">Edit</button>
+                    <button class="delete-comment-btn text-xs text-red-800" data-cid="${c.id}" data-pid="${poemId}">Delete</button>
                   </div>
                 ` : ''}
               </li>
