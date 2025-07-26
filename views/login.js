@@ -11,7 +11,7 @@ export function renderLogin(dom) {
       <input type="email" id="login-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
       <input type="password" id="login-password" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Password" required />
       <button type="submit" class="nav-btn">Login</button>
-      <button type="button" id="to-reset" class="text-blue-600">Forgot Password?</button>
+      <button type="button" id="to-reset" class="text-blue-600">One tap sign-in</button>
       <button type="button" id="to-register" class="text-blue-600 ">New here? Register</button>
       
     </form>
