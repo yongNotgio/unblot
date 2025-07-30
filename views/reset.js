@@ -40,10 +40,10 @@ export function renderReset(dom) {
     // Show email form to request reset link
     dom.app.innerHTML = `
       <form id="reset-form" class="cozy-card flex flex-col gap-4" style="max-width: 400px; margin: 0 auto;">
-        <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Send Link</h2>
+        <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Reset Password</h2>
         <input type="email" id="reset-email" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Email" required />
-        <button type="submit" class="nav-btn">Send Link</button>
-        <button type="button" id="to-login" class="text-blue-600 ">Back to Login</button>
+        <button type="submit" class="nav-btn">Send Reset Link</button>
+        <button type="button" id="to-login" class="text-blue-600 underline">Back to Login</button>
       </form>
     `;
     document.getElementById('to-login').onclick = () => window.location.hash = '#login';
