@@ -33,7 +33,7 @@ export async function renderHome(dom) {
           <a href="#view-poem/${poem.id}" class="poem-title-link text-xl font-semibold text-blue-700 hover:underline focus:underline" style="cursor:pointer;" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
           </div>
-          <div class="text-xs text-gray-400 mb-2">By: <span class="font-mono">${poem.user_id.slice(0, 8)}</span></div>
+          <div class="text-xs text-gray-400 mb-2">By: <span class="font-mono">Anonymous</span></div>
           <div class="text-gray-700 mb-2 poem-content" data-id="${poem.id}" style="font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7;">
             <span style="white-space: pre-line;">${shortContent}${isLong ? '... ' : ''}${isLong ? `<button class=\"see-more-btn text-blue-600 ml-0\" data-id=\"${poem.id}\" style=\"font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7; border:none;background:none;padding:0;\">see more</button>` : ''}</span>
           </div>

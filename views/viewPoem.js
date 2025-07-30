@@ -26,6 +26,7 @@ export async function renderViewPoem(dom, poemId) {
         <div class="text-2xl font-bold poem-title-link" style="font-family: 'Quicksand', sans-serif;">${utils.escapeHTML(poem.title)}</div>
         <div class="text-xs text-gray-400">${utils.formatDate(poem.created_at)}</div>
       </div>
+      <div class="text-xs text-gray-400 mb-2">By: <span class="font-mono">Anonymous</span></div>
       <div class="mb-2 text-gray-600">Views: ${poem.views_count + 1}</div>
       <div class="mb-4 whitespace-pre-wrap poem-content" id="poem-content-${poemId}" style="font-family: 'Quicksand', sans-serif; font-size: 1.15rem; line-height: 1.7;">
         <span style="white-space: pre-line;">
