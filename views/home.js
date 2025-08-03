@@ -73,7 +73,7 @@ export async function renderHome(dom) {
                 if (!poem) return;
                 const contentDiv = dom.app.querySelector(`.poem-content[data-id='${id}']`);
                 if (contentDiv) {
-                  contentDiv.innerHTML = utils.escapeHTML(poem.content);
+                  contentDiv.innerHTML = `<span style="white-space: pre-line;">${utils.escapeHTML(poem.content)}</span>`;
                   contentDiv.style.fontFamily = "'Quicksand', sans-serif";
                   contentDiv.style.fontSize = "1.15rem";
                   contentDiv.style.lineHeight = "1.7";

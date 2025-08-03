@@ -74,6 +74,20 @@ export async function renderViewPoem(dom, poemId) {
       </div>
     </div>`;
     dom.app.innerHTML = html;
+    
+    // See more functionality
+    const seeMoreBtn = dom.app.querySelector('.see-more-btn');
+    if (seeMoreBtn) {
+      seeMoreBtn.addEventListener('click', function(e) {
+        const id = seeMoreBtn.getAttribute('data-id');
+        const contentDiv = dom.app.querySelector(`#poem-content-${id} span`);
+        if (contentDiv) {
+          contentDiv.innerHTML = utils.escapeHTML(poem.content);
+          contentDiv.style.whiteSpace = 'pre-line';
+        }
+      });
+    }
+    
     // Like button
     document.getElementById('like-btn').onclick = async () => {
       if (!currentUser) return utils.showModal(dom, 'Login to like poems!');

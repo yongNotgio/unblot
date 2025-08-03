@@ -55,46 +55,6 @@ const COLOR_SCHEMES = {
     contentBg: 'rgba(255, 255, 255, 0.85)',
     contentTextColor: '#2d3748',
     type: 'gradient'
-  },
-  floral1: {
-    name: 'Spring Garden',
-    background: '#f8fffe',
-    textColor: '#2d5016',
-    brandColor: '#059669',
-    contentBg: 'rgba(255, 255, 255, 0.95)',
-    contentTextColor: '#1f2937',
-    type: 'floral',
-    borderImage: 'assets/flower-borders/spring-garden.png'
-  },
-  floral2: {
-    name: 'Rose Garden',
-    background: '#fef7f7',
-    textColor: '#7c2d12',
-    brandColor: '#dc2626',
-    contentBg: 'rgba(255, 255, 255, 0.95)',
-    contentTextColor: '#1f2937',
-    type: 'floral',
-    borderImage: 'assets/flower-borders/rose-garden.png'
-  },
-  floral3: {
-    name: 'Lavender Field',
-    background: '#f3f4f6',
-    textColor: '#4c1d95',
-    brandColor: '#7c3aed',
-    contentBg: 'rgba(255, 255, 255, 0.95)',
-    contentTextColor: '#1f2937',
-    type: 'floral',
-    borderImage: 'assets/flower-borders/lavender-field.png'
-  },
-  floral4: {
-    name: 'Sunflower Meadow',
-    background: '#fffbeb',
-    textColor: '#92400e',
-    brandColor: '#f59e0b',
-    contentBg: 'rgba(255, 255, 255, 0.95)',
-    contentTextColor: '#1f2937',
-    type: 'floral',
-    borderImage: 'assets/flower-borders/sunflower-meadow.png'
   }
 };
 
@@ -155,17 +115,13 @@ function showColorSchemeModal(poemId) {
       const option = document.createElement('div');
       
       // Set background based on scheme type
-      const backgroundStyle = scheme.type === 'floral' 
-        ? `background-color: ${scheme.background}; background-image: url('${scheme.borderImage}'); background-size: cover; background-position: center;`
-        : `background: ${scheme.gradient};`;
-      
       option.style.cssText = `
         border: 2px solid #e2e8f0;
         border-radius: 12px;
         padding: 16px;
         cursor: pointer;
         transition: all 0.2s;
-        ${backgroundStyle}
+        background: ${scheme.gradient};
       `;
       
       option.innerHTML = `
@@ -190,14 +146,13 @@ function showColorSchemeModal(poemId) {
             color: ${scheme.contentTextColor};
             font-size: 12px;
             line-height: 1.4;
-          ">This is how your poem content will look in this beautiful ${scheme.type === 'floral' ? 'floral' : 'color'} scheme...</div>
+          ">This is how your poem content will look in this beautiful color scheme...</div>
         </div>
         <div style="
           color: ${scheme.brandColor};
           font-weight: 600;
           font-size: 14px;
           text-align: center;
-          ${scheme.type === 'floral' ? 'background: rgba(255, 255, 255, 0.8); border-radius: 4px; padding: 4px;' : ''}
         ">${scheme.name}</div>
       `;
 
@@ -242,10 +197,20 @@ function showColorSchemeModal(poemId) {
 
 // Main export function that shows the color picker
 export async function exportPoemAsImage(poemId) {
-  const selectedScheme = await showColorSchemeModal(poemId);
-  if (!selectedScheme) return; // User cancelled
-  
-  return await generatePoemImage(poemId, selectedScheme);
+  try {
+    console.log('Starting export for poem:', poemId);
+    const selectedScheme = await showColorSchemeModal(poemId);
+    if (!selectedScheme) {
+      console.log('Export cancelled by user');
+      return;
+    }
+    
+    console.log('Selected scheme:', selectedScheme);
+    return await generatePoemImage(poemId, selectedScheme);
+  } catch (error) {
+    console.error('Error in exportPoemAsImage:', error);
+    alert('Failed to export poem. Please check the console for details.');
+  }
 }
 
 // Internal function to generate the actual image
@@ -273,17 +238,8 @@ async function generatePoemImage(poemId, colorScheme = 'classic') {
   // Create styled container
   const container = document.createElement('div');
   
-  // Set background based on scheme type
-  if (colors.type === 'floral') {
-    container.style.backgroundColor = colors.background;
-    container.style.backgroundImage = `url('${colors.borderImage}')`;
-    container.style.backgroundSize = 'cover';
-    container.style.backgroundPosition = 'center';
-    container.style.backgroundRepeat = 'no-repeat';
-  } else {
-    container.style.background = colors.gradient;
-  }
-  
+  // Set background
+  container.style.background = colors.gradient;
   container.style.borderRadius = '0';
   container.style.boxShadow = '0 4px 24px 0 rgba(37,99,235,0.07)';
   container.style.padding = '2em 2.5em';
@@ -304,9 +260,14 @@ async function generatePoemImage(poemId, colorScheme = 'classic') {
     </div>
     <div style="font-size:0.9em;color:${colors.textColor};text-align:right;opacity:0.7;">unblot.vercel.app</div>
   `;
+  
   document.body.appendChild(container);
+  
   const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm')).default;
-  const canvas = await html2canvas(container, { backgroundColor: null });
+  const canvas = await html2canvas(container, { 
+    backgroundColor: null,
+    scale: 2 // Higher quality
+  });
   const link = document.createElement('a');
   link.download = `poem-${poemId}.png`;
   link.href = canvas.toDataURL('image/png');
