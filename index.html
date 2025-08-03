@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z' fill='%2344bfa3' stroke='%232563eb' stroke-width='2'/%3E%3Cpath d='M13 33 Q20 25 32 13' stroke='%232563eb' stroke-width='2.2' fill='none'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/png" href="./assets/unblot_logo.png">
   <title>Unblot</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
@@ -13,7 +13,7 @@
     /* Force hide utility for elements that Tailwind overrides */
     .force-hide { display: none !important; }
     :root {
-      --quill-cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="%2344bfa3" stroke="%23000" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="%23000" stroke-width="2.2" fill="none"/><ellipse cx="10" cy="36" rx="2.2" ry="1.2" fill="%23000"/><ellipse cx="36" cy="13" rx="1.2" ry="2.2" fill="%23fff"/></svg>') 0 36, pointer;
+      --quill-cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMTAgMzYgUTE4IDE4IDM0IDYgUTM2IDQgMzcgNyBRMzggMTAgMzYgMTMgUTMyIDE5IDIyIDI4IFExNiAzMyAxMCAzNiBaIiBmaWxsPSIjNDRiZmEzIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxwYXRoIGQ9Im0xMyAzMyBRMjAgMjUgMzIgMTMiIHN0cm9rZT0iIzI1NjNlYiIgc3Ryb2tlLXdpZHRoPSIyLjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+') 20 20, auto;
       --main-blue: #2563eb;
       --main-blue-light: #e0e7ff;
       --main-bg: #f8fafc;
@@ -194,7 +194,7 @@
   <nav class="flex justify-between items-center p-4 fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-blue-100 to-white shadow border-b-2 border-blue-100" style="background: linear-gradient(90deg, var(--main-blue-light) 0%, #fff 100%);">
     <div id="nav-title" class="nav-title flex flex-col items-start gap-0" style="cursor:pointer;">
       <div class="flex items-center gap-2">
-        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="38" height="38" class="inline-block align-middle" />
         <strong>Unblot</strong>
       </div>
       <div class="text-xs italic text-blue-700 ml-10 header-tagline" style="font-family: 'EB Garamond', serif;">For the words that won't disappear.</div>
@@ -244,7 +244,7 @@
         <button id="nav-logout-mobile" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
       </div>
       <div class="flex flex-row items-center justify-center gap-3 mb-8">
-        <svg width="50" height="50" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="inline-block align-left"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="#2563eb" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="#2563eb" stroke-width="2.2" fill="none"/></svg>
+        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="50" height="50" class="inline-block align-left" />
         <div class="font-bold text-blue-700 text-2xl" style="font-size:2rem;">Unblot</div>
       </div>
     </div>

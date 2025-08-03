@@ -247,10 +247,18 @@ async function generatePoemImage(poemId, colorScheme = 'classic') {
   container.style.color = colors.textColor;
   container.style.width = '600px';
   container.style.maxWidth = '100%';
+  // Create an SVG logo that matches the color scheme
+  function createColoredSVG(brandColor) {
+    return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+      <path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="${brandColor}" stroke-width="2"/>
+      <path d="M13 33 Q20 25 32 13" stroke="${brandColor}" stroke-width="2.2" fill="none"/>
+    </svg>`;
+  }
+
   // Header: logo and tagline
   container.innerHTML = `
     <div style="display:flex;align-items:center;gap:0.7em;margin-bottom:0.5em;">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="${colors.brandColor}" stroke-width="2"/><path d="M13 33 Q20 25 32 13" stroke="${colors.brandColor}" stroke-width="2.2" fill="none"/></svg>
+      ${createColoredSVG(colors.brandColor)}
       <span style="font-family:'EB Garamond',serif;font-size:2rem;color:${colors.brandColor};letter-spacing:0.04em;text-shadow:0 2px 8px #e0e7ff;font-weight:bold;display:flex;align-items:center;">Unblot</span>
     </div>
     <div style="font-family:'EB Garamond',serif;font-size:1.1em;color:${colors.brandColor};font-style:italic;margin-bottom:1.5em;">For the words that won't disappear.</div>
@@ -263,10 +271,28 @@ async function generatePoemImage(poemId, colorScheme = 'classic') {
   
   document.body.appendChild(container);
   
+  // Wait for images to load before capturing
+  const images = container.querySelectorAll('img');
+  await Promise.all(Array.from(images).map(img => {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve();
+      } else {
+        img.onload = resolve;
+        img.onerror = resolve; // Still resolve even if image fails to load
+      }
+    });
+  }));
+  
+  // Small additional delay to ensure rendering is complete
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm')).default;
   const canvas = await html2canvas(container, { 
     backgroundColor: null,
-    scale: 2 // Higher quality
+    scale: 2, // Higher quality
+    useCORS: true, // Allow cross-origin images
+    allowTaint: true // Allow tainted canvas
   });
   const link = document.createElement('a');
   link.download = `poem-${poemId}.png`;
