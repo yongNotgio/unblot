@@ -37,6 +37,62 @@ export async function fetchPoems(userId = null) {
 }
 
 /**
+ * Fetch poems with smart sorting: recent poems first (last 2 days), then randomized
+ */
+export async function fetchPoemsWithSmartSort(userId = null, options = {}) {
+  // First, fetch all poems
+  let query = supabase.from('poems').select('*');
+  if (userId && typeof userId === 'string') query = query.eq('user_id', userId);
+  if (options.userId) query = query.eq('user_id', options.userId);
+  
+  const { data, error } = await query;
+  if (error) throw error;
+  
+  // Filter by search if provided
+  let filteredPoems = data;
+  if (options.search && options.search.trim()) {
+    const search = options.search.trim().toLowerCase();
+    filteredPoems = data.filter(poem => {
+      if (poem.title && poem.title.toLowerCase().includes(search)) return true;
+      if (poem.content && poem.content.toLowerCase().includes(search)) return true;
+      if (poem.tags) {
+        if (Array.isArray(poem.tags)) {
+          return poem.tags.some(tag => tag && tag.toLowerCase().includes(search));
+        } else if (typeof poem.tags === 'string') {
+          return poem.tags.toLowerCase().includes(search);
+        }
+      }
+      return false;
+    });
+  }
+  
+  // Separate recent poems (last 2 days) from older ones
+  const now = new Date();
+  const twoDaysAgo = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+  
+  const recentPoems = [];
+  const olderPoems = [];
+  
+  filteredPoems.forEach(poem => {
+    const poemDate = new Date(poem.created_at);
+    if (poemDate >= twoDaysAgo) {
+      recentPoems.push(poem);
+    } else {
+      olderPoems.push(poem);
+    }
+  });
+  
+  // Sort recent poems by creation date (newest first)
+  recentPoems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
+  // Shuffle older poems randomly
+  const shuffledOlderPoems = [...olderPoems].sort(() => Math.random() - 0.5);
+  
+  // Combine: recent poems first, then randomized older poems
+  return [...recentPoems, ...shuffledOlderPoems];
+}
+
+/**
  * Fetch a single poem by id
  */
 export async function fetchPoemById(id) {
