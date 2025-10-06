@@ -1,10 +1,10 @@
 // views/myPoems.js
 // 'My Poems' list view
-import { fetchPoems } from '../poems.js';
+import { fetchPoemsPaginated } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
 
-export async function renderMyPoems(dom) {
+export async function renderMyPoems(dom, page = 1) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading your poems...</div>`;
   utils.showLoading(dom, true);
   try {
@@ -12,7 +12,12 @@ export async function renderMyPoems(dom) {
       dom.app.innerHTML = `<div class="text-center text-lg">You must be logged in to view your poems.</div>`;
       return;
     }
-    const poems = await fetchPoems(currentUser.id);
+    const result = await fetchPoemsPaginated({ 
+      userId: currentUser.id, 
+      page, 
+      limit: 10 
+    });
+    const { data: poems, ...paginationData } = result;
     let html = `<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
         <div class="font-bold text-xl">The Unsaid</div>
@@ -30,8 +35,21 @@ export async function renderMyPoems(dom) {
         </li>
       `).join('');
     }
-    html += `</ul></div>`;
+    html += `</ul>`;
+    
+    // Add pagination controls
+    html += utils.createPaginationControls(paginationData, (newPage) => {
+      renderMyPoems(dom, newPage);
+    }, '#my-poems');
+    
+    html += `</div>`;
     dom.app.innerHTML = html;
+    
+    // Attach pagination handlers
+    utils.attachPaginationHandlers((newPage) => {
+      renderMyPoems(dom, newPage);
+    });
+    
     document.getElementById('add-poem-btn').onclick = () => window.location.hash = '#add-poem';
   } catch (err) {
     dom.app.innerHTML = `<div class="text-center text-red-600">Failed to load poems: ${err.message || err}</div>`;
