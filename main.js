@@ -22,12 +22,12 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // (You would import or define your view functions here, e.g. renderHome, renderLogin, etc.)
 // For brevity, only a placeholder is shown:
 const routes = {
-  '#home': async () => { renderHome(dom); },
+  '#home': async (param, page) => { renderHome(dom, page); },
   '#login': async () => { renderLogin(dom); },
   '#register': async () => { renderRegister(dom); },
   '#reset': async () => { renderReset(dom); },
-  '#discover': async () => { renderDiscover(dom); },
-  '#my-poems': async () => { renderMyPoems(dom); },
+  '#discover': async (param, page) => { renderDiscover(dom, page); },
+  '#my-poems': async (param, page) => { renderMyPoems(dom, page); },
   '#add-poem': async () => { renderAddPoem(dom); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
   '#edit-poem': async (id) => { renderEditPoem(dom, id); },

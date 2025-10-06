@@ -1,9 +1,9 @@
 // views/home.js
 // Public discover/home view
-import { fetchPoems } from '../poems.js';
+import { fetchPoemsPaginated } from '../poems.js';
 import { utils } from '../utils.js';
 
-export async function renderHome(dom) {
+export async function renderHome(dom, page = 1) {
   // Get search query from location hash if present
   let search = '';
   if (window.location.hash.startsWith('#discover?q=')) {
@@ -13,7 +13,12 @@ export async function renderHome(dom) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poems...</div>`;
   utils.showLoading(dom, true);
   try {
-    const poems = search ? await fetchPoems({ search }) : await fetchPoems(); // Fetch all poems or filtered
+    const result = await fetchPoemsPaginated({ 
+      search, 
+      page, 
+      limit: 10 
+    }); // Fetch paginated poems
+    const { data: poems, ...paginationData } = result;
     let html = `<div class="w-full max-w-2xl mx-auto">
       <div class="font-bold text-2xl mb-4 text-center">The Unsaid</div>
       <ul class="grid gap-6">`;
@@ -82,6 +87,22 @@ export async function renderHome(dom) {
             });
     }, 0);
     }
+    html += `</ul>`;
+    
+    // Add pagination controls
+    const baseRoute = search ? `#home?q=${encodeURIComponent(search)}` : '#home';
+    html += utils.createPaginationControls(paginationData, (newPage) => {
+      renderHome(dom, newPage);
+    }, baseRoute);
+    
+    html += `</div>`;
+    dom.app.innerHTML = html;
+    
+    // Attach pagination handlers
+    utils.attachPaginationHandlers((newPage) => {
+      renderHome(dom, newPage);
+    });
+    
     // Show like and comment counts for each poem
     import('../likes.js').then(({ fetchLikeCount }) => {
       import('../comments.js').then(({ fetchComments }) => {
@@ -97,8 +118,6 @@ export async function renderHome(dom) {
         });
       });
     });
-    html += `</ul></div>`;
-    dom.app.innerHTML = html;
 
     // Like, comment, and share logic (copied from discover.js)
     let exportPoemAsImage;

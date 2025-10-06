@@ -1,9 +1,9 @@
 // views/discover.js
 // Discover view with smart sorting: recent poems first, then randomized
-import { fetchPoemsWithSmartSort } from '../poems.js';
+import { fetchPoemsWithSmartSortPaginated } from '../poems.js';
 import { utils } from '../utils.js';
 
-export async function renderDiscover(dom) {
+export async function renderDiscover(dom, page = 1) {
   // Get search query from location hash if present
   let search = '';
   if (window.location.hash.startsWith('#discover?q=')) {
@@ -15,7 +15,12 @@ export async function renderDiscover(dom) {
   utils.showLoading(dom, true);
   
   try {
-    const poems = await fetchPoemsWithSmartSort(null, { search }); // Use smart sorting for discover
+    const result = await fetchPoemsWithSmartSortPaginated({ 
+      search, 
+      page, 
+      limit: 10 
+    }); // Use paginated smart sorting for discover
+    const { data: poems, ...paginationData } = result;
     
     let html = `<div class="w-full max-w-2xl mx-auto">
       <div class="font-bold text-2xl mb-4 text-center">Discover Poems</div>
@@ -61,8 +66,21 @@ export async function renderDiscover(dom) {
       }).join('');
     }
     
-    html += `</ul></div>`;
+    html += `</ul>`;
+    
+    // Add pagination controls
+    const baseRoute = search ? `#discover?q=${encodeURIComponent(search)}` : '#discover';
+    html += utils.createPaginationControls(paginationData, (newPage) => {
+      renderDiscover(dom, newPage);
+    }, baseRoute);
+    
+    html += `</div>`;
     dom.app.innerHTML = html;
+    
+    // Attach pagination handlers
+    utils.attachPaginationHandlers((newPage) => {
+      renderDiscover(dom, newPage);
+    });
 
     // Add click handler to poem title links
     setTimeout(() => {
