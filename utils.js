@@ -47,76 +47,17 @@ export const utils = {
     return new Date(date).toLocaleString();
   },
   createPaginationControls(paginationData, onPageChange, baseRoute = '') {
-    const { page, totalPages, hasNextPage, hasPrevPage } = paginationData;
+    const { page, hasNextPage } = paginationData;
     
-    if (totalPages <= 1) return '';
+    // Only render a single "See more" button that loads the next page
+    if (!hasNextPage) return '';
     
-    let paginationHTML = '<div class="flex justify-center items-center gap-2 mt-6 mb-4">';
-    
-    // Previous button
-    if (hasPrevPage) {
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm" data-page="${page - 1}" data-base-route="${baseRoute}">
-          ← Previous
-        </button>
-      `;
-    } else {
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm opacity-50 cursor-not-allowed" disabled>
-          ← Previous
-        </button>
-      `;
-    }
-    
-    // Page numbers (show up to 5 pages around current page)
-    const startPage = Math.max(1, page - 2);
-    const endPage = Math.min(totalPages, page + 2);
-    
-    if (startPage > 1) {
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm" data-page="1" data-base-route="${baseRoute}">1</button>
-      `;
-      if (startPage > 2) {
-        paginationHTML += '<span class="px-2 text-gray-500">...</span>';
-      }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      const isActive = i === page;
-      const activeClass = isActive ? ' pagination-active' : '';
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm${activeClass}" data-page="${i}" data-base-route="${baseRoute}" ${isActive ? 'disabled' : ''}>
-          ${i}
-        </button>
-      `;
-    }
-    
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        paginationHTML += '<span class="px-2 text-gray-500">...</span>';
-      }
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm" data-page="${totalPages}" data-base-route="${baseRoute}">
-          ${totalPages}
-        </button>
-      `;
-    }
-    
-    // Next button
-    if (hasNextPage) {
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm" data-page="${page + 1}" data-base-route="${baseRoute}">
-          Next →
-        </button>
-      `;
-    } else {
-      paginationHTML += `
-        <button class="pagination-btn nav-btn px-3 py-2 text-sm opacity-50 cursor-not-allowed" disabled>
-          Next →
-        </button>
-      `;
-    }
-    
+    let paginationHTML = '<div class="flex justify-center items-center mt-6 mb-4">';
+    paginationHTML += `
+      <button class="pagination-btn nav-btn px-4 py-2 text-sm" data-page="${page + 1}" data-base-route="${baseRoute}">
+        See more →
+      </button>
+    `;
     paginationHTML += '</div>';
     
     return paginationHTML;
