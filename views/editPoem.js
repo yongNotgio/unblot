@@ -13,7 +13,7 @@ export async function renderEditPoem(dom, poemId) {
     if (!currentUser || currentUser.id !== poem.user_id) {
       dom.app.innerHTML = `
         <div class="text-center py-12 animate-fade-in">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+
           <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You are not authorized to edit this poem.</p>
           <button onclick="window.location.hash='#discover'" class="action-btn action-btn-secondary mt-4">Go to Discover</button>
         </div>`;
@@ -23,7 +23,7 @@ export async function renderEditPoem(dom, poemId) {
       <div class="w-full max-w-xl mx-auto animate-fade-in">
         <form id="edit-poem-form" class="cozy-card">
           <div class="text-center mb-8">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
+
             <h2 class="section-header" style="margin-bottom: 0.5rem;">Edit Your Poem</h2>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">Refine your words</p>
           </div>

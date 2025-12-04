@@ -29,6 +29,29 @@ export function setupRouter(routes, supabase) {
     utils.showLoading(dom, false);
     await fetchCurrentUser(supabase);
     const { route, param, page } = getRoute();
+    
+    // Hide header view toggle by default, views will show it if needed
+    const headerToggleContainer = document.getElementById('header-view-toggle-container');
+    if (headerToggleContainer) {
+      headerToggleContainer.classList.add('hidden');
+    }
+    
+    // Hide mobile header view toggle by default
+    const mobileHeaderToggleContainer = document.getElementById('mobile-header-toggle-container');
+    if (mobileHeaderToggleContainer) {
+      mobileHeaderToggleContainer.classList.add('hidden');
+    }
+    
+    // Cleanup any existing view change handlers
+    if (window._homeViewChangeHandler) {
+      window.removeEventListener('viewModeChanged', window._homeViewChangeHandler);
+      window._homeViewChangeHandler = null;
+    }
+    if (window._discoverViewChangeHandler) {
+      window.removeEventListener('viewModeChanged', window._discoverViewChangeHandler);
+      window._discoverViewChangeHandler = null;
+    }
+    
     if (routes[route]) {
       await routes[route](param, page);
     } else {

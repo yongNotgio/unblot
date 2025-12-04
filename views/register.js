@@ -9,7 +9,7 @@ export function renderRegister(dom) {
     <div class="w-full max-w-md mx-auto animate-fade-in">
       <form id="register-form" class="cozy-card">
         <div class="text-center mb-8">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+
           <h2 class="section-header" style="margin-bottom: 0.5rem;">Join Unblot</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">Start your journey of sharing poetry</p>
         </div>

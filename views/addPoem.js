@@ -8,7 +8,7 @@ export function renderAddPoem(dom) {
   if (!currentUser) {
     dom.app.innerHTML = `
       <div class="text-center py-12 animate-fade-in">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+
         <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You must be logged in to add a poem.</p>
         <button onclick="window.location.hash='#login'" class="action-btn action-btn-primary mt-4">Sign In</button>
       </div>`;

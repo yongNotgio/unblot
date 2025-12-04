@@ -13,21 +13,23 @@ export async function fetchCurrentUser(supabase) {
 
 export function updateNav() {
   if (currentUser) {
-    dom.navLogin.classList.add('hidden');
-    dom.navRegister.classList.add('hidden');
-    dom.navLogout.classList.remove('hidden');
-    dom.navMyPoems.classList.remove('hidden');
-    dom.navAddPoem.classList.remove('hidden');
-    dom.currentUserId.textContent = `User: ${currentUser.id}`;
-    dom.currentUserId.classList.remove('hidden');
+    if (dom.navLogin) dom.navLogin.classList.add('hidden');
+    if (dom.navRegister) dom.navRegister.classList.add('hidden');
+    if (dom.navLogout) dom.navLogout.classList.remove('hidden');
+    if (dom.navMyPoems) dom.navMyPoems.classList.remove('hidden');
+    if (dom.navAddPoem) dom.navAddPoem.classList.remove('hidden');
+    if (dom.currentUserId) {
+      dom.currentUserId.textContent = `User: ${currentUser.id}`;
+      dom.currentUserId.classList.remove('hidden');
+    }
     if (typeof window.setNavAuthState === 'function') window.setNavAuthState(true);
   } else {
-    dom.navLogin.classList.remove('hidden');
-    dom.navRegister.classList.remove('hidden');
-    dom.navLogout.classList.add('hidden');
-    dom.navMyPoems.classList.add('hidden');
-    dom.navAddPoem.classList.add('hidden');
-    dom.currentUserId.classList.add('hidden');
+    if (dom.navLogin) dom.navLogin.classList.remove('hidden');
+    if (dom.navRegister) dom.navRegister.classList.remove('hidden');
+    if (dom.navLogout) dom.navLogout.classList.add('hidden');
+    if (dom.navMyPoems) dom.navMyPoems.classList.add('hidden');
+    if (dom.navAddPoem) dom.navAddPoem.classList.add('hidden');
+    if (dom.currentUserId) dom.currentUserId.classList.add('hidden');
     if (typeof window.setNavAuthState === 'function') window.setNavAuthState(false);
   }
 }
