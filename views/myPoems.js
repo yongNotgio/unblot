@@ -15,27 +15,49 @@ export async function renderMyPoems(dom, page = 1) {
     const result = await fetchPoemsPaginated({ 
       userId: currentUser.id, 
       page, 
-      limit: 10 
+      limit: 50 
     });
     const { data: poems, ...paginationData } = result;
-    let html = `<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
-      <div class="flex justify-between items-center mb-4">
-        <div class="font-bold text-xl">The Unsaid</div>
-        <button id="add-poem-btn" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold">Add New Poem</button>
+    let html = `<div class="w-full max-w-2xl mx-auto animate-fade-in">
+      <div class="cozy-card mb-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="section-header" style="text-align: left; margin-bottom: 0.5rem; font-size: 1.75rem;">Your Poetry</h1>
+            <div class="author-badge">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              ${currentUser.id.slice(0, 12)}...
+            </div>
+          </div>
+          <button id="add-poem-btn" class="action-btn action-btn-primary">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Poem
+          </button>
+        </div>
       </div>
-      <div class="mb-2 text-gray-500">User: <span class="font-mono">${currentUser.id}</span></div>
-      <ul class="divide-y">`;
+      
+      <div class="grid gap-4">`;
     if (poems.length === 0) {
-      html += `<li class="py-4 text-center text-gray-500">No poems yet. Click 'Add New Poem' to create your first poem!</li>`;
+      html += `
+        <div class="cozy-card text-center py-8">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📖</div>
+          <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem;">No poems yet</p>
+          <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">Start your journey by writing your first poem!</p>
+          <button onclick="window.location.hash='#add-poem'" class="action-btn action-btn-primary">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            Write Your First Poem
+          </button>
+        </div>`;
     } else {
-      html += poems.map(poem => `
-        <li class="py-4">
-          <a href="#view-poem/${poem.id}" class="text-blue-700 hover:underline text-lg font-semibold">${utils.escapeHTML(poem.title)}</a>
-          <div class="text-xs text-gray-400">Created: ${utils.formatDate(poem.created_at)}</div>
-        </li>
+      html += poems.map((poem, index) => `
+        <a href="#view-poem/${poem.id}" class="poem-card block stagger-${(index % 4) + 1}" style="text-decoration: none; cursor: pointer;">
+          <div class="flex justify-between items-start">
+            <h2 class="poem-title-link text-lg" style="font-weight: 600;">${utils.escapeHTML(poem.title)}</h2>
+            <span class="date-text">${utils.formatDate(poem.created_at)}</span>
+          </div>
+        </a>
       `).join('');
     }
-    html += `</ul>`;
+    html += `</div>`;
     
     // Add pagination controls
     html += utils.createPaginationControls(paginationData, (newPage) => {

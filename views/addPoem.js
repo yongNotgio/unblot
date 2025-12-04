@@ -6,21 +6,47 @@ import { utils } from '../utils.js';
 
 export function renderAddPoem(dom) {
   if (!currentUser) {
-    dom.app.innerHTML = `<div class="text-center text-lg mt-12">You must be logged in to add a poem.</div>`;
+    dom.app.innerHTML = `
+      <div class="text-center py-12 animate-fade-in">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+        <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You must be logged in to add a poem.</p>
+        <button onclick="window.location.hash='#login'" class="action-btn action-btn-primary mt-4">Sign In</button>
+      </div>`;
     return;
   }
   dom.app.innerHTML = `
-    <form id="add-poem-form" class="cozy-card flex flex-col gap-5 border border-blue-100 shadow-lg bg-white/90" style="max-width: 520px; margin: 2.5em auto 0 auto;">
-      <h2 class="text-3xl font-bold mb-0 text-center text-blue-800" style="font-family: 'Quicksand', sans-serif;">Add a new poem</h2>
-      <div class="text-center text-gray-500 text-base mb-2" style="font-family: 'Quicksand', sans-serif;">Share your thoughts, feelings, or stories in verse.</div>
-      <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-lg" placeholder="Title" required style="font-family: 'Quicksand', sans-serif;" />
-      <textarea id="poem-content" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-base" placeholder="Your thoughts..." rows="7" required style="font-family: 'Quicksand', sans-serif;"></textarea>
-      <input type="text" id="poem-tags" class="rounded-lg border border-blue-200 px-4 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-base" placeholder="Tags (comma separated)" style="font-family: 'Quicksand', sans-serif;" />
-      <div class="flex gap-3 mt-2">
-        <button type="submit" class="nav-btn flex-1 text-lg" style="font-family: 'Quicksand', sans-serif;">Add Poem</button>
-        <button type="button" id="cancel-btn" class="nav-btn flex-1 bg-gray-100 text-blue-700 border border-blue-100 hover:bg-blue-100" style="color: #64748b; font-family: 'Quicksand', sans-serif;">Cancel</button>
-      </div>
-    </form>
+    <div class="w-full max-w-xl mx-auto animate-fade-in">
+      <form id="add-poem-form" class="cozy-card">
+        <div class="text-center mb-8">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">✍️</div>
+          <h2 class="section-header" style="margin-bottom: 0.5rem;">Share Your Words</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Let your thoughts flow freely</p>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Title</label>
+            <input type="text" id="poem-title" class="modern-input" placeholder="Give your poem a title" required />
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Your Poem</label>
+            <textarea id="poem-content" class="modern-input" placeholder="Write your heart out..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.8;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Tags</label>
+            <input type="text" id="poem-tags" class="modern-input" placeholder="love, nature, reflection (comma separated)" />
+          </div>
+          <div class="flex gap-3 mt-4">
+            <button type="submit" class="action-btn action-btn-primary flex-1 justify-center py-3" style="font-size: 1rem;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              Publish Poem
+            </button>
+            <button type="button" id="cancel-btn" class="action-btn action-btn-secondary flex-1 justify-center py-3" style="font-size: 1rem;">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   `;
   document.getElementById('cancel-btn').onclick = () => window.location.hash = '#my-poems';
   document.getElementById('add-poem-form').onsubmit = async (e) => {

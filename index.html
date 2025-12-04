@@ -7,84 +7,190 @@
   <title>Unblot</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
-  <!-- Custom cursor & cozy literature-inspired global styles -->
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Modern UI/UX styles with glassmorphism and smooth animations -->
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* Force hide utility for elements that Tailwind overrides */
     .force-hide { display: none !important; }
+    
     :root {
-      --quill-cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMTAgMzYgUTE4IDE4IDM0IDYgUTM2IDQgMzcgNyBRMzggMTAgMzYgMTMgUTMyIDE5IDIyIDI4IFExNiAzMyAxMCAzNiBaIiBmaWxsPSIjNDRiZmEzIiBzdHJva2U9IiMyNTYzZWIiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxwYXRoIGQ9Im0xMyAzMyBRMjAgMjUgMzIgMTMiIHN0cm9rZT0iIzI1NjNlYiIgc3Ryb2tlLXdpZHRoPSIyLjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+') 20 20, auto;
-      --main-blue: #2563eb;
-      --main-blue-light: #e0e7ff;
-      --main-bg: #f8fafc;
-      --paper: #fff;
-      --shadow: 0 4px 24px 0 rgba(37,99,235,0.07);
+      /* Modern color palette */
+      --primary: #6366f1;
+      --primary-light: #a5b4fc;
+      --primary-dark: #4f46e5;
+      --accent: #f472b6;
+      --accent-light: #fbcfe8;
+      --surface: rgba(255, 255, 255, 0.8);
+      --surface-elevated: rgba(255, 255, 255, 0.95);
+      --background: linear-gradient(135deg, #f0f4ff 0%, #fdf2f8 50%, #f5f3ff 100%);
+      --text-primary: #1e1b4b;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border: rgba(99, 102, 241, 0.15);
+      --shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.08);
+      --shadow-md: 0 8px 24px rgba(99, 102, 241, 0.12);
+      --shadow-lg: 0 16px 48px rgba(99, 102, 241, 0.16);
+      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       height: 100%;
-      background: var(--main-bg);
+      background: var(--background);
+      background-attachment: fixed;
       font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif;
-      color: #1e293b;
-      cursor: var(--quill-cursor);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    h1, h2, h3, .poem-title, .poem-content {
-      font-family: 'EB Garamond', serif;
+
+    h1, h2, h3, .poem-title, .poem-title-link {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-weight: 600;
       letter-spacing: 0.01em;
     }
+
+    /* Modern glassmorphism card */
     .poem-content {
-      font-size: 1.15rem;
-      line-height: 1.7;
-      color: #334155;
-      background: var(--paper);
-      border-radius: 1.2em 1.2em 1.2em 1.2em/1.5em 1.5em 1.2em 1.2em;
-      box-shadow: var(--shadow);
-      padding: 1.5em 2em;
-      margin: 1.5em 0;
+      font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--text-primary);
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
     }
+
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Modern Navigation */
     nav {
-      background: linear-gradient(90deg, var(--main-blue-light) 0%, #fff 100%);
-      box-shadow: var(--shadow);
-      border-bottom: 2px solid var(--main-blue-light);
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-sm);
+      border-bottom: 1px solid var(--border);
     }
+
     .nav-title {
-      font-family: 'EB Garamond', serif;
-      font-size: 2rem;
-      color: var(--main-blue);
-      letter-spacing: 0.04em;
-      text-shadow: 0 2px 8px #e0e7ff;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.02em;
     }
+
+    /* Modern pill buttons */
     .nav-btn {
-      background: var(--main-blue-light);
-      color: var(--main-blue);
-      border-radius: 0.7em;
-      padding: 0.4em 1.1em;
+      background: linear-gradient(135deg, var(--primary-light) 0%, #c4b5fd 100%);
+      color: var(--primary-dark);
+      border-radius: var(--radius-full);
+      padding: 0.5em 1.25em;
       font-weight: 600;
+      font-size: 0.875rem;
       font-family: 'Quicksand', Arial, sans-serif;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-      box-shadow: 0 2px 8px 0 rgba(37,99,235,0.04);
-      border: none;
-      cursor: var(--quill-cursor);
+      transition: all var(--transition-normal);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
+
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .nav-btn:hover, .nav-btn:focus {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      color: #fff;
+    }
+
+    .nav-btn:hover::before, .nav-btn:focus::before {
+      opacity: 1;
+    }
+
+    .nav-btn span, .nav-btn {
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Side nav for mobile */
     .side-nav-btn {
       border-radius: 0 !important;
       border: none !important;
       box-shadow: none !important;
-      margin: 0.2em 0;
-      background: none;
-      color: var(--main-blue);
-      transition: background 0.2s, color 0.2s;
+      margin: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: all var(--transition-fast);
+      position: relative;
     }
-    .side-nav-btn.active {
-      background: #e0e7ff !important;
-      color: #2563eb !important;
+
+    .side-nav-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) scaleY(0);
+      width: 4px;
+      height: 60%;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 0 4px 4px 0;
+      transition: transform var(--transition-fast);
     }
+
+    .side-nav-btn:hover, .side-nav-btn:focus, .side-nav-btn.active {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%) !important;
+      color: var(--primary) !important;
+    }
+
+    .side-nav-btn:hover::before, .side-nav-btn:focus::before, .side-nav-btn.active::before {
+      transform: translateY(-50%) scaleY(1);
+    }
+
+    /* Side panel - hidden by default */
+    #side-panel {
+      display: none;
+    }
+
     /* Responsive styles for mobile */
     @media (max-width: 700px) {
+      #side-panel {
+        display: flex !important;
+      }
       .header-tagline {
         display: none !important;
       }
       .nav-title {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         margin-bottom: 0;
         flex-direction: row;
         align-items: center;
@@ -97,7 +203,7 @@
       }
       .nav-title .text-xs {
         margin-left: 0.5em !important;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         white-space: nowrap;
       }
       .hamburger {
@@ -108,31 +214,104 @@
       .nav-actions {
         display: none !important;
       }
+      
+      /* Side Panel Styles */
       #side-panel {
-        box-shadow: 0 8px 32px 0 rgba(37,99,235,0.10);
-        border-radius: 0 1.5em 1.5em 0;
-        min-width: 220px;
-        max-width: 80vw;
-        width: 70vw;
-        background: #fff;
-        padding-top: 0;
-        padding-bottom: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        max-width: 85vw;
+        height: 100vh;
+        background: #ffffff;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
-      #side-panel .side-nav-btn {
-        background: none;
-        color: #2563eb;
-        font-size: 1.1rem;
+      #side-panel.open {
+        transform: translateX(0);
+      }
+      .side-panel-content {
+        flex: 1;
+        padding-top: 70px;
+        overflow-y: auto;
+        background: #ffffff;
+      }
+      .side-nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 16px 24px;
+        background: #ffffff;
+        border: none;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #374151;
         text-align: left;
-        padding: 1rem 2rem;
-        border-radius: 0;
-        transition: background 0.2s;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        text-decoration: none;
       }
-      #side-panel .side-nav-btn.active, #side-panel .side-nav-btn:focus, #side-panel .side-nav-btn:hover {
-        background: #e0e7ff !important;
-        color: #2563eb !important;
+      .side-nav-btn:hover {
+        background: #f3f4f6;
+        color: var(--primary);
       }
+      .side-nav-btn.logout-btn {
+        color: #dc2626;
+      }
+      .side-nav-btn.logout-btn:hover {
+        background: #fef2f2;
+      }
+      .side-panel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #ffffff;
+      }
+      .side-panel-brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      #side-panel .mobile-view-toggle {
+        display: flex;
+        justify-content: center;
+        padding: 16px;
+        margin-top: 8px;
+        border-top: 1px solid #e5e7eb;
+        background: #ffffff;
+      }
+      #side-panel .view-toggle {
+        background: #f3f4f6;
+      }
+      #side-panel-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+      }
+      #side-panel-overlay.show {
+        display: block;
+      }
+      
       #side-panel .font-bold {
-        font-family: 'EB Garamond', serif;
+        font-family: 'Playfair Display', Georgia, serif;
       }
       #header-search-form {
         display: none !important;
@@ -140,7 +319,36 @@
       #header-search-icon {
         display: flex !important;
       }
+      
+      /* Mobile card adjustments */
+      .cozy-card {
+        padding: 1.25rem !important;
+        margin: 1rem 0 !important;
+        border-radius: var(--radius-md) !important;
+      }
+      
+      .poem-card {
+        padding: 1.25rem !important;
+        border-radius: var(--radius-md) !important;
+      }
+      
+      /* Mobile form inputs */
+      .cozy-input {
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
+      }
+      
+      /* Mobile main content */
+      main {
+        padding-top: 4.5rem !important;
+      }
+      
+      /* Mobile w-full containers */
+      .w-full {
+        padding: 0 !important;
+      }
     }
+
     @media (min-width: 701px) {
       .hamburger {
         display: none;
@@ -151,6 +359,7 @@
         position: static;
         background: none;
         box-shadow: none;
+        gap: 0.5rem;
       }
       #header-search-form {
         display: flex !important;
@@ -158,37 +367,658 @@
       #header-search-icon {
         display: none !important;
       }
+      #side-panel {
+        display: none !important;
+      }
+      #side-panel-overlay {
+        display: none !important;
+      }
+      .mobile-view-toggle {
+        display: none !important;
+      }
     }
-    .nav-btn:hover, .nav-btn:focus {
-      background: var(--main-blue);
-      color: #fff;
-      box-shadow: 0 4px 16px 0 rgba(37,99,235,0.10);
-    }
-    /* Active page indicator for pagination */
+
+    /* Pagination active state */
     .pagination-active {
-      background: var(--main-blue) !important;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
       color: #fff !important;
-      box-shadow: 0 4px 16px 0 rgba(37,99,235,0.12) !important;
+      box-shadow: var(--shadow-md) !important;
       cursor: default !important;
     }
+
+    /* Modern glass card */
     .cozy-card {
-      background: var(--paper);
-      border-radius: 1.2em 1.2em 1.2em 1.2em/1.5em 1.5em 1.2em 1.2em;
-      box-shadow: var(--shadow);
-      padding: 2em 2.5em;
-      margin: 2em 0;
+      background: var(--surface-elevated);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      margin: 1.5rem 0;
+      transition: all var(--transition-normal);
     }
-    ::selection {
-      background: #e0e7ff;
+
+    .cozy-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
     }
-    /* Custom scroll for cozy feel */
-    ::-webkit-scrollbar {
+
+    /* Modern poem card */
+    .poem-card {
+      background: var(--surface-elevated);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary-light) 100%);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .poem-card:hover {
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      transform: translateY(-4px);
+    }
+
+    .poem-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Grid view for poems - different sizes */
+    .poems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .poems-grid-sm {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .poems-grid-lg {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .poem-grid-tile {
+      background: var(--surface-elevated);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Small grid tile adjustments */
+    .poems-grid-sm .poem-grid-tile {
+      padding: 0.875rem;
+      min-height: 140px;
+    }
+
+    .poems-grid-sm .tile-title {
+      font-size: 0.95rem !important;
+      margin-bottom: 0.375rem !important;
+    }
+
+    .poems-grid-sm .tile-preview {
+      font-size: 0.75rem !important;
+      -webkit-line-clamp: 3 !important;
+      line-clamp: 3 !important;
+    }
+
+    .poems-grid-sm .tile-meta {
+      font-size: 0.625rem !important;
+      margin-top: 0.5rem !important;
+      padding-top: 0.5rem !important;
+    }
+
+    .poems-grid-sm .tile-stats svg {
       width: 10px;
-      background: #e0e7ff;
+      height: 10px;
     }
+
+    /* Large grid tile adjustments */
+    .poems-grid-lg .poem-grid-tile {
+      padding: 1.5rem;
+      min-height: 220px;
+    }
+
+    .poems-grid-lg .tile-title {
+      font-size: 1.25rem !important;
+    }
+
+    .poems-grid-lg .tile-preview {
+      font-size: 0.9rem !important;
+      -webkit-line-clamp: 5 !important;
+      line-clamp: 5 !important;
+    }
+
+    .poem-grid-tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .poem-grid-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+
+    .poem-grid-tile:hover::before {
+      opacity: 1;
+    }
+
+    .poem-grid-tile .tile-title {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .poem-grid-tile .tile-preview {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      flex: 1;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+    }
+
+    .poem-grid-tile .tile-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .poem-grid-tile .tile-stats {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .poem-grid-tile .tile-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* View toggle button - in header */
+    .view-toggle {
+      display: flex;
+      background: var(--surface);
+      border-radius: var(--radius-full);
+      padding: 0.2rem;
+      border: 1px solid var(--border);
+      gap: 0.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .view-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .view-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .view-toggle-btn:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .view-toggle-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Hide view toggle on mobile in header, show in side panel */
+    @media (max-width: 700px) {
+      #header-view-toggle {
+        display: none;
+      }
+      .mobile-view-toggle {
+        display: flex !important;
+        justify-content: center;
+        padding: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      
+      /* Mobile grid responsiveness */
+      .poems-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 0.75rem !important;
+        padding: 0 0.25rem;
+      }
+      
+      .poems-grid-sm {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        gap: 0.5rem !important;
+        padding: 0 0.25rem;
+      }
+      
+      .poems-grid-lg {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+        gap: 0.75rem !important;
+        padding: 0 0.25rem;
+      }
+      
+      /* Mobile tile adjustments */
+      .poem-grid-tile {
+        padding: 0.75rem !important;
+        min-height: 120px !important;
+      }
+      
+      .poem-grid-tile .tile-title {
+        font-size: 0.9rem !important;
+        margin-bottom: 0.375rem !important;
+      }
+      
+      .poem-grid-tile .tile-preview {
+        font-size: 0.75rem !important;
+        -webkit-line-clamp: 3 !important;
+        line-clamp: 3 !important;
+      }
+      
+      .poem-grid-tile .tile-meta {
+        font-size: 0.6rem !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
+      }
+      
+      .poem-grid-tile .tile-stats svg {
+        width: 10px !important;
+        height: 10px !important;
+      }
+      
+      /* Mobile list view */
+      #poems-container.grid.gap-6 {
+        gap: 1rem !important;
+        padding: 0 0.5rem;
+      }
+      
+      /* Section header on mobile */
+      .section-header {
+        font-size: 1.5rem !important;
+        padding: 0 0.5rem;
+      }
+      
+      /* App container padding */
+      #app {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+    }
+
+    @media (min-width: 701px) {
+      .mobile-view-toggle {
+        display: none !important;
+      }
+    }
+
+    /* Poem popup modal */
+    .poem-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-normal);
+    }
+
+    .poem-popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .poem-popup {
+      background: var(--surface-elevated);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      transform: scale(0.9) translateY(20px);
+      transition: transform var(--transition-normal);
+    }
+
+    @media (max-width: 700px) {
+      .poem-popup {
+        max-width: calc(100vw - 1rem);
+        max-height: 90vh;
+        border-radius: var(--radius-md);
+        margin: 0.5rem;
+      }
+      
+      .poem-popup-overlay {
+        padding: 0.5rem;
+      }
+    }
+
+    .poem-popup-overlay.show .poem-popup {
+      transform: scale(1) translateY(0);
+    }
+
+    .poem-popup-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .poem-popup-close:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Modern form inputs */
+    .modern-input {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+      width: 100%;
+    }
+
+    .modern-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .modern-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Modern action buttons */
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition-fast);
+      border: none;
+      cursor: pointer;
+    }
+
+    .action-btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .action-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-btn-secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .action-btn-secondary:hover {
+      background: #fff;
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .action-btn-like {
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+      color: #be185d;
+    }
+
+    .action-btn-like:hover, .action-btn-like.active {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    /* Tags styling */
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(244, 114, 182, 0.1) 100%);
+      color: var(--primary);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+
+    /* Section headers */
+    .section-header {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text-primary);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      opacity: 0;
+      transition: all var(--transition-normal);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Smooth animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: var(--shadow-md);
+      }
+      50% {
+        box-shadow: var(--shadow-lg), var(--shadow-glow);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+
+    /* Selection styling */
+    ::selection {
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
     ::-webkit-scrollbar-thumb {
-      background: #a5b4fc;
-      border-radius: 6px;
+      background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary) 100%);
+      border-radius: var(--radius-full);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    /* Loading spinner modern */
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--primary-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Modern modal */
+    #modal-bg {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    #modal {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    /* Link styles */
+    .poem-title-link {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+
+    .poem-title-link:hover {
+      color: var(--primary-dark);
+    }
+
+    /* Comments section */
+    .comments-section {
+      background: rgba(99, 102, 241, 0.03);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Author badge */
+    .author-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(244, 114, 182, 0.08) 100%);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Date styling */
+    .date-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
     }
   </style>
   <!-- Load .env values into window for browser modules -->
@@ -196,101 +1026,98 @@
   <!-- Supabase JS via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col" style="min-height: 100vh;">
+<body class="min-h-screen flex flex-col" style="min-height: 100vh;">
   <!-- Navigation -->
-  <nav class="flex justify-between items-center p-4 fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-blue-100 to-white shadow border-b-2 border-blue-100" style="background: linear-gradient(90deg, var(--main-blue-light) 0%, #fff 100%);">
+  <nav class="flex justify-between items-center px-6 py-4 fixed top-0 left-0 w-full z-50">
     <div id="nav-title" class="nav-title flex flex-col items-start gap-0" style="cursor:pointer;">
-      <div class="flex items-center gap-2">
-        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="38" height="38" class="inline-block align-middle" />
-        <strong>Unblot</strong>
+      <div class="flex items-center gap-3">
+        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="36" height="36" class="inline-block align-middle" style="filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));" />
+        <strong style="background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Unblot</strong>
       </div>
-      <div class="text-xs italic text-blue-700 ml-10 header-tagline" style="font-family: 'EB Garamond', serif;">For the words that won't disappear.</div>
+      <div class="text-xs italic header-tagline" style="font-family: 'Playfair Display', serif; color: var(--text-secondary); margin-left: 3rem;">For the words that won't disappear.</div>
     </div>
     <!-- Search bar for desktop -->
-    <form id="header-search-form" class="hidden md:flex items-center ml-4" style="flex:1;max-width:320px;" autocomplete="off">
-      <input id="header-search-input" type="text" placeholder="Search entries..." class="border border-blue-200 rounded-lg px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-300" style="font-family:'Quicksand',Arial,sans-serif;" />
-      <button type="submit" class="ml-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200" aria-label="Search">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
+    <form id="header-search-form" class="hidden md:flex items-center ml-6" style="flex:1;max-width:360px;" autocomplete="off">
+      <div class="relative w-full">
+        <input id="header-search-input" type="text" placeholder="Search poems..." class="modern-input pl-10 pr-4 py-2" style="border-radius: var(--radius-full);" />
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
     </form>
     <!-- Mobile searchbar, hidden by default -->
     <form id="header-search-form-mobile" class="flex md:hidden items-center ml-2 hidden" style="flex:1;max-width:320px;" autocomplete="off">
-      <input id="header-search-input-mobile" type="text" placeholder="Search entries..." class="border border-blue-200 rounded-lg px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-300" style="font-family:'Quicksand',Arial,sans-serif;" />
-      <button type="submit" class="ml-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200" aria-label="Search">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
+      <div class="relative w-full">
+        <input id="header-search-input-mobile" type="text" placeholder="Search poems..." class="modern-input pl-10 pr-4 py-2" style="border-radius: var(--radius-full);" />
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
     </form>
     <!-- Hamburger and search icon for mobile -->
-    <div class="flex md:hidden items-center ml-2">
-      <button id="header-search-icon" class="flex items-center justify-center p-2 rounded-lg bg-blue-100 text-blue-700" aria-label="Search" style="height:40px;width:40px;">
-        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <div class="flex md:hidden items-center ml-2 gap-2">
+      <button id="header-search-icon" class="flex items-center justify-center p-2.5 rounded-full" aria-label="Search" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+        <svg width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
-      <button class="hamburger flex flex-col justify-center items-center w-10 h-10 bg-transparent border-none cursor-pointer" aria-label="Open navigation" id="hamburger-menu" style="margin-left:4px;">
-        <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
-        <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
-        <span style="width:24px;height:3px;background:#2563eb;margin:3px 0;border-radius:2px;display:block;"></span>
+      <button class="hamburger flex flex-col justify-center items-center w-10 h-10 rounded-full border-none cursor-pointer" aria-label="Open navigation" id="hamburger-menu" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+        <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
+        <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
+        <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
       </button>
     </div>
-    <div class="nav-actions flex gap-3 flex-col md:flex-row absolute md:static right-4 top-16 bg-white md:bg-transparent shadow md:shadow-none rounded md:rounded-none p-4 md:p-0 transition-all duration-300 ease-in-out" id="nav-actions" style="display:none;">
+    <div class="nav-actions flex gap-2 flex-col md:flex-row absolute md:static right-4 top-16 bg-white md:bg-transparent shadow md:shadow-none rounded md:rounded-none p-4 md:p-0 transition-all duration-300 ease-in-out" id="nav-actions" style="display:none;">
       <button id="nav-login" class="nav-btn">Login</button>
       <button id="nav-register" class="nav-btn">Register</button>
       <button id="nav-discover" class="nav-btn">Discover</button>
       <button id="nav-my-poems" class="nav-btn">By You</button>
       <button id="nav-add-poem" class="nav-btn">Add Poem</button>
-      <button id="nav-logout" class="nav-btn" style="color:#dc2626;">Logout</button>
+      <button id="nav-logout" class="nav-btn" style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); color: #dc2626;">Logout</button>
       <span id="current-user-id" class="ml-2 text-gray-500" style="display:none;"></span>
     </div>
+    <!-- Side panel overlay for mobile -->
+    <div id="side-panel-overlay"></div>
     <!-- Side panel for mobile nav -->
-    <div id="side-panel" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between md:hidden" style="max-width:80vw;">
-      <div class="flex flex-col gap-0 pt-12">
-        <button id="nav-login-mobile" class="nav-btn side-nav-btn">Login</button>
-        <button id="nav-register-mobile" class="nav-btn side-nav-btn">Register</button>
-        <button id="nav-discover-mobile" class="nav-btn side-nav-btn">Discover</button>
-        <button id="nav-my-poems-mobile" class="nav-btn side-nav-btn">By You</button>
-        <button id="nav-add-poem-mobile" class="nav-btn side-nav-btn">Add Poem</button>
-        <a href="./assets/UnblotAndroid.apk" download class="nav-btn side-nav-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.5em;">Download APK</a>
-        <button id="nav-logout-mobile" class="nav-btn side-nav-btn" style="color:#dc2626;">Logout</button>
+    <div id="side-panel">
+      <div class="side-panel-content">
+        <button id="nav-login-mobile" class="side-nav-btn">🔐 Login</button>
+        <button id="nav-register-mobile" class="side-nav-btn">📝 Register</button>
+        <button id="nav-discover-mobile" class="side-nav-btn">🔍 Discover</button>
+        <button id="nav-my-poems-mobile" class="side-nav-btn hidden">📖 By You</button>
+        <button id="nav-add-poem-mobile" class="side-nav-btn hidden">✍️ Add Poem</button>
+        <a href="./assets/UnblotAndroid.apk" download class="side-nav-btn">📱 Download APK</a>
+        <button id="nav-logout-mobile" class="side-nav-btn logout-btn hidden">👋 Logout</button>
       </div>
-      <div class="flex flex-row items-center justify-center gap-3 mb-8">
-        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="50" height="50" class="inline-block align-left" />
-        <div class="font-bold text-blue-700 text-2xl" style="font-size:2rem;">Unblot</div>
+      <div class="side-panel-footer">
+        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="40" height="40" />
+        <span class="side-panel-brand">Unblot</span>
       </div>
     </div>
   </nav>
 
   <!-- Loading Indicator -->
-  <div id="loading-indicator" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 hidden">
-    <div class="loader ease-linear rounded-full border-8 border-t-8 border-blue-200 h-16 w-16 shadow-lg" style="border-top-color: var(--main-blue);"></div>
-    <style>
-      .loader {
-        border-top-color: var(--main-blue);
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
+  <div id="loading-indicator" class="fixed inset-0 flex items-center justify-center z-50 hidden" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+    <div class="flex flex-col items-center gap-4">
+      <div class="loader"></div>
+      <span style="color: var(--primary); font-weight: 500; font-size: 0.875rem;">Loading...</span>
+    </div>
   </div>
 
   <!-- Modal -->
-  <div id="modal-bg" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div id="modal" class="cozy-card" style="max-width: 95vw; min-width: 320px; border: 2px solid var(--main-blue-light);">
-      <div id="modal-message" class="mb-4 text-lg font-serif text-blue-900"></div>
-      <div id="modal-actions" class="flex justify-end gap-2"></div>
+  <div id="modal-bg" class="fixed inset-0 flex items-center justify-center z-50 hidden" style="background: rgba(30, 27, 75, 0.4);">
+    <div id="modal" class="cozy-card" style="max-width: 90vw; min-width: 320px; max-width: 440px;">
+      <div id="modal-message" class="mb-6 text-lg" style="font-family: 'Playfair Display', serif; color: var(--text-primary); line-height: 1.6;"></div>
+      <div id="modal-actions" class="flex justify-end gap-3"></div>
     </div>
   </div>
 
   <!-- Main Content Container for App -->
-  <main class="flex-1 flex flex-col" style="padding-top:6.5rem;">
-    <div id="app" class="flex flex-col items-center justify-center w-full h-full py-8 px-2 sm:px-0" style="max-width:700px; margin:0 auto;"></div>
+  <main class="flex-1 flex flex-col" style="padding-top: 5.5rem;">
+    <div id="app" class="flex flex-col items-center justify-center w-full h-full py-4 px-2 sm:px-4" style="max-width: 100%; margin: 0 auto;"></div>
   </main>
 
   <!-- Footer -->
-  <footer class="w-full flex flex-col items-center justify-center py-1 mt-auto" style="background: var(--main-blue-light); border-top: 2px solid #e0e7ff;">
-    <div class="text-s italic text-blue-700 ml-1" style="font-family: 'EB Garamond', serif;">Unsaid but Written.</div>
-    <div class="text-xs text-gray-500 mt-1">&copy; 2025 @_stillgio</div>
-
+  <footer class="w-full flex flex-col items-center justify-center py-6 mt-auto" style="background: var(--surface); border-top: 1px solid var(--border);">
+    <div class="flex items-center gap-2 mb-2">
+      <img src="./assets/unblot_logo.png" alt="Unblot" width="20" height="20" style="opacity: 0.7;" />
+      <span style="font-family: 'Playfair Display', serif; font-style: italic; color: var(--primary); font-size: 0.9rem;">Unsaid but Written.</span>
+    </div>
+    <div style="font-size: 0.75rem; color: var(--text-muted);">&copy; 2025 @_stillgio</div>
   </footer>
 
   <!-- Poetry Share App Modules -->
@@ -304,25 +1131,33 @@
     // Utility to show/hide nav buttons based on login state
     window.setNavAuthState = function setNavAuthState(isLoggedIn) {
       // Mobile nav only (desktop uses hidden class via updateNav)
-      const show = el => el.classList.remove('hidden');
-      const hide = el => el.classList.add('hidden');
-      // Always show discover
-      show(document.getElementById('nav-discover-mobile'));
-      // Desktop nav actions
+      const show = el => { if (el) el.classList.remove('hidden'); };
+      const hide = el => { if (el) el.classList.add('hidden'); };
+      
+      const loginMobile = document.getElementById('nav-login-mobile');
+      const registerMobile = document.getElementById('nav-register-mobile');
+      const discoverMobile = document.getElementById('nav-discover-mobile');
+      const myPoemsMobile = document.getElementById('nav-my-poems-mobile');
+      const addPoemMobile = document.getElementById('nav-add-poem-mobile');
+      const logoutMobile = document.getElementById('nav-logout-mobile');
       const navLogout = document.getElementById('nav-logout');
+      
+      // Always show discover
+      show(discoverMobile);
+      
       if (isLoggedIn) {
-        hide(document.getElementById('nav-login-mobile'));
-        hide(document.getElementById('nav-register-mobile'));
-        show(document.getElementById('nav-my-poems-mobile'));
-        show(document.getElementById('nav-add-poem-mobile'));
-        show(document.getElementById('nav-logout-mobile'));
+        hide(loginMobile);
+        hide(registerMobile);
+        show(myPoemsMobile);
+        show(addPoemMobile);
+        show(logoutMobile);
         if (navLogout) navLogout.style.display = '';
       } else {
-        show(document.getElementById('nav-login-mobile'));
-        show(document.getElementById('nav-register-mobile'));
-        hide(document.getElementById('nav-my-poems-mobile'));
-        hide(document.getElementById('nav-add-poem-mobile'));
-        hide(document.getElementById('nav-logout-mobile'));
+        show(loginMobile);
+        show(registerMobile);
+        hide(myPoemsMobile);
+        hide(addPoemMobile);
+        hide(logoutMobile);
         if (navLogout) navLogout.style.display = 'none';
       }
     }
@@ -383,11 +1218,27 @@
       // Hamburger menu toggle for mobile (side panel)
       const hamburger = document.getElementById('hamburger-menu');
       const sidePanel = document.getElementById('side-panel');
-      // Open side panel
-      hamburger.addEventListener('click', function() {
+      const sidePanelOverlay = document.getElementById('side-panel-overlay');
+      
+      function openSidePanel() {
         sidePanel.classList.add('open');
         sidePanel.style.transform = 'translateX(0)';
-      });
+        sidePanelOverlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeSidePanel() {
+        sidePanel.classList.remove('open');
+        sidePanel.style.transform = '';
+        sidePanelOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+      
+      // Open side panel
+      hamburger.addEventListener('click', openSidePanel);
+      
+      // Close side panel when clicking overlay
+      sidePanelOverlay.addEventListener('click', closeSidePanel);
 
       // Hide mobile search icon after click
       // ...existing code...
@@ -395,17 +1246,16 @@
       document.addEventListener('mousedown', function(e) {
         if (window.innerWidth <= 700 && sidePanel.classList.contains('open')) {
           if (!sidePanel.contains(e.target) && !hamburger.contains(e.target)) {
-            sidePanel.classList.remove('open');
-            sidePanel.style.transform = '';
+            closeSidePanel();
           }
         }
       });
       // Navigation actions for side panel (mobile)
-      document.getElementById('nav-login-mobile').addEventListener('click', function() { window.location.hash = 'login'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('nav-register-mobile').addEventListener('click', function() { window.location.hash = 'register'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('nav-discover-mobile').addEventListener('click', function() { window.location.hash = 'discover'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('nav-my-poems-mobile').addEventListener('click', function() { window.location.hash = 'my-poems'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
-      document.getElementById('nav-add-poem-mobile').addEventListener('click', function() { window.location.hash = 'add-poem'; sidePanel.classList.remove('open'); sidePanel.style.transform = ''; });
+      document.getElementById('nav-login-mobile').addEventListener('click', function() { window.location.hash = 'login'; closeSidePanel(); });
+      document.getElementById('nav-register-mobile').addEventListener('click', function() { window.location.hash = 'register'; closeSidePanel(); });
+      document.getElementById('nav-discover-mobile').addEventListener('click', function() { window.location.hash = 'discover'; closeSidePanel(); });
+      document.getElementById('nav-my-poems-mobile').addEventListener('click', function() { window.location.hash = 'my-poems'; closeSidePanel(); });
+      document.getElementById('nav-add-poem-mobile').addEventListener('click', function() { window.location.hash = 'add-poem'; closeSidePanel(); });
       document.getElementById('nav-logout-mobile').addEventListener('click', async function() {
         try {
           // Dynamically import the logout logic from main.js
@@ -419,16 +1269,46 @@
         } catch (e) {
           window.location.hash = '#home';
         }
-        sidePanel.classList.remove('open');
-        sidePanel.style.transform = '';
+        closeSidePanel();
       });
       // Hide side panel on resize
       window.addEventListener('resize', function() {
         if (window.innerWidth > 700) {
-          sidePanel.classList.remove('open');
-          sidePanel.style.transform = '';
+          closeSidePanel();
         }
       });
+
+      // Header view toggle functionality
+      function initHeaderViewToggle() {
+        const savedView = localStorage.getItem('poemViewMode') || 'grid';
+        
+        // Update all toggle buttons to reflect saved state
+        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+          if (btn.getAttribute('data-view') === savedView) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        // Add click handlers to all toggle buttons (header + mobile)
+        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const view = btn.getAttribute('data-view');
+            localStorage.setItem('poemViewMode', view);
+            
+            // Update all toggle buttons
+            document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll(`.view-toggle-btn[data-view="${view}"]`).forEach(b => b.classList.add('active'));
+            
+            // Trigger view change in the app
+            window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: { view } }));
+          });
+        });
+      }
+      
+      initHeaderViewToggle();
+      
       // setNavAuthState is now called automatically by updateNav in auth.js
     });
   </script>

@@ -11,20 +11,45 @@ export async function renderEditPoem(dom, poemId) {
     const poem = await fetchPoemById(poemId);
     if (!poem) throw new Error('Poem not found');
     if (!currentUser || currentUser.id !== poem.user_id) {
-      dom.app.innerHTML = `<div class="text-center text-lg">You are not authorized to edit this poem.</div>`;
+      dom.app.innerHTML = `
+        <div class="text-center py-12 animate-fade-in">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+          <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You are not authorized to edit this poem.</p>
+          <button onclick="window.location.hash='#discover'" class="action-btn action-btn-secondary mt-4">Go to Discover</button>
+        </div>`;
       return;
     }
     dom.app.innerHTML = `
-      <form id="edit-poem-form" class="cozy-card flex flex-col gap-4" style="max-width: 480px; margin: 0 auto;">
-        <h2 class="text-2xl font-bold mb-2 text-center" style="font-family: 'EB Garamond', serif; color: var(--main-blue);">Edit Poem</h2>
-        <input type="text" id="poem-title" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Title" value="${utils.escapeHTML(poem.title)}" required style="font-family: 'EB Garamond', serif; font-size: 1.1em;" />
-        <textarea id="poem-content" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Poem content" rows="6" required style="font-family: 'EB Garamond', serif; font-size: 1.08em;">${utils.escapeHTML(poem.content)}</textarea>
-        <input type="text" id="poem-tags" class="rounded-lg border border-blue-200 px-3 py-2 bg-blue-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition" placeholder="Tags (comma separated)" value="${utils.tagsToString(poem.tags)}" style="font-size: 1em;" />
-        <div class="flex gap-2">
-          <button type="submit" class="nav-btn flex-1">Save Changes</button>
-          <button type="button" id="cancel-btn" class="nav-btn flex-1" style="background: #f1f5f9; color: #64748b;">Cancel</button>
-        </div>
-      </form>
+      <div class="w-full max-w-xl mx-auto animate-fade-in">
+        <form id="edit-poem-form" class="cozy-card">
+          <div class="text-center mb-8">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
+            <h2 class="section-header" style="margin-bottom: 0.5rem;">Edit Your Poem</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Refine your words</p>
+          </div>
+          <div class="flex flex-col gap-5">
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Title</label>
+              <input type="text" id="poem-title" class="modern-input" placeholder="Poem title" value="${utils.escapeHTML(poem.title)}" required />
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Your Poem</label>
+              <textarea id="poem-content" class="modern-input" placeholder="Your poem content..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.8;">${utils.escapeHTML(poem.content)}</textarea>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Tags</label>
+              <input type="text" id="poem-tags" class="modern-input" placeholder="love, nature, reflection (comma separated)" value="${utils.tagsToString(poem.tags)}" />
+            </div>
+            <div class="flex gap-3 mt-4">
+              <button type="submit" class="action-btn action-btn-primary flex-1 justify-center py-3" style="font-size: 1rem;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Changes
+              </button>
+              <button type="button" id="cancel-btn" class="action-btn action-btn-secondary flex-1 justify-center py-3" style="font-size: 1rem;">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
     `;
     document.getElementById('cancel-btn').onclick = () => window.location.hash = `#view-poem/${poemId}`;
     document.getElementById('edit-poem-form').onsubmit = async (e) => {
