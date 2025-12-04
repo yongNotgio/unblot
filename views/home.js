@@ -32,27 +32,10 @@ export async function renderHome(dom, page = 1) {
     };
     
     let html = `<div class="w-full">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <h1 class="section-header" style="margin-bottom: 0;">The Unsaid</h1>
-        <div class="view-toggle">
-          <button class="view-toggle-btn ${savedView === 'grid-sm' ? 'active' : ''}" data-view="grid-sm" title="Small grid">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="10" y="3" width="5" height="5"/><rect x="17" y="3" width="5" height="5"/><rect x="3" y="10" width="5" height="5"/><rect x="10" y="10" width="5" height="5"/><rect x="17" y="10" width="5" height="5"/><rect x="3" y="17" width="5" height="5"/><rect x="10" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/></svg>
-          </button>
-          <button class="view-toggle-btn ${savedView === 'grid' ? 'active' : ''}" data-view="grid" title="Medium grid">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          </button>
-          <button class="view-toggle-btn ${savedView === 'grid-lg' ? 'active' : ''}" data-view="grid-lg" title="Large grid">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
-          </button>
-          <button class="view-toggle-btn ${savedView === 'list' ? 'active' : ''}" data-view="list" title="List view">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-        </div>
-      </div>
       <div id="poems-container" class="${getContainerClass(savedView)}" style="max-width: ${savedView === 'list' ? '720px' : '100%'}; margin: 0 auto;">`;
     if (poems.length === 0) {
       html += `<div class="text-center py-12" style="color: var(--text-secondary);">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+
         <p style="font-family: 'EB Garamond', serif; font-size: 1.25rem;">No poems found yet.</p>
         <p style="font-size: 0.875rem; margin-top: 0.5rem;">Be the first to share your words!</p>
       </div>`;
@@ -131,8 +114,22 @@ export async function renderHome(dom, page = 1) {
       
       // Show based on saved preference
       html += savedView === 'list' ? listHtml : gridHtml;
+    }
+    
     // Add click handler to poem title links to show only the clicked poem
     setTimeout(() => {
+      // Show the header view toggle (desktop)
+      const headerToggleContainer = document.getElementById('header-view-toggle-container');
+      if (headerToggleContainer) {
+        headerToggleContainer.classList.remove('hidden');
+      }
+      
+      // Show the mobile header view toggle
+      const mobileHeaderToggleContainer = document.getElementById('mobile-header-toggle-container');
+      if (mobileHeaderToggleContainer) {
+        mobileHeaderToggleContainer.classList.remove('hidden');
+      }
+      
       // Helper to get container class based on view
       const getContainerClass = (view) => {
         if (view === 'list') return 'grid gap-6';
@@ -141,8 +138,8 @@ export async function renderHome(dom, page = 1) {
         return 'poems-grid';
       };
 
-      // Listen for header view toggle changes
-      window.addEventListener('viewModeChanged', function(e) {
+      // Listen for view mode changes from header toggle
+      const viewChangeHandler = (e) => {
         const view = e.detail.view;
         
         // Update container
@@ -157,7 +154,12 @@ export async function renderHome(dom, page = 1) {
           attachListHandlers();
           loadCounts();
         }
-      });
+      };
+      
+      window.addEventListener('viewModeChanged', viewChangeHandler);
+      
+      // Cleanup listener when navigating away
+      window._homeViewChangeHandler = viewChangeHandler;
 
       // Function to attach grid tile click handlers
       function attachGridHandlers() {
@@ -212,7 +214,7 @@ export async function renderHome(dom, page = 1) {
       attachGridHandlers();
       attachListHandlers();
     }, 0);
-    }
+    
     html += `</div>`;
     
     // Add pagination controls

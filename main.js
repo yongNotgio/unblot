@@ -60,7 +60,7 @@ export async function handleLogout(e) {
     utils.showLoading(dom, false);
   }
 }
-dom.navLogout.onclick = handleLogout;
+if (dom.navLogout) dom.navLogout.onclick = handleLogout;
 
 dom.modalBg.onclick = e => { if (e.target === dom.modalBg) utils.hideModal(dom); };
 

@@ -34,12 +34,11 @@ export async function renderDiscover(dom, page = 1) {
     };
     
     let html = `<div class="w-full">
-      <h1 class="section-header mb-6">Discover Poems</h1>
       <div id="poems-container" class="${getContainerClass(savedView)}" style="max-width: ${savedView === 'list' ? '720px' : '100%'}; margin: 0 auto;">`;
       
     if (poems.length === 0) {
       html += `<div class="text-center py-12" style="color: var(--text-secondary);">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+
         <p style="font-family: 'EB Garamond', serif; font-size: 1.25rem;">No poems found yet.</p>
         <p style="font-size: 0.875rem; margin-top: 0.5rem;">Be the first to share your words!</p>
       </div>`;
@@ -138,6 +137,18 @@ export async function renderDiscover(dom, page = 1) {
 
     // Add click handler to poem title links
     setTimeout(() => {
+      // Show the header view toggle (desktop)
+      const headerToggleContainer = document.getElementById('header-view-toggle-container');
+      if (headerToggleContainer) {
+        headerToggleContainer.classList.remove('hidden');
+      }
+      
+      // Show the mobile header view toggle
+      const mobileHeaderToggleContainer = document.getElementById('mobile-header-toggle-container');
+      if (mobileHeaderToggleContainer) {
+        mobileHeaderToggleContainer.classList.remove('hidden');
+      }
+      
       // Helper to get container class based on view
       const getContainerClass = (view) => {
         if (view === 'list') return 'grid gap-6';
@@ -146,8 +157,8 @@ export async function renderDiscover(dom, page = 1) {
         return 'poems-grid';
       };
 
-      // Listen for header view toggle changes
-      window.addEventListener('viewModeChanged', function(e) {
+      // Listen for view mode changes from header toggle
+      const viewChangeHandler = (e) => {
         const view = e.detail.view;
         
         // Update container
@@ -162,7 +173,12 @@ export async function renderDiscover(dom, page = 1) {
           attachListHandlers();
           loadCounts();
         }
-      });
+      };
+      
+      window.addEventListener('viewModeChanged', viewChangeHandler);
+      
+      // Cleanup listener when navigating away
+      window._discoverViewChangeHandler = viewChangeHandler;
 
       // Function to attach grid tile click handlers
       function attachGridHandlers() {

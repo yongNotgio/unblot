@@ -9,7 +9,7 @@ export function renderLogin(dom) {
     <div class="w-full max-w-md mx-auto animate-fade-in">
       <form id="login-form" class="cozy-card">
         <div class="text-center mb-8">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+
           <h2 class="section-header" style="margin-bottom: 0.5rem;">Welcome Back</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">Sign in to continue sharing your poetry</p>
         </div>

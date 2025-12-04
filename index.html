@@ -296,6 +296,15 @@
       #side-panel .view-toggle {
         background: #f3f4f6;
       }
+      .mobile-view-toggle {
+        padding: 16px;
+        margin-top: 8px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .mobile-view-toggle .view-toggle {
+        background: #f3f4f6;
+        justify-content: center;
+      }
       #side-panel-overlay {
         display: none;
         position: fixed;
@@ -625,6 +634,120 @@
     .view-toggle-btn.active {
       background: var(--primary);
       color: white;
+    }
+
+    /* Collapsible view toggle dropdown */
+    .view-toggle-container {
+      position: relative;
+    }
+
+    .view-toggle-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .view-toggle-trigger:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .view-toggle-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 0.5rem;
+      display: none;
+      z-index: 1000;
+    }
+
+    .view-toggle-dropdown.open {
+      display: block;
+    }
+
+    .view-toggle-dropdown .view-toggle {
+      flex-direction: column;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      gap: 0.25rem;
+    }
+
+    .view-toggle-dropdown .view-toggle-btn {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      justify-content: flex-start;
+      gap: 0.5rem;
+    }
+
+    .view-toggle-dropdown .view-toggle-btn span {
+      font-size: 0.875rem;
+    }
+
+    /* Header icon button (logout, etc) */
+    .header-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+    }
+
+    .header-icon-btn.logout-icon:hover {
+      background: rgba(220, 38, 38, 0.1);
+      color: #dc2626;
+    }
+
+    /* Header actions group */
+    .header-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-actions-group.desktop-only {
+        display: none;
+      }
+    }
+
+    /* Mobile header view toggle */
+    .mobile-header-toggle {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-header-toggle {
+        display: flex;
+      }
+      .mobile-header-toggle .view-toggle-container {
+        display: block;
+      }
     }
 
     /* Hide view toggle on mobile in header, show in side panel */
@@ -1039,7 +1162,7 @@
     <!-- Search bar for desktop -->
     <form id="header-search-form" class="hidden md:flex items-center ml-6" style="flex:1;max-width:360px;" autocomplete="off">
       <div class="relative w-full">
-        <input id="header-search-input" type="text" placeholder="Search poems..." class="modern-input pl-10 pr-4 py-2" style="border-radius: var(--radius-full);" />
+        <input id="header-search-input" type="text" class="modern-input pl-10 pr-4 py-2" style="border-radius: var(--radius-full);" />
         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
     </form>
@@ -1050,38 +1173,99 @@
         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
     </form>
-    <!-- Hamburger and search icon for mobile -->
-    <div class="flex md:hidden items-center ml-2 gap-2">
+    <!-- Hamburger, toggle, and search icon for mobile -->
+    <div class="flex md:hidden items-center ml-auto gap-2">
       <button id="header-search-icon" class="flex items-center justify-center p-2.5 rounded-full" aria-label="Search" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
         <svg width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
+      <!-- Mobile view toggle in header -->
+      <div class="mobile-header-toggle hidden" id="mobile-header-toggle-container">
+        <div class="view-toggle-container" id="mobile-header-view-toggle-wrapper">
+          <button class="view-toggle-trigger" id="mobile-view-toggle-trigger" title="Change view" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+            <svg width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <div class="view-toggle-dropdown" id="mobile-view-toggle-dropdown">
+            <div class="view-toggle" id="mobile-header-view-toggle">
+              <button class="view-toggle-btn" data-view="grid-sm" title="Small grid">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="10" y="3" width="5" height="5"/><rect x="17" y="3" width="5" height="5"/><rect x="3" y="10" width="5" height="5"/><rect x="10" y="10" width="5" height="5"/><rect x="17" y="10" width="5" height="5"/><rect x="3" y="17" width="5" height="5"/><rect x="10" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/></svg>
+                <span>Small</span>
+              </button>
+              <button class="view-toggle-btn" data-view="grid" title="Medium grid">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <span>Medium</span>
+              </button>
+              <button class="view-toggle-btn" data-view="grid-lg" title="Large grid">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+                <span>Large</span>
+              </button>
+              <button class="view-toggle-btn" data-view="list" title="List view">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <span>List</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <button class="hamburger flex flex-col justify-center items-center w-10 h-10 rounded-full border-none cursor-pointer" aria-label="Open navigation" id="hamburger-menu" style="background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
         <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
         <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
         <span style="width:18px;height:2px;background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);margin:2px 0;border-radius:2px;display:block;transition: all 0.3s;"></span>
       </button>
     </div>
-    <div class="nav-actions flex gap-2 flex-col md:flex-row absolute md:static right-4 top-16 bg-white md:bg-transparent shadow md:shadow-none rounded md:rounded-none p-4 md:p-0 transition-all duration-300 ease-in-out" id="nav-actions" style="display:none;">
+    <!-- Desktop navigation buttons -->
+    <div class="nav-actions hidden" id="nav-actions">
       <button id="nav-login" class="nav-btn">Login</button>
       <button id="nav-register" class="nav-btn">Register</button>
       <button id="nav-discover" class="nav-btn">Discover</button>
       <button id="nav-my-poems" class="nav-btn">By You</button>
       <button id="nav-add-poem" class="nav-btn">Add Poem</button>
-      <button id="nav-logout" class="nav-btn" style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); color: #dc2626;">Logout</button>
       <span id="current-user-id" class="ml-2 text-gray-500" style="display:none;"></span>
+    </div>
+    <!-- Header actions group (view toggle + logout button) - rightmost -->
+    <div class="header-actions-group desktop-only">
+      <!-- View toggle dropdown in header -->
+      <div class="view-toggle-container hidden" id="header-view-toggle-container">
+        <button class="view-toggle-trigger" id="view-toggle-trigger" title="Change view">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <div class="view-toggle-dropdown" id="view-toggle-dropdown">
+          <div class="view-toggle" id="header-view-toggle">
+            <button class="view-toggle-btn" data-view="grid-sm" title="Small grid">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="10" y="3" width="5" height="5"/><rect x="17" y="3" width="5" height="5"/><rect x="3" y="10" width="5" height="5"/><rect x="10" y="10" width="5" height="5"/><rect x="17" y="10" width="5" height="5"/><rect x="3" y="17" width="5" height="5"/><rect x="10" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/></svg>
+              <span>Small</span>
+            </button>
+            <button class="view-toggle-btn" data-view="grid" title="Medium grid">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              <span>Medium</span>
+            </button>
+            <button class="view-toggle-btn" data-view="grid-lg" title="Large grid">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+              <span>Large</span>
+            </button>
+            <button class="view-toggle-btn" data-view="list" title="List view">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>List</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Logout button with icon -->
+      <button id="nav-logout" class="header-icon-btn logout-icon hidden" title="Logout">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
     <!-- Side panel overlay for mobile -->
     <div id="side-panel-overlay"></div>
     <!-- Side panel for mobile nav -->
     <div id="side-panel">
       <div class="side-panel-content">
-        <button id="nav-login-mobile" class="side-nav-btn">🔐 Login</button>
-        <button id="nav-register-mobile" class="side-nav-btn">📝 Register</button>
-        <button id="nav-discover-mobile" class="side-nav-btn">🔍 Discover</button>
-        <button id="nav-my-poems-mobile" class="side-nav-btn hidden">📖 By You</button>
-        <button id="nav-add-poem-mobile" class="side-nav-btn hidden">✍️ Add Poem</button>
-        <a href="./assets/UnblotAndroid.apk" download class="side-nav-btn">📱 Download APK</a>
-        <button id="nav-logout-mobile" class="side-nav-btn logout-btn hidden">👋 Logout</button>
+        <button id="nav-login-mobile" class="side-nav-btn">Login</button>
+        <button id="nav-register-mobile" class="side-nav-btn">Register</button>
+        <button id="nav-discover-mobile" class="side-nav-btn">Discover</button>
+        <button id="nav-my-poems-mobile" class="side-nav-btn hidden">By You</button>
+        <button id="nav-add-poem-mobile" class="side-nav-btn hidden">Add Poem</button>
+        <a href="./assets/UnblotAndroid.apk" download class="side-nav-btn">Download APK</a>
+        <button id="nav-logout-mobile" class="side-nav-btn logout-btn hidden">Logout</button>
       </div>
       <div class="side-panel-footer">
         <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="40" height="40" />
@@ -1151,14 +1335,14 @@
         show(myPoemsMobile);
         show(addPoemMobile);
         show(logoutMobile);
-        if (navLogout) navLogout.style.display = '';
+        show(navLogout);
       } else {
         show(loginMobile);
         show(registerMobile);
         hide(myPoemsMobile);
         hide(addPoemMobile);
         hide(logoutMobile);
-        if (navLogout) navLogout.style.display = 'none';
+        hide(navLogout);
       }
     }
 
@@ -1277,37 +1461,136 @@
           closeSidePanel();
         }
       });
-
-      // Header view toggle functionality
-      function initHeaderViewToggle() {
-        const savedView = localStorage.getItem('poemViewMode') || 'grid';
+      
+      // View toggle dropdown logic
+      const viewToggleTrigger = document.getElementById('view-toggle-trigger');
+      const viewToggleDropdown = document.getElementById('view-toggle-dropdown');
+      const headerViewToggle = document.getElementById('header-view-toggle');
+      
+      if (viewToggleTrigger && viewToggleDropdown) {
+        // Toggle dropdown on click
+        viewToggleTrigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          viewToggleDropdown.classList.toggle('open');
+        });
         
-        // Update all toggle buttons to reflect saved state
-        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
-          if (btn.getAttribute('data-view') === savedView) {
-            btn.classList.add('active');
-          } else {
-            btn.classList.remove('active');
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!viewToggleDropdown.contains(e.target) && !viewToggleTrigger.contains(e.target)) {
+            viewToggleDropdown.classList.remove('open');
           }
         });
-
-        // Add click handlers to all toggle buttons (header + mobile)
-        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const view = btn.getAttribute('data-view');
+        
+        // Update active state based on saved preference (both desktop and mobile)
+        function updateViewToggleActiveState() {
+          const savedView = localStorage.getItem('poemViewMode') || 'grid';
+          
+          // Update desktop toggle
+          const desktopButtons = headerViewToggle.querySelectorAll('.view-toggle-btn');
+          desktopButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === savedView);
+          });
+          
+          // Update mobile toggle
+          const mobileViewToggle = document.getElementById('mobile-view-toggle');
+          if (mobileViewToggle) {
+            const mobileButtons = mobileViewToggle.querySelectorAll('.view-toggle-btn');
+            mobileButtons.forEach(btn => {
+              btn.classList.toggle('active', btn.dataset.view === savedView);
+            });
+          }
+        }
+        
+        // Handle view toggle button clicks (desktop)
+        if (headerViewToggle) {
+          headerViewToggle.addEventListener('click', function(e) {
+            const btn = e.target.closest('.view-toggle-btn');
+            if (!btn) return;
+            
+            const view = btn.dataset.view;
             localStorage.setItem('poemViewMode', view);
             
-            // Update all toggle buttons
-            document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll(`.view-toggle-btn[data-view="${view}"]`).forEach(b => b.classList.add('active'));
+            // Update active state
+            updateViewToggleActiveState();
             
-            // Trigger view change in the app
+            // Close dropdown
+            viewToggleDropdown.classList.remove('open');
+            
+            // Dispatch custom event for views to listen to
             window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: { view } }));
           });
+        }
+        
+        // Initialize active state
+        updateViewToggleActiveState();
+      }
+      
+      // Mobile header view toggle (between search and hamburger)
+      const mobileViewToggleTrigger = document.getElementById('mobile-view-toggle-trigger');
+      const mobileViewToggleDropdown = document.getElementById('mobile-view-toggle-dropdown');
+      const mobileHeaderViewToggle = document.getElementById('mobile-header-view-toggle');
+      
+      if (mobileViewToggleTrigger && mobileViewToggleDropdown) {
+        // Toggle dropdown on click
+        mobileViewToggleTrigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          mobileViewToggleDropdown.classList.toggle('open');
+          // Close desktop dropdown if open
+          if (viewToggleDropdown) viewToggleDropdown.classList.remove('open');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!mobileViewToggleDropdown.contains(e.target) && !mobileViewToggleTrigger.contains(e.target)) {
+            mobileViewToggleDropdown.classList.remove('open');
+          }
         });
       }
       
-      initHeaderViewToggle();
+      if (mobileHeaderViewToggle) {
+        mobileHeaderViewToggle.addEventListener('click', function(e) {
+          const btn = e.target.closest('.view-toggle-btn');
+          if (!btn) return;
+          
+          const view = btn.dataset.view;
+          localStorage.setItem('poemViewMode', view);
+          
+          // Update all toggles
+          updateAllViewToggles(view);
+          
+          // Close dropdown
+          mobileViewToggleDropdown.classList.remove('open');
+          
+          // Dispatch custom event for views to listen to
+          window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: { view } }));
+        });
+        
+        // Initialize mobile header toggle active state
+        const savedView = localStorage.getItem('poemViewMode') || 'grid';
+        const buttons = mobileHeaderViewToggle.querySelectorAll('.view-toggle-btn');
+        buttons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === savedView);
+        });
+      }
+      
+      // Helper function to update all view toggles
+      function updateAllViewToggles(view) {
+        // Desktop toggle
+        const headerViewToggle = document.getElementById('header-view-toggle');
+        if (headerViewToggle) {
+          headerViewToggle.querySelectorAll('.view-toggle-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.view === view);
+          });
+        }
+        
+        // Mobile header toggle
+        const mobileHeaderViewToggle = document.getElementById('mobile-header-view-toggle');
+        if (mobileHeaderViewToggle) {
+          mobileHeaderViewToggle.querySelectorAll('.view-toggle-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.view === view);
+          });
+        }
+      }
       
       // setNavAuthState is now called automatically by updateNav in auth.js
     });
