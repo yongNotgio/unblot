@@ -3,6 +3,7 @@
 import { addPoem } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
 export function renderAddPoem(dom) {
   if (!currentUser) {
@@ -10,8 +11,9 @@ export function renderAddPoem(dom) {
       <div class="text-center py-12 animate-fade-in">
 
         <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You must be logged in to add a poem.</p>
-        <button onclick="window.location.hash='#login'" class="action-btn action-btn-primary mt-4">Sign In</button>
+        <button id="login-redirect-btn" class="action-btn action-btn-primary mt-4">Sign In</button>
       </div>`;
+    document.getElementById('login-redirect-btn').onclick = () => navigate('/login');
     return;
   }
   dom.app.innerHTML = `
@@ -48,7 +50,7 @@ export function renderAddPoem(dom) {
       </form>
     </div>
   `;
-  document.getElementById('cancel-btn').onclick = () => window.location.hash = '#my-poems';
+  document.getElementById('cancel-btn').onclick = () => navigate('/my-poems');
   document.getElementById('add-poem-form').onsubmit = async (e) => {
     e.preventDefault();
     utils.showLoading(dom, true);
@@ -58,7 +60,7 @@ export function renderAddPoem(dom) {
     try {
       await addPoem({ title, content, tags, user_id: currentUser.id });
       utils.showToast(dom, 'Poem added!');
-      setTimeout(() => window.location.hash = '#my-poems', 1000);
+      setTimeout(() => navigate('/my-poems'), 1000);
     } catch (err) {
       utils.showModal(dom, 'Failed to add poem: ' + (err.message || err));
     } finally {

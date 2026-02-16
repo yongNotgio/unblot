@@ -1,14 +1,35 @@
 // Auth module for Poetry Share app
 import { dom } from './dom.js';
 import { utils } from './utils.js';
+import { getCurrentUser, refreshUser, clearUserCache } from './utils/supabase.js';
 
 export let currentUser = null;
 
-export async function fetchCurrentUser(supabase) {
-  const { data: { user } } = await supabase.auth.getUser();
-  currentUser = user;
+/**
+ * Fetch current user with caching - only hits network on first call or after auth changes
+ */
+export async function fetchCurrentUser() {
+  currentUser = await getCurrentUser();
   updateNav();
-  return user;
+  return currentUser;
+}
+
+/**
+ * Force refresh user from server (use after login/logout)
+ */
+export async function forceRefreshUser() {
+  currentUser = await refreshUser();
+  updateNav();
+  return currentUser;
+}
+
+/**
+ * Clear user cache on logout
+ */
+export function clearUser() {
+  clearUserCache();
+  currentUser = null;
+  updateNav();
 }
 
 export function updateNav() {

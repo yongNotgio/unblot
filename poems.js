@@ -1,7 +1,6 @@
 // poems.js
 // Poem CRUD and real-time logic for Poetry Share app
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env.js';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { supabase } from './utils/supabase.js';
 
 /**
  * Fetch all poems for a given user (or all, if no userId)
@@ -150,6 +149,7 @@ export async function fetchPoemsWithSmartSort(userId = null, options = {}) {
 
 /**
  * Fetch poems with smart sorting and pagination support
+ * Optimized: Uses server-side filtering when possible
  */
 export async function fetchPoemsWithSmartSortPaginated(options = {}) {
   const {
@@ -159,20 +159,26 @@ export async function fetchPoemsWithSmartSortPaginated(options = {}) {
     limit = 10
   } = options;
 
-  // First, fetch all poems to apply smart sorting
   let query = supabase.from('poems').select('*', { count: 'exact' });
   if (userId) query = query.eq('user_id', userId);
+  
+  // Apply server-side search filtering using ilike for title and content
+  if (search && search.trim()) {
+    const searchTerm = `%${search.trim()}%`;
+    query = query.or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`);
+  }
   
   const { data, error, count } = await query;
   if (error) throw error;
   
-  // Filter by search if provided
   let filteredPoems = data;
+  
+  // Additional client-side tag filtering if search is provided
+  // (Supabase array contains with ilike is limited)
   if (search && search.trim()) {
     const searchLower = search.trim().toLowerCase();
     filteredPoems = data.filter(poem => {
-      if (poem.title && poem.title.toLowerCase().includes(searchLower)) return true;
-      if (poem.content && poem.content.toLowerCase().includes(searchLower)) return true;
+      // Already matched by server-side title/content filter, or check tags
       if (poem.tags) {
         if (Array.isArray(poem.tags)) {
           return poem.tags.some(tag => tag && tag.toLowerCase().includes(searchLower));
@@ -180,7 +186,7 @@ export async function fetchPoemsWithSmartSortPaginated(options = {}) {
           return poem.tags.toLowerCase().includes(searchLower);
         }
       }
-      return false;
+      return true; // Keep poems matched by server-side filter
     });
   }
   

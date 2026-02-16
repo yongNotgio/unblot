@@ -2,13 +2,14 @@
 // Discover view with smart sorting: recent poems first, then randomized
 import { fetchPoemsWithSmartSortPaginated } from '../poems.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
-export async function renderDiscover(dom, page = 1) {
-  // Get search query from location hash if present
-  let search = '';
-  if (window.location.hash.startsWith('#discover?q=')) {
-    const q = window.location.hash.split('=')[1];
-    if (q) search = decodeURIComponent(q);
+export async function renderDiscover(dom, searchParam = '', page = 1) {
+  // Search can be passed as param or from URL
+  let search = searchParam || '';
+  if (!search) {
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    search = urlParams.get('q') || '';
   }
   
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poems...</div>`;
@@ -185,7 +186,7 @@ export async function renderDiscover(dom, page = 1) {
         dom.app.querySelectorAll('.poem-grid-tile').forEach(tile => {
           tile.addEventListener('click', function() {
             const poemId = tile.getAttribute('data-poem-id');
-            window.location.hash = '#view-poem/' + poemId;
+            navigate('/view-poem/' + poemId);
           });
         });
       }
@@ -197,7 +198,7 @@ export async function renderDiscover(dom, page = 1) {
           link.addEventListener('click', function(e) {
             e.preventDefault();
             const poemId = link.getAttribute('data-poem-id');
-            window.location.hash = '#view-poem/' + poemId;
+            navigate('/view-poem/' + poemId);
           });
         });
       }
