@@ -5,6 +5,7 @@ import { fetchComments, addComment } from '../comments.js';
 import { fetchLikeCount, hasUserLiked, likePoem, unlikePoem } from '../likes.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
 export async function renderViewPoem(dom, poemId) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poem...</div>`;
@@ -161,7 +162,7 @@ export async function renderViewPoem(dom, poemId) {
     };
     // Edit/Delete buttons
     if (currentUser && currentUser.id === poem.user_id) {
-      document.getElementById('edit-btn').onclick = () => window.location.hash = `#edit-poem/${poemId}`;
+      document.getElementById('edit-btn').onclick = () => navigate(`/edit-poem/${poemId}`);
       document.getElementById('delete-btn').onclick = () => {
         utils.showModal(dom, 'Are you sure you want to delete this poem?', [
           { label: 'Cancel', className: 'bg-gray-300 text-gray-800' },
@@ -169,7 +170,7 @@ export async function renderViewPoem(dom, poemId) {
             try {
               await deletePoem(poemId);
               utils.showToast(dom, 'Poem deleted!');
-              setTimeout(() => window.location.hash = '#my-poems', 1000);
+              setTimeout(() => navigate('/my-poems'), 1000);
             } catch (err) {
               utils.showModal(dom, 'Failed to delete poem: ' + (err.message || err));
             }

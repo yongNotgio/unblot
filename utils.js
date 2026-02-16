@@ -47,20 +47,8 @@ export const utils = {
     return new Date(date).toLocaleString();
   },
   createPaginationControls(paginationData, onPageChange, baseRoute = '') {
-    const { page, hasNextPage } = paginationData;
-    
-    // Only render a single "See more" button that loads the next page
-    if (!hasNextPage) return '';
-    
-    let paginationHTML = '<div class="flex justify-center items-center mt-6 mb-4">';
-    paginationHTML += `
-      <button class="pagination-btn nav-btn px-4 py-2 text-sm" data-page="${page + 1}" data-base-route="${baseRoute}">
-        See more →
-      </button>
-    `;
-    paginationHTML += '</div>';
-    
-    return paginationHTML;
+    // Pagination button removed
+    return '';
   },
   attachPaginationHandlers(onPageChange) {
     // Remove existing handlers

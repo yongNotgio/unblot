@@ -1,8 +1,9 @@
 // Main entry for Poetry Share app
 import { dom } from './dom.js';
 import { utils } from './utils.js';
-import { currentUser, fetchCurrentUser, updateNav } from './auth.js';
-import { setupRouter } from './router.js';
+import { currentUser, fetchCurrentUser, forceRefreshUser, clearUser } from './auth.js';
+import { setupRouter, navigate } from './router.js';
+import { supabase } from './utils/supabase.js';
 import { renderHome } from './views/home.js';
 import { renderLogin } from './views/login.js';
 import { renderRegister } from './views/register.js';
@@ -13,20 +14,13 @@ import { renderViewPoem } from './views/viewPoem.js';
 import { renderEditPoem } from './views/editPoem.js';
 import { renderDiscover } from './views/discover.js';
 
-// --- ENVIRONMENT VARIABLES ---
-const SUPABASE_URL = 'https://ioflunfjwnirkakrsxuw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvZmx1bmZqd25pcmtha3JzeHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMDQ4MzIsImV4cCI6MjA2ODY4MDgzMn0.Ejp25pZKGCZn3H7FjB09phT8MaEuvXHX_afSMDIZUNg';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // --- VIEWS ---
-// (You would import or define your view functions here, e.g. renderHome, renderLogin, etc.)
-// For brevity, only a placeholder is shown:
 const routes = {
   '#home': async (param, page) => { renderHome(dom, page); },
   '#login': async () => { renderLogin(dom); },
   '#register': async () => { renderRegister(dom); },
   '#reset': async () => { renderReset(dom); },
-  '#discover': async (param, page) => { renderDiscover(dom, page); },
+  '#discover': async (search, page) => { renderDiscover(dom, search, page); },
   '#my-poems': async (param, page) => { renderMyPoems(dom, page); },
   '#add-poem': async () => { renderAddPoem(dom); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
@@ -34,24 +28,25 @@ const routes = {
 };
 
 // --- DISCOVER TAB HANDLER ---
-dom.navDiscover.onclick = (e) => { e.preventDefault(); window.location.hash = '#discover'; };
+dom.navDiscover.onclick = (e) => { e.preventDefault(); navigate('/discover'); };
 
 // --- ROUTER ---
-const { navigate, routeHandler } = setupRouter(routes, supabase);
+const router = setupRouter(routes);
 
 // --- NAVIGATION BAR HANDLERS ---
-dom.navLogin.onclick = (e) => { e.preventDefault(); window.location.hash = '#login'; };
-dom.navRegister.onclick = (e) => { e.preventDefault(); window.location.hash = '#register'; };
-dom.navMyPoems.onclick = (e) => { e.preventDefault(); window.location.hash = '#my-poems'; };
-dom.navAddPoem.onclick = (e) => { e.preventDefault(); window.location.hash = '#add-poem'; };
-dom.currentUserId.onclick = (e) => { e.preventDefault(); window.location.hash = '#my-poems'; };
+dom.navLogin.onclick = (e) => { e.preventDefault(); navigate('/login'); };
+dom.navRegister.onclick = (e) => { e.preventDefault(); navigate('/register'); };
+dom.navMyPoems.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
+dom.navAddPoem.onclick = (e) => { e.preventDefault(); navigate('/add-poem'); };
+dom.currentUserId.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
 export async function handleLogout(e) {
   if (e) e.preventDefault();
   utils.showLoading(dom, true);
   try {
     await supabase.auth.signOut();
+    clearUser();
     utils.showToast(dom, 'Logged out!');
-    setTimeout(() => window.location.hash = '#home', 1000);
+    setTimeout(() => navigate('/home'), 1000);
   } catch (err) {
     utils.showModal(dom, 'Logout failed: ' + (err.message || err), [
       { label: 'OK', className: 'bg-blue-600 text-white' }
@@ -65,7 +60,7 @@ if (dom.navLogout) dom.navLogout.onclick = handleLogout;
 dom.modalBg.onclick = e => { if (e.target === dom.modalBg) utils.hideModal(dom); };
 
 // --- INITIAL LOAD ---
-fetchCurrentUser(supabase).then(routeHandler);
+// Router initializes and handles initial route automatically
 
 // --- SEARCH BAR HANDLER ---
 if (dom.headerSearchForm && dom.headerSearchInput) {
@@ -73,7 +68,7 @@ if (dom.headerSearchForm && dom.headerSearchInput) {
     e.preventDefault();
     const query = dom.headerSearchInput.value.trim();
     if (query) {
-      window.location.hash = `#discover?q=${encodeURIComponent(query)}`;
+      navigate(`/discover?q=${encodeURIComponent(query)}`);
     }
   });
 }
@@ -97,7 +92,7 @@ if (dom.headerSearchIcon && dom.headerSearchFormMobile && dom.headerSearchInputM
     e.preventDefault();
     const query = dom.headerSearchInputMobile.value.trim();
     if (query) {
-      window.location.hash = `#discover?q=${encodeURIComponent(query)}`;
+      navigate(`/discover?q=${encodeURIComponent(query)}`);
       dom.headerSearchFormMobile.style.display = 'none';
       dom.headerSearchIcon.style.display = 'flex';
     }

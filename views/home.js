@@ -2,14 +2,15 @@
 // Public discover/home view
 import { fetchPoemsPaginated } from '../poems.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
 export async function renderHome(dom, page = 1) {
-  // Get search query from location hash if present
+  // Search is now passed via router params, not hash
   let search = '';
-  if (window.location.hash.startsWith('#discover?q=')) {
-    const q = window.location.hash.split('=')[1];
-    if (q) search = decodeURIComponent(q);
-  }
+  // Legacy support: check URL for search param
+  const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  search = urlParams.get('q') || '';
+  
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poems...</div>`;
   utils.showLoading(dom, true);
   try {
@@ -166,7 +167,7 @@ export async function renderHome(dom, page = 1) {
         dom.app.querySelectorAll('.poem-grid-tile').forEach(tile => {
           tile.addEventListener('click', function() {
             const poemId = tile.getAttribute('data-poem-id');
-            window.location.hash = '#view-poem/' + poemId;
+            navigate('/view-poem/' + poemId);
           });
         });
       }
@@ -178,7 +179,7 @@ export async function renderHome(dom, page = 1) {
           link.addEventListener('click', function(e) {
             e.preventDefault();
             const poemId = link.getAttribute('data-poem-id');
-            window.location.hash = '#view-poem/' + poemId;
+            navigate('/view-poem/' + poemId);
           });
         });
       }

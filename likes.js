@@ -1,7 +1,6 @@
 // likes.js
 // Like logic for Poetry Share app
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env.js';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { supabase } from './utils/supabase.js';
 
 /**
  * Fetch like count for a poem

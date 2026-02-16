@@ -3,6 +3,7 @@
 import { fetchPoemById, updatePoem } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
 export async function renderEditPoem(dom, poemId) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poem...</div>`;
@@ -15,8 +16,9 @@ export async function renderEditPoem(dom, poemId) {
         <div class="text-center py-12 animate-fade-in">
 
           <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You are not authorized to edit this poem.</p>
-          <button onclick="window.location.hash='#discover'" class="action-btn action-btn-secondary mt-4">Go to Discover</button>
+          <button id="unauthorized-discover-btn" class="action-btn action-btn-secondary mt-4">Go to Discover</button>
         </div>`;
+      document.getElementById('unauthorized-discover-btn').onclick = () => navigate('/discover');
       return;
     }
     dom.app.innerHTML = `
@@ -51,7 +53,7 @@ export async function renderEditPoem(dom, poemId) {
         </form>
       </div>
     `;
-    document.getElementById('cancel-btn').onclick = () => window.location.hash = `#view-poem/${poemId}`;
+    document.getElementById('cancel-btn').onclick = () => navigate(`/view-poem/${poemId}`);
     document.getElementById('edit-poem-form').onsubmit = async (e) => {
       e.preventDefault();
       utils.showLoading(dom, true);
@@ -61,7 +63,7 @@ export async function renderEditPoem(dom, poemId) {
       try {
         await updatePoem(poemId, { title, content, tags });
         utils.showToast(dom, 'Poem updated!');
-        setTimeout(() => window.location.hash = `#view-poem/${poemId}`, 1000);
+        setTimeout(() => navigate(`/view-poem/${poemId}`), 1000);
       } catch (err) {
         utils.showModal(dom, 'Failed to update poem: ' + (err.message || err));
       } finally {

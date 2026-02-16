@@ -3,6 +3,7 @@
 import { fetchPoemsPaginated } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
+import { navigate } from '../router.js';
 
 export async function renderMyPoems(dom, page = 1) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading your poems...</div>`;
@@ -42,7 +43,7 @@ export async function renderMyPoems(dom, page = 1) {
 
           <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem;">No poems yet</p>
           <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">Start your journey by writing your first poem!</p>
-          <button onclick="window.location.hash='#add-poem'" class="action-btn action-btn-primary">
+          <button id="write-first-poem-btn" class="action-btn action-btn-primary">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             Write Your First Poem
           </button>
@@ -72,7 +73,10 @@ export async function renderMyPoems(dom, page = 1) {
       renderMyPoems(dom, newPage);
     });
     
-    document.getElementById('add-poem-btn').onclick = () => window.location.hash = '#add-poem';
+    document.getElementById('add-poem-btn').onclick = () => navigate('/add-poem');
+    // Handle empty state button if present
+    const writeFirstBtn = document.getElementById('write-first-poem-btn');
+    if (writeFirstBtn) writeFirstBtn.onclick = () => navigate('/add-poem');
   } catch (err) {
     dom.app.innerHTML = `<div class="text-center text-red-600">Failed to load poems: ${err.message || err}</div>`;
   } finally {

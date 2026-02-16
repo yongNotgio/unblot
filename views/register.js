@@ -1,8 +1,8 @@
 // views/register.js
 // Registration view
 import { utils } from '../utils.js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../env.js';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { supabase } from '../utils/supabase.js';
+import { navigate } from '../router.js';
 
 export function renderRegister(dom) {
   dom.app.innerHTML = `
@@ -34,7 +34,7 @@ export function renderRegister(dom) {
       </form>
     </div>
   `;
-  document.getElementById('to-login').onclick = () => window.location.hash = '#login';
+  document.getElementById('to-login').onclick = () => navigate('/login');
   document.getElementById('register-form').onsubmit = async (e) => {
     e.preventDefault();
     utils.showLoading(dom, true);
@@ -44,7 +44,7 @@ export function renderRegister(dom) {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       utils.showToast(dom, 'Registration successful! Please check your email to confirm.');
-      setTimeout(() => window.location.hash = '#login', 2000);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       utils.showModal(dom, 'Registration failed: ' + (err.message || err));
     } finally {
