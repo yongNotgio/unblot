@@ -2,6 +2,7 @@
 export const dom = {
   app: document.getElementById('app'),
   loading: document.getElementById('loading-indicator'),
+  toastContainer: document.getElementById('toast-container'),
   modalBg: document.getElementById('modal-bg'),
   modal: document.getElementById('modal'),
   modalMessage: document.getElementById('modal-message'),
