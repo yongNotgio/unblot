@@ -60,7 +60,7 @@ export function setupRouter(routes) {
   });
 
   // Protected routes that require authentication
-  const protectedRoutes = ['/my-poems', '/add-poem', '/edit-poem'];
+  const protectedRoutes = ['/my-poems', '/add-poem', '/edit-poem', '/admin'];
   
   function isProtected(path) {
     return protectedRoutes.some(r => path.startsWith(r));
@@ -130,6 +130,22 @@ export function setupRouter(routes) {
         return;
       }
       await routes['#edit-poem'](data.id);
+    }, {
+      before: (done) => {
+        if (!currentUser) {
+          done(false);
+          navigate('/login');
+        } else {
+          done();
+        }
+      }
+    })
+    .on('/admin', async () => {
+      if (!currentUser) {
+        navigate('/login');
+        return;
+      }
+      await routes['#admin']();
     }, {
       before: (done) => {
         if (!currentUser) {
