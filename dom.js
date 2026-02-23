@@ -19,4 +19,5 @@ export const dom = {
   headerSearchIcon: document.getElementById('header-search-icon'),
   headerSearchFormMobile: document.getElementById('header-search-form-mobile'),
   headerSearchInputMobile: document.getElementById('header-search-input-mobile'),
+  navAdmin: document.getElementById('nav-admin'),
 };
