@@ -797,8 +797,11 @@ function attachPaginationHandlers(dom, poems, comments, likes) {
 }
 
 function attachActionHandlers(dom) {
+  // Use :not([data-bound]) to prevent duplicate handlers when called from rerenderTabContent
+
   // View poem
-  dom.app.querySelectorAll('.admin-view-btn').forEach(btn => {
+  dom.app.querySelectorAll('.admin-view-btn:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
     btn.addEventListener('click', () => {
       const poemId = btn.getAttribute('data-poem-id');
       if (poemId) navigate(`/view-poem/${poemId}`);
@@ -806,7 +809,8 @@ function attachActionHandlers(dom) {
   });
 
   // Delete poem
-  dom.app.querySelectorAll('[data-delete-poem]').forEach(btn => {
+  dom.app.querySelectorAll('[data-delete-poem]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-delete-poem');
       const poem = poemMap[id];
@@ -816,7 +820,7 @@ function attachActionHandlers(dom) {
       try {
         await adminDeletePoem(id);
         utils.showToast(dom, 'Poem deleted successfully', 2500, 'success');
-        renderAdmin(dom);
+        await renderAdmin(dom);
       } catch (err) {
         utils.showToast(dom, 'Failed to delete poem: ' + err.message, 3000, 'error');
         btn.disabled = false;
@@ -826,7 +830,8 @@ function attachActionHandlers(dom) {
   });
 
   // Delete comment
-  dom.app.querySelectorAll('[data-delete-comment]').forEach(btn => {
+  dom.app.querySelectorAll('[data-delete-comment]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-delete-comment');
       if (!confirm('Delete this comment? This cannot be undone.')) return;
@@ -835,7 +840,7 @@ function attachActionHandlers(dom) {
       try {
         await adminDeleteComment(id);
         utils.showToast(dom, 'Comment deleted successfully', 2500, 'success');
-        renderAdmin(dom);
+        await renderAdmin(dom);
       } catch (err) {
         utils.showToast(dom, 'Failed to delete comment: ' + err.message, 3000, 'error');
         btn.disabled = false;
@@ -845,7 +850,8 @@ function attachActionHandlers(dom) {
   });
 
   // Delete like
-  dom.app.querySelectorAll('[data-delete-like]').forEach(btn => {
+  dom.app.querySelectorAll('[data-delete-like]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-delete-like');
       if (!confirm('Remove this like?')) return;
@@ -854,7 +860,7 @@ function attachActionHandlers(dom) {
       try {
         await adminDeleteLike(id);
         utils.showToast(dom, 'Like removed successfully', 2500, 'success');
-        renderAdmin(dom);
+        await renderAdmin(dom);
       } catch (err) {
         utils.showToast(dom, 'Failed to remove like: ' + err.message, 3000, 'error');
         btn.disabled = false;
