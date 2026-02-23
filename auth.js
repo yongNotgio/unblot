@@ -2,6 +2,7 @@
 import { dom } from './dom.js';
 import { utils } from './utils.js';
 import { getCurrentUser, refreshUser, clearUserCache } from './utils/supabase.js';
+import { ADMIN_USER_IDS } from './env.js';
 
 export let currentUser = null;
 
@@ -43,14 +44,21 @@ export function updateNav() {
       dom.currentUserId.textContent = `User: ${currentUser.id}`;
       dom.currentUserId.classList.remove('hidden');
     }
-    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(true);
+    // Show admin button only for admin users
+    const isAdminUser = ADMIN_USER_IDS.includes(currentUser.id);
+    if (dom.navAdmin) {
+      if (isAdminUser) dom.navAdmin.classList.remove('hidden');
+      else dom.navAdmin.classList.add('hidden');
+    }
+    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(true, isAdminUser);
   } else {
     if (dom.navLogin) dom.navLogin.classList.remove('hidden');
     if (dom.navRegister) dom.navRegister.classList.remove('hidden');
     if (dom.navLogout) dom.navLogout.classList.add('hidden');
     if (dom.navMyPoems) dom.navMyPoems.classList.add('hidden');
     if (dom.navAddPoem) dom.navAddPoem.classList.add('hidden');
+    if (dom.navAdmin) dom.navAdmin.classList.add('hidden');
     if (dom.currentUserId) dom.currentUserId.classList.add('hidden');
-    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(false);
+    if (typeof window.setNavAuthState === 'function') window.setNavAuthState(false, false);
   }
 }
