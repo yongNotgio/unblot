@@ -13,6 +13,7 @@ import { renderAddPoem } from './views/addPoem.js';
 import { renderViewPoem } from './views/viewPoem.js';
 import { renderEditPoem } from './views/editPoem.js';
 import { renderDiscover } from './views/discover.js';
+import { renderAdmin } from './views/admin.js';
 
 // --- VIEWS ---
 const routes = {
@@ -25,6 +26,7 @@ const routes = {
   '#add-poem': async () => { renderAddPoem(dom); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
   '#edit-poem': async (id) => { renderEditPoem(dom, id); },
+  '#admin': async () => { renderAdmin(dom); },
 };
 
 // --- DISCOVER TAB HANDLER ---
@@ -38,6 +40,7 @@ dom.navLogin.onclick = (e) => { e.preventDefault(); navigate('/login'); };
 dom.navRegister.onclick = (e) => { e.preventDefault(); navigate('/register'); };
 dom.navMyPoems.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
 dom.navAddPoem.onclick = (e) => { e.preventDefault(); navigate('/add-poem'); };
+if (dom.navAdmin) dom.navAdmin.onclick = (e) => { e.preventDefault(); navigate('/admin'); };
 dom.currentUserId.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
 export async function handleLogout(e) {
   if (e) e.preventDefault();
