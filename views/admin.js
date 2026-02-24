@@ -92,6 +92,15 @@ async function fetchUserEmails(userIds) {
   }
 }
 
+async function fetchAllPrompts() {
+  const { data, error } = await supabase
+    .from('prompts')
+    .select('*')
+    .order('active_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
 async function adminDeletePoem(id) {
   await supabase.from('comments').delete().eq('poem_id', id);
   await supabase.from('likes').delete().eq('poem_id', id);
@@ -109,12 +118,39 @@ async function adminDeleteLike(id) {
   if (error) throw error;
 }
 
+async function adminCreatePrompt({ title, description, active_date }) {
+  const { data, error } = await supabase
+    .from('prompts')
+    .insert({
+      title,
+      description: description || null,
+      active_date,
+      created_by: currentUser.id,
+      is_active: true,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function adminDeletePrompt(id) {
+  const { error } = await supabase.from('prompts').delete().eq('id', id);
+  if (error) throw error;
+}
+
+async function adminTogglePrompt(id, currentActive) {
+  const { error } = await supabase
+    .from('prompts')
+    .update({ is_active: !currentActive })
+    .eq('id', id);
+  if (error) throw error;
+}
+
 // ─── Helpers ─────────────────────────────────────────────────
 
 function userDisplay(userId) {
-  const email = userEmailMap[userId];
-  if (email) return `<span class="admin-user-email" title="${userId}">${utils.escapeHTML(email)}</span>`;
-  return `<span class="admin-user-id" title="${userId}">${userId.substring(0, 8)}…</span>`;
+  return '<span class="admin-user-id">Anonymous</span>';
 }
 
 function poemTitleDisplay(poemId) {
@@ -520,7 +556,7 @@ function buildUsersTable(poems, comments, likes) {
     return `
       <tr>
         <td class="admin-td">${userDisplay(uid)}</td>
-        <td class="admin-td admin-td-id" title="${uid}">${uid.substring(0, 12)}…</td>
+        <td class="admin-td admin-td-id">—</td>
         <td class="admin-td">${s.poems}</td>
         <td class="admin-td">${s.comments}</td>
         <td class="admin-td">${s.likes}</td>
@@ -548,6 +584,94 @@ function buildUsersTable(poems, comments, likes) {
     ${buildPaginationControls(sortedUsers.length, safePage, ITEMS_PER_PAGE)}`;
 }
 
+// ── Prompts Tab ──
+
+function buildPromptsTab(prompts) {
+  const today = new Date().toISOString().split('T')[0];
+  const todayPrompt = prompts.find(p => p.active_date === today && p.is_active);
+
+  const rows = prompts.map(p => {
+    const isToday = p.active_date === today;
+    const isPast = p.active_date < today;
+    const statusClass = !p.is_active ? 'admin-prompt-inactive' : isToday ? 'admin-prompt-today' : isPast ? 'admin-prompt-past' : 'admin-prompt-upcoming';
+    const statusLabel = !p.is_active ? 'Disabled' : isToday ? 'Today' : isPast ? 'Past' : 'Upcoming';
+    return `
+      <tr class="${statusClass}">
+        <td class="admin-td admin-td-title">${utils.escapeHTML(p.title)}</td>
+        <td class="admin-td">${p.description ? truncate(p.description, 50) : '<span style="color:var(--text-muted)">—</span>'}</td>
+        <td class="admin-td">${p.active_date}</td>
+        <td class="admin-td"><span class="admin-prompt-status admin-prompt-status-${statusLabel.toLowerCase()}">${statusLabel}</span></td>
+        <td class="admin-td admin-td-actions">
+          <button class="admin-action-btn" data-toggle-prompt="${p.id}" data-prompt-active="${p.is_active}" title="${p.is_active ? 'Disable' : 'Enable'}">
+            ${p.is_active
+              ? '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+              : '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+            }
+          </button>
+          <button class="admin-action-btn admin-delete-btn" data-delete-prompt="${p.id}" data-prompt-title="${utils.escapeHTML(p.title)}" title="Delete">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div class="admin-prompts-header">
+      <div>
+        ${todayPrompt
+          ? `<p class="admin-prompts-today-label">Today's prompt: <strong>${utils.escapeHTML(todayPrompt.title)}</strong></p>`
+          : `<p class="admin-prompts-today-label" style="color:var(--text-muted)">No prompt set for today</p>`
+        }
+      </div>
+      <button class="admin-add-prompt-btn" id="admin-add-prompt-toggle">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Prompt
+      </button>
+    </div>
+
+    <div class="admin-add-prompt-form hidden" id="admin-add-prompt-form">
+      <form id="admin-prompt-form">
+        <div class="admin-prompt-form-grid">
+          <div class="admin-prompt-field">
+            <label>Prompt Title <span style="color:var(--error)">*</span></label>
+            <input type="text" id="admin-prompt-title" class="modern-input" placeholder="e.g. Whispers of Dawn" required />
+          </div>
+          <div class="admin-prompt-field">
+            <label>Active Date <span style="color:var(--error)">*</span></label>
+            <input type="date" id="admin-prompt-date" class="modern-input" required />
+          </div>
+          <div class="admin-prompt-field admin-prompt-field-full">
+            <label>Description <span style="color:var(--text-muted)">(optional)</span></label>
+            <textarea id="admin-prompt-desc" class="modern-input" placeholder="A brief description or context for this prompt…" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="admin-prompt-form-actions">
+          <button type="submit" class="action-btn action-btn-primary">Create Prompt</button>
+          <button type="button" class="action-btn action-btn-secondary" id="admin-prompt-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    ${prompts.length ? `
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Active Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="admin-table-footer">${prompts.length} prompt${prompts.length !== 1 ? 's' : ''}</div>
+    ` : '<p class="admin-empty">No prompts yet. Create one to get started!</p>'}
+  `;
+}
+
 // ─── Main Render ─────────────────────────────────────────────
 
 // Persistent state so search/pagination isn't lost on re-render from delete actions
@@ -567,7 +691,7 @@ export async function renderAdmin(dom) {
         </svg>
         <h2>Access Denied</h2>
         <p>You don't have admin privileges.</p>
-        <button class="action-btn action-btn-primary" onclick="window.location.hash=''">Go Home</button>
+        <button class="action-btn action-btn-primary" onclick="window.location.hash='#/home'">Go Home</button>
       </div>`;
     return;
   }
@@ -588,11 +712,12 @@ export async function renderAdmin(dom) {
 
   try {
     // Fetch all data in parallel
-    const [stats, poems, comments, likes] = await Promise.all([
+    const [stats, poems, comments, likes, prompts] = await Promise.all([
       fetchStats(),
       fetchAllPoems(),
       fetchAllComments(),
       fetchAllLikes(),
+      fetchAllPrompts().catch(() => []), // Gracefully handle if table doesn't exist
     ]);
 
     // Build lookup maps
@@ -650,10 +775,14 @@ export async function renderAdmin(dom) {
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Users <span class="admin-tab-count">${stats.totalUsers}</span>
           </button>
+          <button class="admin-tab ${_activeTab === 'prompts' ? 'active' : ''}" data-tab="prompts">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+            Prompts <span class="admin-tab-count">${prompts.length}</span>
+          </button>
         </div>
 
         <!-- Search bar (shown for data tabs) -->
-        <div class="admin-search-bar ${_activeTab === 'overview' || _activeTab === 'users' ? 'hidden' : ''}" id="admin-search-bar">
+        <div class="admin-search-bar ${_activeTab === 'overview' || _activeTab === 'users' || _activeTab === 'prompts' ? 'hidden' : ''}" id="admin-search-bar">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="admin-search-input" class="admin-search-input" placeholder="Search ${_activeTab}…" value="${utils.escapeHTML(_searchFilters[_activeTab] || '')}" />
           <button class="admin-search-clear ${_searchFilters[_activeTab] ? '' : 'hidden'}" id="admin-search-clear" title="Clear">&times;</button>
@@ -675,6 +804,9 @@ export async function renderAdmin(dom) {
         <div class="admin-tab-content ${_activeTab === 'users' ? '' : 'hidden'}" id="admin-tab-users">
           ${buildUsersTable(poems, comments, likes)}
         </div>
+        <div class="admin-tab-content ${_activeTab === 'prompts' ? '' : 'hidden'}" id="admin-tab-prompts">
+          ${buildPromptsTab(prompts)}
+        </div>
       </div>`;
 
     // ── Attach handlers ──
@@ -682,6 +814,7 @@ export async function renderAdmin(dom) {
     attachSearchHandler(dom, poems, comments, likes);
     attachActionHandlers(dom);
     attachPaginationHandlers(dom, poems, comments, likes);
+    attachPromptHandlers(dom);
     attachRefreshHandler(dom);
 
   } catch (err) {
@@ -721,7 +854,7 @@ function attachTabHandlers(dom, poems, comments, likes) {
       if (content) content.classList.remove('hidden');
 
       // Show/hide search bar
-      if (target === 'overview' || target === 'users') {
+      if (target === 'overview' || target === 'users' || target === 'prompts') {
         searchBar.classList.add('hidden');
       } else {
         searchBar.classList.remove('hidden');
@@ -775,6 +908,96 @@ function rerenderTabContent(dom, tab, poems, comments, likes) {
   // Re-attach action + pagination handlers for the refreshed content
   attachActionHandlers(dom);
   attachPaginationHandlers(dom, poems, comments, likes);
+}
+
+function attachPromptHandlers(dom) {
+  const toggleBtn = dom.app.querySelector('#admin-add-prompt-toggle');
+  const formWrap = dom.app.querySelector('#admin-add-prompt-form');
+  const cancelBtn = dom.app.querySelector('#admin-prompt-cancel');
+  const form = dom.app.querySelector('#admin-prompt-form');
+
+  if (toggleBtn && formWrap) {
+    toggleBtn.addEventListener('click', () => {
+      formWrap.classList.toggle('hidden');
+      if (!formWrap.classList.contains('hidden')) {
+        const dateInput = dom.app.querySelector('#admin-prompt-date');
+        if (dateInput && !dateInput.value) {
+          dateInput.value = new Date().toISOString().split('T')[0];
+        }
+        dom.app.querySelector('#admin-prompt-title')?.focus();
+      }
+    });
+  }
+
+  if (cancelBtn && formWrap) {
+    cancelBtn.addEventListener('click', () => formWrap.classList.add('hidden'));
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = dom.app.querySelector('#admin-prompt-title').value.trim();
+      const description = dom.app.querySelector('#admin-prompt-desc').value.trim();
+      const active_date = dom.app.querySelector('#admin-prompt-date').value;
+      if (!title || !active_date) return;
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating…';
+      try {
+        await adminCreatePrompt({ title, description, active_date });
+        utils.showToast(dom, 'Prompt created!', 2500, 'success');
+        await renderAdmin(dom);
+      } catch (err) {
+        const msg = err.message || String(err);
+        if (msg.includes('duplicate') || msg.includes('unique')) {
+          utils.showToast(dom, 'A prompt already exists for that date.', 3000, 'error');
+        } else {
+          utils.showToast(dom, 'Failed to create prompt: ' + msg, 3000, 'error');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Prompt';
+      }
+    });
+  }
+
+  // Toggle active
+  dom.app.querySelectorAll('[data-toggle-prompt]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-toggle-prompt');
+      const isActive = btn.getAttribute('data-prompt-active') === 'true';
+      btn.disabled = true;
+      try {
+        await adminTogglePrompt(id, isActive);
+        utils.showToast(dom, isActive ? 'Prompt disabled' : 'Prompt enabled', 2500, 'success');
+        await renderAdmin(dom);
+      } catch (err) {
+        utils.showToast(dom, 'Failed to update prompt: ' + err.message, 3000, 'error');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Delete prompt
+  dom.app.querySelectorAll('[data-delete-prompt]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-delete-prompt');
+      const title = btn.getAttribute('data-prompt-title');
+      if (!confirm(`Delete prompt "${title}"? This cannot be undone.`)) return;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="admin-spinner"></span>';
+      try {
+        await adminDeletePrompt(id);
+        utils.showToast(dom, 'Prompt deleted', 2500, 'success');
+        await renderAdmin(dom);
+      } catch (err) {
+        utils.showToast(dom, 'Failed to delete prompt: ' + err.message, 3000, 'error');
+        btn.disabled = false;
+      }
+    });
+  });
 }
 
 function attachRefreshHandler(dom) {
