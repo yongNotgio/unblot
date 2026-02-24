@@ -63,8 +63,8 @@ function updateNavActiveState(route) {
     'admin': 'nav-admin',
   };
   
-  // Remove all active states from sidebar nav
-  const allNavBtns = document.querySelectorAll('.nav-sidebar-btn');
+  // Remove all active states from sidebar nav (include compose button)
+  const allNavBtns = document.querySelectorAll('.nav-sidebar-btn, .compose-btn');
   allNavBtns.forEach(btn => btn.classList.remove('nav-active'));
   
   // Set active on matching button
@@ -89,11 +89,17 @@ export function setupRouter(routes) {
       hideViewToggles();
       cleanupViewHandlers();
       
-      // Update nav active state based on current hash
-      const hash = window.location.hash.replace('#/', '').split('/')[0].split('?')[0];
-      updateNavActiveState(hash || 'home');
+      // Scroll to top on every route change
+      window.scrollTo(0, 0);
       
       done();
+    },
+    after: () => {
+      // Update nav active state after route completes
+      setTimeout(() => {
+        const hash = window.location.hash.replace('#/', '').replace('#', '').split('/')[0].split('?')[0];
+        updateNavActiveState(hash || 'home');
+      }, 10);
     }
   });
 
@@ -143,12 +149,12 @@ export function setupRouter(routes) {
         }
       }
     })
-    .on('/add-poem', async () => {
+    .on('/add-poem', async ({ params }) => {
       if (!currentUser) {
         navigate('/login');
         return;
       }
-      await routes['#add-poem']();
+      await routes['#add-poem'](params?.prompt_title || null);
     }, {
       before: (done) => {
         if (!currentUser) {
@@ -192,6 +198,36 @@ export function setupRouter(routes) {
         } else {
           done();
         }
+      }
+    })
+    .on('/trending', async () => {
+      await routes['#trending']();
+    })
+    .on('/collections', async () => {
+      await routes['#collections']();
+    })
+    .on('/notifications', async () => {
+      if (!currentUser) { navigate('/login'); return; }
+      await routes['#notifications']();
+    }, {
+      before: (done) => {
+        if (!currentUser) { done(false); navigate('/login'); } else { done(); }
+      }
+    })
+    .on('/liked', async () => {
+      if (!currentUser) { navigate('/login'); return; }
+      await routes['#liked']();
+    }, {
+      before: (done) => {
+        if (!currentUser) { done(false); navigate('/login'); } else { done(); }
+      }
+    })
+    .on('/history', async () => {
+      if (!currentUser) { navigate('/login'); return; }
+      await routes['#history']();
+    }, {
+      before: (done) => {
+        if (!currentUser) { done(false); navigate('/login'); } else { done(); }
       }
     })
     .notFound(async () => {
