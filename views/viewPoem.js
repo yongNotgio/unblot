@@ -83,7 +83,6 @@ export async function renderViewPoem(dom, poemId) {
             ${comments.map(c => `
               <li class="flex flex-col gap-1 py-3" style="border-bottom: 1px solid var(--border);">
                 <div class="flex items-center gap-2">
-                  <span class="author-badge">${c.user_id.slice(0, 8)}</span>
                   <span class="date-text">${utils.formatDate(c.created_at)}</span>
                 </div>
                 <div style="color: var(--text-primary); font-size: 0.9rem; line-height: 1.5; margin-top: 0.5rem;">${utils.escapeHTML(c.comment_text)}</div>
@@ -146,16 +145,6 @@ export async function renderViewPoem(dom, poemId) {
             navigator.clipboard.writeText(url);
             utils.showToast(dom, 'Link copied!');
             utils.hideModal(dom);
-          }
-        },
-        {
-          label: 'Download as Image',
-          class: 'nav-btn px-2 py-1 text-xs',
-          onClick: async () => {
-            utils.hideModal(dom);
-            setTimeout(async () => {
-              if (exportPoemAsImage) await exportPoemAsImage(poemId);
-            }, 300);
           }
         }
       ]);
