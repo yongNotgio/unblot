@@ -1,6 +1,7 @@
 // views/home.js
-// Home view matching the Unblot UI design — hero, featured poem, sidebar, tabs, enhanced cards
+// Home view matching the Unblot UI design — hero, sidebar, enhanced cards
 import { fetchPoemsPaginated } from '../poems.js';
+import { supabase } from '../utils/supabase.js';
 import { utils } from '../utils.js';
 import { navigate } from '../router.js';
 
@@ -12,7 +13,7 @@ function getAvatarColor(str) {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-// Daily prompts with descriptions
+// Daily prompts — fallback only (DB prompts take priority)
 const DAILY_PROMPTS = [
   { title: "Silence in Chaos", desc: "Write a creative about finding peace in a busy city" },
   { title: "Letters Never Sent", desc: "Compose words you always wanted to say but never did" },
@@ -26,9 +27,25 @@ const DAILY_PROMPTS = [
   { title: "Dancing with Shadows", desc: "A poem about confronting your inner darkness" }
 ];
 
-function getDailyPrompt() {
+function getFallbackPrompt() {
   const day = Math.floor(Date.now() / 86400000);
   return DAILY_PROMPTS[day % DAILY_PROMPTS.length];
+}
+
+async function getDailyPromptFromDB() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('prompts')
+      .select('*')
+      .eq('active_date', today)
+      .eq('is_active', true)
+      .single();
+    if (error || !data) return null;
+    return { title: data.title, desc: data.description || 'Write a poem inspired by this prompt' };
+  } catch {
+    return null;
+  }
 }
 
 export async function renderHome(dom, page = 1) {
@@ -50,87 +67,38 @@ export async function renderHome(dom, page = 1) {
       currentUser = authMod.currentUser;
     } catch(e) {}
 
-    const userName = currentUser ? (currentUser.email ? currentUser.email.split('@')[0] : 'Poet') : null;
     const totalPoems = paginationData.total || poems.length;
-    const totalLikes = totalPoems * 29; // Placeholder — aggregate likes
 
-    // Featured poem
-    const featuredPoem = poems.length > 0 ? poems[0] : null;
-    const feedPoems = poems.length > 1 ? poems.slice(1) : [];
+    // Fetch real total likes from database
+    let totalLikes = 0;
+    try {
+      const { count, error } = await supabase.from('likes').select('*', { count: 'exact', head: true });
+      if (!error) totalLikes = count || 0;
+    } catch(e) {}
 
-    // Unique tags for category tabs
-    const allTags = new Set();
-    poems.forEach(p => {
-      const tags = utils.tagsToString(p.tags).split(', ').filter(t => t && t !== 'None');
-      tags.forEach(t => allTags.add(t));
-    });
-    const topTags = Array.from(allTags).slice(0, 3);
+    // Fetch real total views from poems data
+    const totalViews = poems.reduce((sum, p) => sum + (p.views_count || 0), 0);
 
-    // Top poets
-    const authorMap = {};
-    poems.forEach(p => {
-      const uid = p.user_id || 'anonymous';
-      if (!authorMap[uid]) authorMap[uid] = { id: uid, count: 0 };
-      authorMap[uid].count++;
-    });
-    const topPoets = Object.values(authorMap).sort((a, b) => b.count - a.count).slice(0, 3);
-
-    const prompt = getDailyPrompt();
+    const prompt = (await getDailyPromptFromDB()) || getFallbackPrompt();
 
     // === BUILD HERO ===
     let heroHtml = '';
     if (!search) {
       heroHtml = `
       <section class="hero-section animate-fade-in">
-        <div class="stats-line">${totalPoems} Works &bull; ${totalLikes.toLocaleString()} Likes</div>
-        <h1 class="hero-title">${userName ? `Hi ${utils.escapeHTML(userName)},` : ''}<br>Ready to inspire today?</h1>
+        <div class="stats-line">${totalPoems} Works &bull; ${totalLikes.toLocaleString()} Likes &bull; ${totalViews.toLocaleString()} Views</div>
+        <h1 class="hero-title">Ready to inspire today?</h1>
         <div class="hero-actions">
-          <button class="hero-btn-primary" onclick="window.location.hash='${currentUser ? 'add-poem' : 'register'}'">
+          <button class="hero-btn-primary" onclick="window.location.hash='#/${currentUser ? 'add-poem' : 'register'}'">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
             ${currentUser ? 'New Poem' : 'New Poem'}
           </button>
-          <button class="hero-btn-secondary" onclick="window.location.hash='discover'">
+          <button class="hero-btn-secondary" onclick="window.location.hash='#/discover'">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             Collection Feed
           </button>
         </div>
       </section>`;
-    }
-
-    // === FEATURED POEM CARD ===
-    let featuredHtml = '';
-    if (featuredPoem && !search) {
-      const fc = utils.escapeHTML(featuredPoem.content);
-      const fp = fc.length > 200 ? fc.slice(0, 200) + '...' : fc;
-      const authorId = featuredPoem.user_id || 'anonymous';
-      const authorName = authorId.includes('@') ? authorId.split('@')[0] : authorId.slice(0, 14);
-      const responsePercent = Math.min(98, 75 + Math.floor(totalPoems % 24));
-
-      // Avatar stack (decorative)
-      const stackColors = AVATAR_COLORS.slice(0, 5);
-      const avatarStackHtml = stackColors.map((c, i) =>
-        `<div class="avatar-thumb" style="background:${c};">${String.fromCharCode(65 + i)}</div>`
-      ).join('');
-
-      featuredHtml = `
-      <div class="featured-card animate-fade-in stagger-1" data-poem-id="${featuredPoem.id}" id="featured-poem-card">
-        <div class="featured-badge">
-          <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Featured Poem
-        </div>
-        <div class="featured-title">${utils.escapeHTML(featuredPoem.title)}</div>
-        <div class="featured-author-line">by ${utils.escapeHTML(authorName)}</div>
-        <div class="featured-preview" style="font-style: italic;">${fp.replace(/\n/g, ' ')}</div>
-        <div class="community-response">
-          <span class="response-label">Community Response</span>
-          <span class="response-percent">${responsePercent}%</span>
-          <div class="response-bar"><div class="response-fill" style="width: ${responsePercent}%;"></div></div>
-        </div>
-        <div class="featured-footer">
-          <div class="avatar-stack">${avatarStackHtml}</div>
-          <button class="read-explore-btn" onclick="event.stopPropagation();">Read&amp;Explore</button>
-        </div>
-      </div>`;
     }
 
     // === DAILY PROMPT WIDGET ===
@@ -145,49 +113,20 @@ export async function renderHome(dom, page = 1) {
       </div>
       <div class="daily-prompt-text">"${prompt.title}"</div>
       <div class="prompt-description">${prompt.desc}</div>
-      <button class="daily-prompt-btn" onclick="window.location.hash='add-poem'">Accept Challenge</button>
+      <button class="daily-prompt-btn" onclick="window.location.hash='#/add-poem?prompt_title=${encodeURIComponent(prompt.title)}'">Accept Challenge</button>
     </div>`;
 
-    // === ACTIVITY COUNTER WIDGET ===
-    const activityCounterHtml = `
-    <div class="sidebar-widget animate-fade-in stagger-3" style="padding: 1rem;">
-      <div class="activity-counter-row">
-        <div class="activity-big-number">${totalLikes.toLocaleString()}</div>
-        <div class="activity-sparkline">
-          ${[20,35,25,45,30,50,40,55,45,60,50,65].map(h => `<div class="sparkline-bar" style="height:${h}%;"></div>`).join('')}
-        </div>
-      </div>
-    </div>`;
-
-    // === CATEGORY TABS ===
-    const defaultTabs = ['Trending', 'Recent', 'Following'];
-    const dynamicTabs = topTags.filter(t => !defaultTabs.map(d => d.toLowerCase()).includes(t.toLowerCase()));
-    const allTabLabels = [...defaultTabs, ...dynamicTabs.slice(0, 3)];
-
-    const tabsHtml = `
-    <div class="category-tabs" id="category-tabs">
-      ${allTabLabels.map((tab, i) => `<button class="category-tab${i === 0 ? ' active' : ''}" data-tag="${tab.toLowerCase()}">${tab}</button>`).join('')}
-    </div>`;
+    // Activity Counter widget removed
 
     // === POEM CARDS ===
-    const poemCardsHtml = (search ? poems : feedPoems).map((poem, index) => {
+    const poemCardsHtml = poems.map((poem, index) => {
       const content = utils.escapeHTML(poem.content);
       const preview = content.length > 200 ? content.slice(0, 200) + '...' : content;
-      const authorId = poem.user_id || 'anonymous';
-      const avatarColor = getAvatarColor(authorId);
-      const initial = authorId.charAt(0).toUpperCase();
-      const authorName = authorId.includes('@') ? authorId.split('@')[0] : authorId.slice(0, 14);
       const tags = utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None');
       const isTopPick = index < 3;
 
       return `
       <article class="poem-card-enhanced animate-fade-in stagger-${(index % 4) + 1}" data-poem-id="${poem.id}">
-        <div class="poem-card-header">
-          <div class="card-avatar" style="background: ${avatarColor};">${initial}</div>
-          <div class="card-author-info">
-            <div class="card-author-name">${utils.escapeHTML(authorName)}</div>
-          </div>
-        </div>
         <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
         <div class="color-bar"></div>
@@ -233,50 +172,19 @@ export async function renderHome(dom, page = 1) {
         Start Writing
       </div>
       <div class="start-writing-text" style="font-style: italic; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">poem ideas &amp; prompts</div>
-      <button class="hero-btn-primary" style="width: 100%; justify-content: center; padding: 0.625rem;" onclick="window.location.hash='add-poem'">
+      <button class="hero-btn-primary" style="width: 100%; justify-content: center; padding: 0.625rem;" onclick="window.location.hash='#/add-poem'">
         Create New Poem
       </button>
     </div>`;
 
-    // === SIDEBAR: TOP POETS ===
-    const topPoetsHtml = `
-    <div class="sidebar-widget animate-fade-in stagger-3">
-      <div class="widget-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        Top Poets
-      </div>
-      <div class="top-poets-list" style="display: flex; flex-direction: column; gap: 0.625rem;">
-        ${topPoets.map(poet => {
-          const color = getAvatarColor(poet.id);
-          const name = poet.id.includes('@') ? poet.id.split('@')[0] : poet.id.slice(0, 14);
-          return `
-          <div class="top-poet-item">
-            <div class="poet-dot" style="background: ${color};"></div>
-            <div class="poet-name">${utils.escapeHTML(name)}</div>
-          </div>`;
-        }).join('')}
-        ${topPoets.length === 0 ? '<div style="font-size: 0.8rem; color: var(--text-muted);">No poets yet</div>' : ''}
-      </div>
-    </div>`;
-
-    // === SIDEBAR: LIFETIME ACTIVITY (GREEN) ===
-    const lifetimeHtml = `
-    <div class="sidebar-widget lifetime-widget animate-fade-in stagger-4">
-      <div class="lifetime-label">LIFETIME ACTIVITY</div>
-      <div class="lifetime-number">${totalPoems}</div>
-      <div class="lifetime-sublabel">Poems Written</div>
-      <div class="lifetime-chart">
-        ${[35,55,25,70,45,60,80,40,65,50,75,90].map(h => `<div class="lifetime-bar" style="height: ${h}%;"></div>`).join('')}
-      </div>
-    </div>`;
+    const topPoetsHtml = '';
+    // Lifetime Activity widget removed
 
     // === ASSEMBLE FULL LAYOUT ===
     let html = `<div class="home-container">
       ${heroHtml}
       <div class="home-layout">
         <div class="home-main">
-          ${featuredHtml}
-          ${tabsHtml}
           <div id="poems-feed" class="poems-feed">
             ${poems.length === 0 ? `
               <div class="empty-state">
@@ -287,10 +195,8 @@ export async function renderHome(dom, page = 1) {
         </div>
         <aside class="home-sidebar">
           ${dailyPromptHtml}
-          ${activityCounterHtml}
           ${startWritingHtml}
           ${topPoetsHtml}
-          ${lifetimeHtml}
         </aside>
       </div>
     </div>`;
@@ -314,47 +220,6 @@ export async function renderHome(dom, page = 1) {
       if (headerToggleContainer) headerToggleContainer.classList.add('hidden');
       const mobileHeaderToggleContainer = document.getElementById('mobile-header-toggle-container');
       if (mobileHeaderToggleContainer) mobileHeaderToggleContainer.classList.add('hidden');
-
-      // Category tab filtering
-      const tabBtns = dom.app.querySelectorAll('.category-tab');
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tag = btn.dataset.tag;
-          const cards = dom.app.querySelectorAll('.poem-card-enhanced');
-          cards.forEach(card => {
-            const poemId = card.dataset.poemId;
-            const poem = poems.find(p => p.id === poemId);
-            if (!poem) { card.style.display = 'none'; return; }
-            if (tag === 'trending' || tag === 'all') {
-              card.style.display = '';
-            } else if (tag === 'recent') {
-              const twoDaysAgo = Date.now() - (2 * 24 * 60 * 60 * 1000);
-              card.style.display = new Date(poem.created_at).getTime() > twoDaysAgo ? '' : 'none';
-            } else if (tag === 'following') {
-              card.style.display = ''; // Placeholder — show all
-            } else {
-              const poemTags = utils.tagsToString(poem.tags).toLowerCase();
-              card.style.display = poemTags.includes(tag.toLowerCase()) ? '' : 'none';
-            }
-          });
-        });
-      });
-
-      // Featured poem click
-      const featuredCard = document.getElementById('featured-poem-card');
-      if (featuredCard) {
-        featuredCard.addEventListener('click', (e) => {
-          if (e.target.closest('button')) return;
-          navigate('/view-poem/' + featuredPoem.id);
-        });
-        // Read&Explore button
-        const readExploreBtn = featuredCard.querySelector('.read-explore-btn');
-        if (readExploreBtn) {
-          readExploreBtn.addEventListener('click', () => navigate('/view-poem/' + featuredPoem.id));
-        }
-      }
 
       // Poem title click handlers
       dom.app.querySelectorAll('.card-poem-title').forEach(title => {
@@ -382,8 +247,7 @@ export async function renderHome(dom, page = 1) {
     import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
     import('../auth.js').then(({ currentUser }) => {
       import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment }) => {
-        const allPoems = search ? poems : (featuredPoem ? [featuredPoem, ...feedPoems] : feedPoems);
-        allPoems.forEach(poem => {
+        poems.forEach(poem => {
           // Like buttons
           import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
             const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
@@ -425,16 +289,6 @@ export async function renderHome(dom, page = 1) {
                     utils.showToast(dom, 'Link copied!');
                     utils.hideModal(dom);
                   }
-                },
-                {
-                  label: 'Download as Image',
-                  class: 'nav-btn px-2 py-1 text-xs',
-                  onClick: async () => {
-                    utils.hideModal(dom);
-                    setTimeout(async () => {
-                      if (exportPoemAsImage) await exportPoemAsImage(poem.id);
-                    }, 300);
-                  }
                 }
               ]);
             };
@@ -461,7 +315,6 @@ export async function renderHome(dom, page = 1) {
               <li style="display: flex; flex-direction: column; gap: 0.25rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
                 <div style="font-size: 0.7rem; color: var(--text-muted);">${utils.formatDate(c.created_at)}</div>
                 <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
-                  <span style="font-weight: 600; color: var(--primary-light); font-size: 0.8rem;">${c.user_id.slice(0, 8)}</span>
                   <span style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">${utils.escapeHTML(c.comment_text)}</span>
                 </div>
                 ${currentUser && currentUser.id === c.user_id ? `
