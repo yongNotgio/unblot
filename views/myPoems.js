@@ -24,10 +24,7 @@ export async function renderMyPoems(dom, page = 1) {
         <div class="flex justify-between items-center">
           <div>
             <h1 class="section-header" style="text-align: left; margin-bottom: 0.5rem; font-size: 1.75rem;">Your Poetry</h1>
-            <div class="author-badge">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              ${currentUser.id.slice(0, 12)}...
-            </div>
+
           </div>
           <button id="add-poem-btn" class="action-btn action-btn-primary">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -50,7 +47,7 @@ export async function renderMyPoems(dom, page = 1) {
         </div>`;
     } else {
       html += poems.map((poem, index) => `
-        <a href="#view-poem/${poem.id}" class="poem-card block stagger-${(index % 4) + 1}" style="text-decoration: none; cursor: pointer;">
+        <a href="#/view-poem/${poem.id}" class="poem-card block stagger-${(index % 4) + 1}" style="text-decoration: none; cursor: pointer;">
           <div class="flex justify-between items-start">
             <h2 class="poem-title-link text-lg" style="font-weight: 600;">${utils.escapeHTML(poem.title)}</h2>
             <span class="date-text">${utils.formatDate(poem.created_at)}</span>
