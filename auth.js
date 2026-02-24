@@ -34,6 +34,8 @@ export function clearUser() {
 }
 
 export function updateNav() {
+  const navAvatar = document.getElementById('nav-user-avatar');
+  const avatarInitial = document.getElementById('nav-avatar-initial');
   if (currentUser) {
     if (dom.navLogin) dom.navLogin.classList.add('hidden');
     if (dom.navRegister) dom.navRegister.classList.add('hidden');
@@ -44,6 +46,14 @@ export function updateNav() {
       dom.currentUserId.textContent = `User: ${currentUser.id}`;
       dom.currentUserId.classList.remove('hidden');
     }
+    // Show avatar
+    if (navAvatar) {
+      navAvatar.classList.remove('hidden');
+      if (avatarInitial) {
+        const email = currentUser.email || currentUser.id || 'U';
+        avatarInitial.textContent = email.charAt(0).toUpperCase();
+      }
+    }
     // Show admin button only for admin users
     const isAdminUser = ADMIN_USER_IDS.includes(currentUser.id);
     if (dom.navAdmin) {
@@ -53,12 +63,13 @@ export function updateNav() {
     if (typeof window.setNavAuthState === 'function') window.setNavAuthState(true, isAdminUser);
   } else {
     if (dom.navLogin) dom.navLogin.classList.remove('hidden');
-    if (dom.navRegister) dom.navRegister.classList.remove('hidden');
+    if (dom.navRegister) dom.navRegister.classList.add('hidden');
     if (dom.navLogout) dom.navLogout.classList.add('hidden');
     if (dom.navMyPoems) dom.navMyPoems.classList.add('hidden');
     if (dom.navAddPoem) dom.navAddPoem.classList.add('hidden');
     if (dom.navAdmin) dom.navAdmin.classList.add('hidden');
     if (dom.currentUserId) dom.currentUserId.classList.add('hidden');
+    if (navAvatar) navAvatar.classList.add('hidden');
     if (typeof window.setNavAuthState === 'function') window.setNavAuthState(false, false);
   }
 }
