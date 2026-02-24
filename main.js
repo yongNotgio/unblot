@@ -14,6 +14,11 @@ import { renderViewPoem } from './views/viewPoem.js';
 import { renderEditPoem } from './views/editPoem.js';
 import { renderDiscover } from './views/discover.js';
 import { renderAdmin } from './views/admin.js';
+import { renderTrending } from './views/trending.js';
+import { renderCollections } from './views/collections.js';
+import { renderNotifications } from './views/notifications.js';
+import { renderLiked } from './views/liked.js';
+import { renderHistory } from './views/history.js';
 
 // --- VIEWS ---
 const routes = {
@@ -23,26 +28,35 @@ const routes = {
   '#reset': async () => { renderReset(dom); },
   '#discover': async (search, page) => { renderDiscover(dom, search, page); },
   '#my-poems': async (param, page) => { renderMyPoems(dom, page); },
-  '#add-poem': async () => { renderAddPoem(dom); },
+  '#add-poem': async (promptTitle) => { renderAddPoem(dom, promptTitle); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
   '#edit-poem': async (id) => { renderEditPoem(dom, id); },
   '#admin': async () => { renderAdmin(dom); },
+  '#trending': async () => { renderTrending(dom); },
+  '#collections': async () => { renderCollections(dom); },
+  '#notifications': async () => { renderNotifications(dom); },
+  '#liked': async () => { renderLiked(dom); },
+  '#history': async () => { renderHistory(dom); },
 };
 
-// --- DISCOVER TAB HANDLER ---
-dom.navDiscover.onclick = (e) => { e.preventDefault(); navigate('/discover'); };
+// --- SIDEBAR NAV HANDLERS ---
 if (dom.navHome) dom.navHome.onclick = (e) => { e.preventDefault(); navigate('/home'); };
+if (dom.navDiscover) dom.navDiscover.onclick = (e) => { e.preventDefault(); navigate('/discover'); };
+if (dom.navTrending) dom.navTrending.onclick = (e) => { e.preventDefault(); navigate('/trending'); };
+if (dom.navCollections) dom.navCollections.onclick = (e) => { e.preventDefault(); navigate('/collections'); };
+if (dom.navNotifications) dom.navNotifications.onclick = (e) => { e.preventDefault(); navigate('/notifications'); };
+if (dom.navMyPoems) dom.navMyPoems.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
+if (dom.navLiked) dom.navLiked.onclick = (e) => { e.preventDefault(); navigate('/liked'); };
+if (dom.navHistory) dom.navHistory.onclick = (e) => { e.preventDefault(); navigate('/history'); };
+if (dom.navAddPoem) dom.navAddPoem.onclick = (e) => { e.preventDefault(); navigate('/add-poem'); };
+if (dom.navAdmin) dom.navAdmin.onclick = (e) => { e.preventDefault(); navigate('/admin'); };
+if (dom.navLogin) dom.navLogin.onclick = (e) => { e.preventDefault(); navigate('/login'); };
+if (dom.navRegister) dom.navRegister.onclick = (e) => { e.preventDefault(); navigate('/register'); };
 
 // --- ROUTER ---
 const router = setupRouter(routes);
 
-// --- NAVIGATION BAR HANDLERS ---
-dom.navLogin.onclick = (e) => { e.preventDefault(); navigate('/login'); };
-dom.navRegister.onclick = (e) => { e.preventDefault(); navigate('/register'); };
-dom.navMyPoems.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
-dom.navAddPoem.onclick = (e) => { e.preventDefault(); navigate('/add-poem'); };
-if (dom.navAdmin) dom.navAdmin.onclick = (e) => { e.preventDefault(); navigate('/admin'); };
-dom.currentUserId.onclick = (e) => { e.preventDefault(); navigate('/my-poems'); };
+// --- LOGOUT ---
 export async function handleLogout(e) {
   if (e) e.preventDefault();
   utils.showLoading(dom, true);
