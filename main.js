@@ -31,6 +31,7 @@ const routes = {
 
 // --- DISCOVER TAB HANDLER ---
 dom.navDiscover.onclick = (e) => { e.preventDefault(); navigate('/discover'); };
+if (dom.navHome) dom.navHome.onclick = (e) => { e.preventDefault(); navigate('/home'); };
 
 // --- ROUTER ---
 const router = setupRouter(routes);
@@ -52,7 +53,7 @@ export async function handleLogout(e) {
     setTimeout(() => navigate('/home'), 1000);
   } catch (err) {
     utils.showModal(dom, 'Logout failed: ' + (err.message || err), [
-      { label: 'OK', className: 'bg-blue-600 text-white' }
+      { label: 'OK', className: 'action-btn action-btn-primary' }
     ]);
   } finally {
     utils.showLoading(dom, false);
