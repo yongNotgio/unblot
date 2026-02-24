@@ -49,6 +49,7 @@ async function getDailyPromptFromDB() {
 }
 
 export async function renderHome(dom, page = 1) {
+  const BATCH_SIZE = 10;
   let search = '';
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
   search = urlParams.get('q') || '';
@@ -57,8 +58,15 @@ export async function renderHome(dom, page = 1) {
   utils.showLoading(dom, true);
 
   try {
-    const result = await fetchPoemsPaginated({ search, page, limit: 50 });
-    const { data: poems, ...paginationData } = result;
+    // Fetch first batch + totals
+    const result = await fetchPoemsPaginated({ search, page: 1, limit: BATCH_SIZE });
+    const { data: poems, total: totalCount, hasNextPage } = result;
+
+    // Track infinite-scroll state
+    let currentPage = 1;
+    let allLoadedPoems = [...poems];
+    let isLoadingMore = false;
+    let hasMore = hasNextPage;
 
     // Determine user state
     let currentUser = null;
@@ -67,7 +75,7 @@ export async function renderHome(dom, page = 1) {
       currentUser = authMod.currentUser;
     } catch(e) {}
 
-    const totalPoems = paginationData.total || poems.length;
+    const totalPoems = totalCount || poems.length;
 
     // Fetch real total likes from database
     let totalLikes = 0;
@@ -77,7 +85,11 @@ export async function renderHome(dom, page = 1) {
     } catch(e) {}
 
     // Fetch real total views from poems data
-    const totalViews = poems.reduce((sum, p) => sum + (p.views_count || 0), 0);
+    let totalViews = 0;
+    try {
+      const { data: viewRows } = await supabase.from('poems').select('views_count');
+      totalViews = (viewRows || []).reduce((sum, r) => sum + (r.views_count || 0), 0);
+    } catch(e) {}
 
     const prompt = (await getDailyPromptFromDB()) || getFallbackPrompt();
 
@@ -116,10 +128,8 @@ export async function renderHome(dom, page = 1) {
       <button class="daily-prompt-btn" onclick="window.location.hash='#/add-poem?prompt_title=${encodeURIComponent(prompt.title)}'">Accept Challenge</button>
     </div>`;
 
-    // Activity Counter widget removed
-
-    // === POEM CARDS ===
-    const poemCardsHtml = poems.map((poem, index) => {
+    // === POEM CARD BUILDER ===
+    function buildPoemCardHtml(poem, index) {
       const content = utils.escapeHTML(poem.content);
       const preview = content.length > 200 ? content.slice(0, 200) + '...' : content;
       const tags = utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None');
@@ -130,7 +140,7 @@ export async function renderHome(dom, page = 1) {
         <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
         <div class="color-bar"></div>
-        ${isTopPick ? `<div style="margin-bottom: 0.75rem;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Top Picks</span></div>` : ''}
+        ${isTopPick ? `<div style="margin-bottom: 0.75rem;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Latest</span></div>` : ''}
         ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
         <div class="card-actions">
           <button class="card-action-btn like-btn" data-id="${poem.id}">
@@ -156,18 +166,12 @@ export async function renderHome(dom, page = 1) {
             <button type="submit" class="action-btn action-btn-primary">Post</button>
           </form>
         </div>
-        ${index > 0 && (index + 1) % 3 === 0 ? `
-        <button class="export-image-btn export-btn" data-id="${poem.id}">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export as Image
-        </button>` : ''}
       </article>`;
-    }).join('');
+    }
 
-
+    const poemCardsHtml = poems.map((poem, index) => buildPoemCardHtml(poem, index)).join('');
 
     const topPoetsHtml = '';
-    // Lifetime Activity widget removed
 
     // === ASSEMBLE FULL LAYOUT ===
     let html = `<div class="home-container">
@@ -181,6 +185,16 @@ export async function renderHome(dom, page = 1) {
                 <p class="empty-subtitle">Be the first to share your words!</p>
               </div>` : poemCardsHtml}
           </div>
+          <div id="feed-loader" class="feed-loader" style="display: ${hasMore ? 'flex' : 'none'};">
+            <div class="feed-spinner"></div>
+            <span class="feed-loader-text">Loading more poems...</span>
+          </div>
+          <div id="feed-end" class="feed-end" style="display: ${!hasMore && poems.length > 0 ? 'block' : 'none'};">
+            <span class="feed-end-line"></span>
+            <span class="feed-end-text">You've reached the end</span>
+            <span class="feed-end-line"></span>
+          </div>
+          <div id="feed-sentinel" style="height: 1px;"></div>
         </div>
         <aside class="home-sidebar">
           ${dailyPromptHtml}
@@ -189,17 +203,244 @@ export async function renderHome(dom, page = 1) {
       </div>
     </div>`;
 
-    // Pagination
-    const baseRoute = search ? `#home?q=${encodeURIComponent(search)}` : '#home';
-    html += utils.createPaginationControls(paginationData, (newPage) => {
-      renderHome(dom, newPage);
-    }, baseRoute);
-
     dom.app.innerHTML = html;
 
-    utils.attachPaginationHandlers((newPage) => {
-      renderHome(dom, newPage);
-    });
+    // === INFINITE SCROLL ===
+    const feedEl = document.getElementById('poems-feed');
+    const loaderEl = document.getElementById('feed-loader');
+    const endEl = document.getElementById('feed-end');
+    const sentinelEl = document.getElementById('feed-sentinel');
+
+    async function loadMorePoems() {
+      if (isLoadingMore || !hasMore) return;
+      isLoadingMore = true;
+      loaderEl.style.display = 'flex';
+
+      try {
+        currentPage++;
+        const nextResult = await fetchPoemsPaginated({ search, page: currentPage, limit: BATCH_SIZE });
+        const newPoems = nextResult.data;
+        hasMore = nextResult.hasNextPage;
+
+        if (newPoems.length > 0) {
+          const startIndex = allLoadedPoems.length;
+          allLoadedPoems.push(...newPoems);
+
+          const fragment = document.createDocumentFragment();
+          const temp = document.createElement('div');
+          temp.innerHTML = newPoems.map((poem, i) => buildPoemCardHtml(poem, startIndex + i)).join('');
+          while (temp.firstChild) fragment.appendChild(temp.firstChild);
+          feedEl.appendChild(fragment);
+
+          // Wire up interactions for new poems
+          attachPoemInteractions(newPoems, dom);
+        }
+
+        if (!hasMore) {
+          loaderEl.style.display = 'none';
+          if (allLoadedPoems.length > 0) endEl.style.display = 'flex';
+        }
+      } catch (err) {
+        console.error('Failed to load more poems:', err);
+        hasMore = false;
+        loaderEl.style.display = 'none';
+      } finally {
+        isLoadingMore = false;
+        if (hasMore) loaderEl.style.display = 'none';
+      }
+    }
+
+    // Use IntersectionObserver to trigger loading
+    if (sentinelEl && hasMore) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMorePoems();
+        }
+      }, { rootMargin: '300px' });
+      observer.observe(sentinelEl);
+
+      // Clean up observer when navigating away
+      const hashHandler = () => {
+        observer.disconnect();
+        window.removeEventListener('hashchange', hashHandler);
+      };
+      window.addEventListener('hashchange', hashHandler);
+    }
+
+    // === INTERACTION WIRING FUNCTION (reusable for each batch) ===
+    function attachPoemInteractions(poemBatch, dom) {
+      // Title click handlers
+      poemBatch.forEach(poem => {
+        const titleEl = dom.app.querySelector(`.card-poem-title[data-poem-id='${poem.id}']`);
+        if (titleEl) titleEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
+      });
+
+      // Like & comment counts
+      import('../likes.js').then(({ fetchLikeCount }) => {
+        import('../comments.js').then(({ fetchComments }) => {
+          poemBatch.forEach(async poem => {
+            const likeCount = await fetchLikeCount(poem.id);
+            const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
+            if (likeCountSpan) likeCountSpan.textContent = likeCount;
+
+            const comments = await fetchComments(poem.id);
+            const commentsCountSpan = dom.app.querySelector(`#comments-count-${poem.id}`);
+            if (commentsCountSpan) commentsCountSpan.textContent = comments.length;
+          });
+        });
+      });
+
+      // Like, comment, share, export logic
+      let exportPoemAsImage;
+      import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
+      import('../auth.js').then(({ currentUser }) => {
+        import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment }) => {
+          poemBatch.forEach(poem => {
+            // Like buttons
+            import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
+              const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
+              const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
+              if (!likeBtn) return;
+              (async () => {
+                if (currentUser) {
+                  const liked = await hasUserLiked(poem.id, currentUser.id);
+                  if (liked) likeBtn.classList.add('like-active');
+                  likeBtn.onclick = async () => {
+                    const isLiked = await hasUserLiked(poem.id, currentUser.id);
+                    if (isLiked) {
+                      await unlikePoem(poem.id, currentUser.id);
+                      likeBtn.classList.remove('like-active');
+                    } else {
+                      await likePoem(poem.id, currentUser.id);
+                      likeBtn.classList.add('like-active');
+                    }
+                    const newCount = await fetchLikeCount(poem.id);
+                    if (likeCountSpan) likeCountSpan.textContent = newCount;
+                  };
+                } else {
+                  likeBtn.onclick = () => utils.showModal(dom, 'Login to like poems!');
+                }
+              })();
+            });
+
+            // Share button
+            const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
+            if (shareBtn) {
+              shareBtn.onclick = () => {
+                const url = window.location.origin + '/#view-poem/' + poem.id;
+                utils.showModal(dom, 'Share this poem', [
+                  {
+                    label: 'Copy Link',
+                    class: 'nav-btn px-2 py-1 text-xs',
+                    onClick: () => {
+                      navigator.clipboard.writeText(url);
+                      utils.showToast(dom, 'Link copied!');
+                      utils.hideModal(dom);
+                    }
+                  }
+                ]);
+              };
+            }
+
+            // Export button
+            const exportBtn = dom.app.querySelector(`.export-btn[data-id='${poem.id}']`);
+            if (exportBtn) {
+              exportBtn.onclick = async () => {
+                if (exportPoemAsImage) await exportPoemAsImage(poem.id);
+              };
+            }
+
+            // Comments logic
+            const commentsList = dom.app.querySelector(`#comments-list-${poem.id}`);
+            const commentsSection = dom.app.querySelector(`#comments-section-${poem.id}`);
+            const toggleCommentsBtn = dom.app.querySelector(`.toggle-comments-btn[data-id='${poem.id}']`);
+            let commentsVisible = false;
+            let comments = [];
+
+            async function renderComments() {
+              comments = await fetchComments(poem.id);
+              commentsList.innerHTML = comments.map(c => `
+                <li style="display: flex; flex-direction: column; gap: 0.25rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">${utils.formatDate(c.created_at)}</div>
+                  <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">${utils.escapeHTML(c.comment_text)}</span>
+                  </div>
+                  ${currentUser && currentUser.id === c.user_id ? `
+                    <div style="display: flex; gap: 0.5rem; margin-left: 3rem;">
+                      <button class="edit-comment-btn" style="font-size: 0.7rem; color: var(--primary); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Edit</button>
+                      <button class="delete-comment-btn" style="font-size: 0.7rem; color: var(--error); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Delete</button>
+                    </div>
+                  ` : ''}
+                </li>
+              `).join('');
+
+              commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
+                btn.onclick = () => {
+                  const cid = btn.getAttribute('data-cid');
+                  const orig = comments.find(c => c.id === cid);
+                  if (!orig) return;
+                  const editDiv = document.createElement('div');
+                  editDiv.innerHTML = `
+                    <input class="edit-comment-input modern-input" value="${utils.escapeHTML(orig.comment_text)}" style="font-size: 0.85rem; padding: 0.4rem 0.75rem; margin: 0.25rem 0;" />
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                      <button class="save-edit-btn action-btn action-btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Save</button>
+                      <button class="cancel-edit-btn action-btn action-btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Cancel</button>
+                    </div>
+                  `;
+                  btn.parentElement.appendChild(editDiv);
+                  editDiv.querySelector('.save-edit-btn').onclick = async () => {
+                    const newText = editDiv.querySelector('.edit-comment-input').value.trim();
+                    if (newText && newText !== orig.comment_text) {
+                      await updateComment(cid, newText);
+                      await renderComments();
+                    }
+                  };
+                  editDiv.querySelector('.cancel-edit-btn').onclick = () => editDiv.remove();
+                };
+              });
+              commentsList.querySelectorAll('.delete-comment-btn').forEach(btn => {
+                btn.onclick = async () => {
+                  const cid = btn.getAttribute('data-cid');
+                  await deleteComment(cid);
+                  await renderComments();
+                };
+              });
+              const countSpan = dom.app.querySelector(`#comments-count-${poem.id}`);
+              if (countSpan) countSpan.textContent = comments.length;
+            }
+
+            if (toggleCommentsBtn) {
+              toggleCommentsBtn.onclick = async () => {
+                commentsVisible = !commentsVisible;
+                commentsSection.classList.toggle('hidden', !commentsVisible);
+                if (commentsVisible) await renderComments();
+              };
+            }
+
+            const commentForm = dom.app.querySelector(`.comment-form[data-id='${poem.id}']`);
+            if (commentForm) {
+              commentForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const input = commentForm.querySelector('.comment-input');
+                const text = input.value.trim();
+                if (!text) return;
+                try {
+                  if (!currentUser || !currentUser.id) {
+                    utils.showModal(dom, 'Login to comment on poems!');
+                    return;
+                  }
+                  await addComment({ poem_id: poem.id, user_id: currentUser.id, comment_text: text });
+                  input.value = '';
+                  await renderComments();
+                } catch (err) {
+                  utils.showModal(dom, 'Login to comment on poems!');
+                }
+              };
+            }
+          });
+        });
+      });
+    }
 
     // === DOM INTERACTION SETUP ===
     setTimeout(() => {
@@ -208,178 +449,11 @@ export async function renderHome(dom, page = 1) {
       if (headerToggleContainer) headerToggleContainer.classList.add('hidden');
       const mobileHeaderToggleContainer = document.getElementById('mobile-header-toggle-container');
       if (mobileHeaderToggleContainer) mobileHeaderToggleContainer.classList.add('hidden');
-
-      // Poem title click handlers
-      dom.app.querySelectorAll('.card-poem-title').forEach(title => {
-        title.addEventListener('click', () => navigate('/view-poem/' + title.dataset.poemId));
-      });
     }, 0);
 
-    // === LOAD LIKE & COMMENT COUNTS ===
-    import('../likes.js').then(({ fetchLikeCount }) => {
-      import('../comments.js').then(({ fetchComments }) => {
-        poems.forEach(async poem => {
-          const likeCount = await fetchLikeCount(poem.id);
-          const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
-          if (likeCountSpan) likeCountSpan.textContent = likeCount;
+    // Wire up first batch
+    attachPoemInteractions(poems, dom);
 
-          const comments = await fetchComments(poem.id);
-          const commentsCountSpan = dom.app.querySelector(`#comments-count-${poem.id}`);
-          if (commentsCountSpan) commentsCountSpan.textContent = comments.length;
-        });
-      });
-    });
-
-    // === LIKE, COMMENT, SHARE, EXPORT LOGIC ===
-    let exportPoemAsImage;
-    import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
-    import('../auth.js').then(({ currentUser }) => {
-      import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment }) => {
-        poems.forEach(poem => {
-          // Like buttons
-          import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
-            const likeBtn = dom.app.querySelector(`.like-btn[data-id='${poem.id}']`);
-            const likeCountSpan = dom.app.querySelector(`#like-count-${poem.id}`);
-            if (!likeBtn) return;
-            (async () => {
-              if (currentUser) {
-                const liked = await hasUserLiked(poem.id, currentUser.id);
-                if (liked) likeBtn.classList.add('like-active');
-                likeBtn.onclick = async () => {
-                  const isLiked = await hasUserLiked(poem.id, currentUser.id);
-                  if (isLiked) {
-                    await unlikePoem(poem.id, currentUser.id);
-                    likeBtn.classList.remove('like-active');
-                  } else {
-                    await likePoem(poem.id, currentUser.id);
-                    likeBtn.classList.add('like-active');
-                  }
-                  const newCount = await fetchLikeCount(poem.id);
-                  if (likeCountSpan) likeCountSpan.textContent = newCount;
-                };
-              } else {
-                likeBtn.onclick = () => utils.showModal(dom, 'Login to like poems!');
-              }
-            })();
-          });
-
-          // Share button
-          const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
-          if (shareBtn) {
-            shareBtn.onclick = () => {
-              const url = window.location.origin + '/#view-poem/' + poem.id;
-              utils.showModal(dom, 'Share this poem', [
-                {
-                  label: 'Copy Link',
-                  class: 'nav-btn px-2 py-1 text-xs',
-                  onClick: () => {
-                    navigator.clipboard.writeText(url);
-                    utils.showToast(dom, 'Link copied!');
-                    utils.hideModal(dom);
-                  }
-                }
-              ]);
-            };
-          }
-
-          // Export button
-          const exportBtn = dom.app.querySelector(`.export-btn[data-id='${poem.id}']`);
-          if (exportBtn) {
-            exportBtn.onclick = async () => {
-              if (exportPoemAsImage) await exportPoemAsImage(poem.id);
-            };
-          }
-
-          // Comments logic
-          const commentsList = dom.app.querySelector(`#comments-list-${poem.id}`);
-          const commentsSection = dom.app.querySelector(`#comments-section-${poem.id}`);
-          const toggleCommentsBtn = dom.app.querySelector(`.toggle-comments-btn[data-id='${poem.id}']`);
-          let commentsVisible = false;
-          let comments = [];
-
-          async function renderComments() {
-            comments = await fetchComments(poem.id);
-            commentsList.innerHTML = comments.map(c => `
-              <li style="display: flex; flex-direction: column; gap: 0.25rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
-                <div style="font-size: 0.7rem; color: var(--text-muted);">${utils.formatDate(c.created_at)}</div>
-                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
-                  <span style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">${utils.escapeHTML(c.comment_text)}</span>
-                </div>
-                ${currentUser && currentUser.id === c.user_id ? `
-                  <div style="display: flex; gap: 0.5rem; margin-left: 3rem;">
-                    <button class="edit-comment-btn" style="font-size: 0.7rem; color: var(--primary); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Edit</button>
-                    <button class="delete-comment-btn" style="font-size: 0.7rem; color: var(--error); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Delete</button>
-                  </div>
-                ` : ''}
-              </li>
-            `).join('');
-
-            commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
-              btn.onclick = () => {
-                const cid = btn.getAttribute('data-cid');
-                const orig = comments.find(c => c.id === cid);
-                if (!orig) return;
-                const editDiv = document.createElement('div');
-                editDiv.innerHTML = `
-                  <input class="edit-comment-input modern-input" value="${utils.escapeHTML(orig.comment_text)}" style="font-size: 0.85rem; padding: 0.4rem 0.75rem; margin: 0.25rem 0;" />
-                  <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
-                    <button class="save-edit-btn action-btn action-btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Save</button>
-                    <button class="cancel-edit-btn action-btn action-btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Cancel</button>
-                  </div>
-                `;
-                btn.parentElement.appendChild(editDiv);
-                editDiv.querySelector('.save-edit-btn').onclick = async () => {
-                  const newText = editDiv.querySelector('.edit-comment-input').value.trim();
-                  if (newText && newText !== orig.comment_text) {
-                    await updateComment(cid, newText);
-                    await renderComments();
-                  }
-                };
-                editDiv.querySelector('.cancel-edit-btn').onclick = () => editDiv.remove();
-              };
-            });
-            commentsList.querySelectorAll('.delete-comment-btn').forEach(btn => {
-              btn.onclick = async () => {
-                const cid = btn.getAttribute('data-cid');
-                await deleteComment(cid);
-                await renderComments();
-              };
-            });
-            const countSpan = dom.app.querySelector(`#comments-count-${poem.id}`);
-            if (countSpan) countSpan.textContent = comments.length;
-          }
-
-          if (toggleCommentsBtn) {
-            toggleCommentsBtn.onclick = async () => {
-              commentsVisible = !commentsVisible;
-              commentsSection.classList.toggle('hidden', !commentsVisible);
-              if (commentsVisible) await renderComments();
-            };
-          }
-
-          const commentForm = dom.app.querySelector(`.comment-form[data-id='${poem.id}']`);
-          if (commentForm) {
-            commentForm.onsubmit = async (e) => {
-              e.preventDefault();
-              const input = commentForm.querySelector('.comment-input');
-              const text = input.value.trim();
-              if (!text) return;
-              try {
-                if (!currentUser || !currentUser.id) {
-                  utils.showModal(dom, 'Login to comment on poems!');
-                  return;
-                }
-                await addComment({ poem_id: poem.id, user_id: currentUser.id, comment_text: text });
-                input.value = '';
-                await renderComments();
-              } catch (err) {
-                utils.showModal(dom, 'Login to comment on poems!');
-              }
-            };
-          }
-        });
-      });
-    });
   } catch (err) {
     dom.app.innerHTML = `<div class="text-center text-red-600" style="padding: 3rem 0;">Failed to load poems: ${err.message || err}</div>`;
   } finally {
