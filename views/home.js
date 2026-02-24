@@ -164,18 +164,7 @@ export async function renderHome(dom, page = 1) {
       </article>`;
     }).join('');
 
-    // === SIDEBAR: START WRITING ===
-    const startWritingHtml = `
-    <div class="sidebar-widget start-writing-widget animate-fade-in stagger-2">
-      <div class="widget-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Start Writing
-      </div>
-      <div class="start-writing-text" style="font-style: italic; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">poem ideas &amp; prompts</div>
-      <button class="hero-btn-primary" style="width: 100%; justify-content: center; padding: 0.625rem;" onclick="window.location.hash='#/add-poem'">
-        Create New Poem
-      </button>
-    </div>`;
+
 
     const topPoetsHtml = '';
     // Lifetime Activity widget removed
@@ -195,7 +184,6 @@ export async function renderHome(dom, page = 1) {
         </div>
         <aside class="home-sidebar">
           ${dailyPromptHtml}
-          ${startWritingHtml}
           ${topPoetsHtml}
         </aside>
       </div>

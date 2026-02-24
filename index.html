@@ -1455,6 +1455,7 @@
         position: static;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        order: -1;
       }
     }
     @media (max-width: 700px) {
@@ -2960,6 +2961,9 @@
       }
       .admin-overview-grid {
         grid-template-columns: 1fr;
+      }
+      .admin-overview-right {
+        order: -1;
       }
       .admin-header-top {
         flex-direction: column;
