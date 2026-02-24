@@ -62,11 +62,11 @@ export async function renderViewPoem(dom, poemId) {
           Share
         </button>
         ${(currentUser && currentUser.id === poem.user_id) ? `
-          <button id="edit-btn" class="action-btn" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
+          <button id="edit-btn" class="action-btn" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25);">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Edit
           </button>
-          <button id="delete-btn" class="action-btn" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626;">
+          <button id="delete-btn" class="action-btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             Delete
           </button>
@@ -90,7 +90,7 @@ export async function renderViewPoem(dom, poemId) {
                 ${(currentUser && currentUser.id === c.user_id) ? `
                   <div class="flex gap-2 mt-2">
                     <button class="edit-comment-btn" data-cid="${c.id}" data-pid="${poemId}" style="font-size: 0.75rem; color: var(--primary); font-weight: 600; background: none; border: none; cursor: pointer;">Edit</button>
-                    <button class="delete-comment-btn" data-cid="${c.id}" data-pid="${poemId}" style="font-size: 0.75rem; color: #dc2626; font-weight: 600; background: none; border: none; cursor: pointer;">Delete</button>
+                    <button class="delete-comment-btn" data-cid="${c.id}" data-pid="${poemId}" style="font-size: 0.75rem; color: #ef4444; font-weight: 600; background: none; border: none; cursor: pointer;">Delete</button>
                   </div>
                 ` : ''}
               </li>
@@ -165,8 +165,8 @@ export async function renderViewPoem(dom, poemId) {
       document.getElementById('edit-btn').onclick = () => navigate(`/edit-poem/${poemId}`);
       document.getElementById('delete-btn').onclick = () => {
         utils.showModal(dom, 'Are you sure you want to delete this poem?', [
-          { label: 'Cancel', className: 'bg-gray-300 text-gray-800' },
-          { label: 'Delete', className: 'bg-red-600 text-white', onClick: async () => {
+          { label: 'Cancel', className: 'action-btn action-btn-secondary' },
+          { label: 'Delete', className: 'action-btn' + ' bg-red-600 text-white', onClick: async () => {
             try {
               await deletePoem(poemId);
               utils.showToast(dom, 'Poem deleted!');
