@@ -43,6 +43,39 @@ function cleanupViewHandlers() {
 }
 
 /**
+ * Update nav active states based on current route
+ */
+function updateNavActiveState(route) {
+  // Sidebar nav buttons
+  const navMap = {
+    'home': 'nav-home',
+    '': 'nav-home',
+    'discover': 'nav-discover',
+    'trending': 'nav-trending',
+    'collections': 'nav-collections',
+    'notifications': 'nav-notifications',
+    'my-poems': 'nav-my-poems',
+    'liked': 'nav-liked',
+    'history': 'nav-history',
+    'add-poem': 'nav-add-poem',
+    'login': 'nav-login',
+    'register': 'nav-register',
+    'admin': 'nav-admin',
+  };
+  
+  // Remove all active states from sidebar nav
+  const allNavBtns = document.querySelectorAll('.nav-sidebar-btn');
+  allNavBtns.forEach(btn => btn.classList.remove('nav-active'));
+  
+  // Set active on matching button
+  const activeId = navMap[route];
+  if (activeId) {
+    const activeBtn = document.getElementById(activeId);
+    if (activeBtn) activeBtn.classList.add('nav-active');
+  }
+}
+
+/**
  * Setup Navigo router with routes
  */
 export function setupRouter(routes) {
@@ -55,6 +88,11 @@ export function setupRouter(routes) {
       await fetchCurrentUser();
       hideViewToggles();
       cleanupViewHandlers();
+      
+      // Update nav active state based on current hash
+      const hash = window.location.hash.replace('#/', '').split('/')[0].split('?')[0];
+      updateNavActiveState(hash || 'home');
+      
       done();
     }
   });
