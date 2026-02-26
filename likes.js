@@ -15,8 +15,8 @@ export async function fetchLikeCount(poem_id) {
  * Check if a user has liked a poem
  */
 export async function hasUserLiked(poem_id, user_id) {
-  const { data, error } = await supabase.from('likes').select('*').eq('poem_id', poem_id).eq('user_id', user_id).single();
-  if (error && error.code !== 'PGRST116') throw error; // PGRST116: No rows found
+  const { data, error } = await supabase.from('likes').select('*').eq('poem_id', poem_id).eq('user_id', user_id).maybeSingle();
+  if (error) throw error;
   return !!data;
 }
 
@@ -24,7 +24,7 @@ export async function hasUserLiked(poem_id, user_id) {
  * Like a poem
  */
 export async function likePoem(poem_id, user_id) {
-  const { data, error } = await supabase.from('likes').insert([{ poem_id, user_id }]).single();
+  const { data, error } = await supabase.from('likes').insert([{ poem_id, user_id }]).select().single();
   if (error) throw error;
   return data;
 }
