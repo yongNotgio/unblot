@@ -485,7 +485,7 @@ export async function renderHome(dom, page = 1) {
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
       
-      countdownEl.textContent = `${hours}h ${minutes}m ${seconds}`;
+      countdownEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
     }
     
     // Update countdown immediately and every second
