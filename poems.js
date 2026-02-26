@@ -242,8 +242,10 @@ export async function fetchPoemById(id) {
 /**
  * Add a new poem
  */
-export async function addPoem({ title, content, tags, user_id }) {
-  const { data, error } = await supabase.from('poems').insert([{ title, content, tags, user_id }]).single();
+export async function addPoem({ title, content, tags, user_id, image = null }) {
+  const row = { title, content, tags, user_id };
+  if (image) row.image = image;
+  const { data, error } = await supabase.from('poems').insert([row]).select().single();
   if (error) throw error;
   return data;
 }
@@ -251,8 +253,10 @@ export async function addPoem({ title, content, tags, user_id }) {
 /**
  * Update a poem by id
  */
-export async function updatePoem(id, { title, content, tags }) {
-  const { data, error } = await supabase.from('poems').update({ title, content, tags }).eq('id', id).single();
+export async function updatePoem(id, { title, content, tags, image }) {
+  const updates = { title, content, tags };
+  if (image !== undefined) updates.image = image;
+  const { data, error } = await supabase.from('poems').update(updates).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }
