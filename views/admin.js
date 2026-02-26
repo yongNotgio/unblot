@@ -587,7 +587,8 @@ function buildUsersTable(poems, comments, likes) {
 // ── Prompts Tab ──
 
 function buildPromptsTab(prompts) {
-  const today = new Date().toISOString().split('T')[0];
+  // Get today's date in Philippine time (Asia/Manila, UTC+8)
+  const today = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
   const todayPrompt = prompts.find(p => p.active_date === today && p.is_active);
 
   const rows = prompts.map(p => {
