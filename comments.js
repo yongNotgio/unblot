@@ -15,7 +15,7 @@ export async function fetchComments(poem_id) {
  * Add a new comment to a poem
  */
 export async function addComment({ poem_id, user_id, comment_text }) {
-  const { data, error } = await supabase.from('comments').insert([{ poem_id, user_id, comment_text }]).single();
+  const { data, error } = await supabase.from('comments').insert([{ poem_id, user_id, comment_text }]).select().single();
   if (error) throw error;
   return data;
 }
