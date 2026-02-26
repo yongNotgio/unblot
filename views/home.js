@@ -34,7 +34,8 @@ function getFallbackPrompt() {
 
 async function getDailyPromptFromDB() {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    // Get today's date in Philippine time (Asia/Manila, UTC+8)
+    const today = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
     const { data, error } = await supabase
       .from('prompts')
       .select('*')
@@ -117,8 +118,14 @@ export async function renderHome(dom, page = 1) {
     const dailyPromptHtml = `
     <div class="sidebar-widget animate-fade-in stagger-2">
       <div class="widget-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" stroke-width="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2"/></svg>
-        Daily Prompt
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" stroke-width="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2"/></svg>
+          Daily Prompt
+        </div>
+        <div class="prompt-timer" id="prompt-timer">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="prompt-countdown">Loading...</span>
+        </div>
       </div>
       <div class="prompt-visual">
         <div class="prompt-circle" style="background: linear-gradient(135deg, #f97316, #ec4899);"></div>
@@ -454,6 +461,36 @@ export async function renderHome(dom, page = 1) {
         });
       });
     }
+
+    // === PROMPT COUNTDOWN TIMER ===
+    function updatePromptCountdown() {
+      const countdownEl = document.getElementById('prompt-countdown');
+      if (!countdownEl) return;
+      
+      // Get current time in Philippine timezone
+      const nowPhilippine = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+      
+      // Get midnight tonight in Philippine timezone
+      const midnightPhilippine = new Date(nowPhilippine);
+      midnightPhilippine.setHours(24, 0, 0, 0);
+      
+      const diff = midnightPhilippine - nowPhilippine;
+      
+      if (diff <= 0) {
+        countdownEl.textContent = 'Expired';
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      countdownEl.textContent = `${hours}h ${minutes}m ${seconds}`;
+    }
+    
+    // Update countdown immediately and every second
+    updatePromptCountdown();
+    const countdownInterval = setInterval(updatePromptCountdown, 1000);
 
     // === DOM INTERACTION SETUP ===
     setTimeout(() => {
