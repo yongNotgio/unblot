@@ -42,39 +42,68 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
     // Build poem cards based on view mode
     function buildPoemCard(poem, index, viewMode) {
       const content = utils.escapeHTML(poem.content);
-      const preview = content.length > (viewMode === 'grid' ? 120 : 180) ? content.slice(0, viewMode === 'grid' ? 120 : 180) + '...' : content;
+      const preview = content.length > (viewMode === 'grid' ? 150 : 200) ? content.slice(0, viewMode === 'grid' ? 150 : 200) + '...' : content;
       const tags = utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None');
+      const timeAgo = utils.formatDate(poem.created_at);
+      const avatarColor = getAvatarColor(poem.user_id);
+      const poetNumber = poem.user_id ? poem.user_id.substring(poem.user_id.length - 4).toUpperCase() : '0000';
 
       if (viewMode === 'grid') {
         // Grid view - compact cards
         return `
         <article class="poem-card-grid animate-fade-in" data-poem-id="${poem.id}">
+          <div class="poem-card-header" style="display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem;">
+            <div class="card-avatar" style="background: ${avatarColor}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div style="flex: 1; overflow: hidden;">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Anonymous Poet #${poetNumber}</div>
+              <div style="font-size: 0.65rem; color: var(--text-muted);">${timeAgo}</div>
+            </div>
+          </div>
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
-          <div class="card-meta">
-            <span style="font-size: 0.7rem; color: var(--text-muted);">${utils.formatDate(poem.created_at)}</span>
-          </div>
+          ${poem.image ? `<div class="card-poem-image" style="margin-top: 0.75rem;"><img src="${poem.image}" alt="Poem image" loading="lazy" style="width: 100%; border-radius: var(--radius-md);" /></div>` : ''}
           <div class="card-actions-compact">
             <button class="card-action-btn-compact like-btn" data-id="${poem.id}">
-              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               <span class="like-count" id="like-count-${poem.id}">0</span>
             </button>
             <button class="card-action-btn-compact toggle-comments-btn" data-id="${poem.id}">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
               <span class="comments-count" id="comments-count-${poem.id}">0</span>
             </button>
+            <a class="card-action-btn-compact card-read-more" data-poem-id="${poem.id}" style="cursor: pointer;">Read More</a>
+          </div>
+          <div class="comments-section hidden" id="comments-section-${poem.id}">
+            <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
+            <ul class="comments-list" id="comments-list-${poem.id}" style="margin-bottom: 1rem; list-style: none; padding: 0;"></ul>
+            <form class="comment-form flex gap-2" data-id="${poem.id}">
+              <input type="text" class="comment-input modern-input flex-1" placeholder="Add a comment..." required style="padding: 0.5rem 1rem; font-size: 0.875rem;" />
+              <button type="submit" class="action-btn action-btn-primary">Post</button>
+            </form>
           </div>
         </article>`;
       } else {
-        // List view - full cards
+        // List view - full enhanced cards
         return `
-        <article class="poem-card-list animate-fade-in" data-poem-id="${poem.id}">
+        <article class="poem-card-enhanced animate-fade-in stagger-${(index % 4) + 1}" data-poem-id="${poem.id}">
+          <div class="poem-card-header">
+            <div class="card-avatar" style="background: ${avatarColor};">
+              <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="card-author-info">
+              <div class="card-author-name">Anonymous Poet #${poetNumber}</div>
+              <div class="card-author-date">Posted ${timeAgo}</div>
+            </div>
+          </div>
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
+          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
           <div class="card-actions">
             <button class="card-action-btn like-btn" data-id="${poem.id}">
-              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               <span class="like-count" id="like-count-${poem.id}">0</span>
             </button>
             <button class="card-action-btn toggle-comments-btn" data-id="${poem.id}">
@@ -84,9 +113,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             <button class="card-action-btn share-btn" data-id="${poem.id}">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             </button>
-            <button class="card-action-btn export-btn" data-id="${poem.id}">
-              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
+            <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
           </div>
           <div class="comments-section hidden" id="comments-section-${poem.id}">
             <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -102,12 +129,12 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
 
     const poemCardsHtml = poems.map((p, i) => buildPoemCard(p, i, savedView)).join('');
 
-    let html = `<div class="w-full" style="max-width: 1000px; margin: 0 auto; padding: 0 1rem;">
+    let html = `<div class="w-full" style="max-width: ${savedView === 'grid' ? '1000px' : '800px'}; margin: 0 auto; padding: 0 1rem;">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
         <span style="font-size: 1.5rem; font-family: 'EB Garamond', serif; font-weight: 600;">Discover</span>
         ${viewToggleHtml}
       </div>
-      <div id="poems-feed" class="${savedView === 'grid' ? 'poems-grid-view' : 'poems-list-view'}">
+      <div id="poems-feed" class="${savedView === 'grid' ? 'poems-grid-view' : 'poems-feed'}">
         ${poems.length === 0 ? `
           <div class="text-center py-12" style="color: var(--text-secondary);">
             <p style="font-family: 'EB Garamond', serif; font-size: 1.25rem;">No poems found yet.</p>
@@ -130,6 +157,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
       // View toggle functionality
       const viewToggleBtns = dom.app.querySelectorAll('.view-toggle-btn');
       const poemsFeed = dom.app.querySelector('#poems-feed');
+      const containerEl = dom.app.querySelector('.w-full');
       
       viewToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -140,8 +168,9 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
           viewToggleBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           
-          // Update feed class and rebuild cards
-          poemsFeed.className = view === 'grid' ? 'poems-grid-view' : 'poems-list-view';
+          // Update feed class, container width, and rebuild cards
+          poemsFeed.className = view === 'grid' ? 'poems-grid-view' : 'poems-feed';
+          containerEl.style.maxWidth = view === 'grid' ? '1000px' : '800px';
           poemsFeed.innerHTML = poems.map((p, i) => buildPoemCard(p, i, view)).join('');
           
           // Re-attach all handlers after rebuild
@@ -154,6 +183,14 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
         dom.app.querySelectorAll('.card-poem-title').forEach(title => {
           title.addEventListener('click', () => {
             navigate('/view-poem/' + title.dataset.poemId);
+          });
+        });
+
+        // Read More link handlers
+        dom.app.querySelectorAll('.card-read-more').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigate('/view-poem/' + link.dataset.poemId);
           });
         });
 
@@ -223,15 +260,16 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
                       utils.showToast(dom, 'Link copied!');
                       utils.hideModal(dom);
                     }
+                  },
+                  {
+                    label: 'Download as Image',
+                    class: 'nav-btn px-2 py-1 text-xs',
+                    onClick: async () => {
+                      utils.hideModal(dom);
+                      if (exportPoemAsImage) await exportPoemAsImage(poem.id);
+                    }
                   }
                 ]);
-              };
-            }
-
-            const exportBtn = dom.app.querySelector(`.export-btn[data-id='${poem.id}']`);
-            if (exportBtn) {
-              exportBtn.onclick = async () => {
-                if (exportPoemAsImage) await exportPoemAsImage(poem.id);
               };
             }
 
