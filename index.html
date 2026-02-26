@@ -1536,6 +1536,7 @@
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.5rem;
     }
     .widget-title svg { color: var(--primary-light); flex-shrink: 0; }
@@ -2450,7 +2451,23 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       line-height: 1.5;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .prompt-timer {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .prompt-timer svg {
+      color: var(--primary-light);
+      flex-shrink: 0;
+    }
+    .prompt-timer span {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--primary-light);
+      font-family: 'Quicksand', sans-serif;
+      white-space: nowrap;
     }
     /* Poet dot (small) */
     .poet-dot {
