@@ -39,6 +39,7 @@ export async function renderViewPoem(dom, poemId) {
         </div>
       </div>
       
+      ${poem.image ? `<div class="card-poem-image" style="margin-bottom: 1.5rem;"><img src="${poem.image}" alt="Poem image" /></div>` : ''}
       <div class="poem-content mb-6" id="poem-content-${poemId}" style="font-size: 1.15rem; line-height: 1.9;">
         <span style="white-space: pre-line;">
           ${utils.escapeHTML(poem.content).length > 500
@@ -52,34 +53,30 @@ export async function renderViewPoem(dom, poemId) {
         ${utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None').map(tag => `<span class="tag-pill">${tag}</span>`).join('')}
       </div>
       
-      <footer class="flex flex-wrap items-center gap-3 pt-6 mb-6" style="border-top: 1px solid var(--border);">
-        <button id="like-btn" class="action-btn ${userLiked ? 'action-btn-like active' : 'action-btn-like'}">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          Like (${likeCount})
+      <footer class="flex items-center gap-2 pt-6 mb-6" style="border-top: 1px solid var(--border);">
+        <button id="like-btn" class="action-btn-minimal ${userLiked ? 'liked' : ''}" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: none; border: none; color: ${userLiked ? '#ef4444' : 'var(--text-muted)'}; cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span style="font-size: 0.875rem;">${likeCount}</span>
         </button>
-        <button id="share-btn" class="action-btn action-btn-secondary">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Share
+        <button id="toggle-comments-btn" class="action-btn-minimal" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span style="font-size: 0.875rem;">${comments.length}</span>
+        </button>
+        <button id="share-btn" class="action-btn-minimal" title="Share" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
         ${(currentUser && currentUser.id === poem.user_id) ? `
-          <button id="edit-btn" class="action-btn" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25);">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Edit
+          <button id="edit-btn" class="action-btn-minimal" title="Edit" style="display: inline-flex; align-items: center; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button id="delete-btn" class="action-btn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Delete
+          <button id="delete-btn" class="action-btn-minimal" title="Delete" style="display: inline-flex; align-items: center; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         ` : ''}
       </footer>
       
-      <div>
-        <button id="toggle-comments-btn" class="action-btn action-btn-secondary w-full justify-center mb-4">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          Comments (${comments.length})
-        </button>
-        <div id="comments-section" class="comments-section hidden">
-          <ul class="comments-list" id="comments-list-${poemId}" style="margin-bottom: 1rem;">
+      <div id="comments-section" class="comments-section hidden" style="margin-top: 1rem;">
+        <ul class="comments-list" id="comments-list-${poemId}" style="margin-bottom: 1rem;">
             ${comments.map(c => `
               <li class="flex flex-col gap-1 py-3" style="border-bottom: 1px solid var(--border);">
                 <div class="flex items-center gap-2">
@@ -101,7 +98,6 @@ export async function renderViewPoem(dom, poemId) {
           </form>
           ${!currentUser ? '<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center;">Login to comment.</p>' : ''}
         </div>
-      </div>
     </article>`;
     dom.app.innerHTML = html;
     
@@ -145,6 +141,16 @@ export async function renderViewPoem(dom, poemId) {
             navigator.clipboard.writeText(url);
             utils.showToast(dom, 'Link copied!');
             utils.hideModal(dom);
+          }
+        },
+        {
+          label: 'Download as Image',
+          class: 'nav-btn px-2 py-1 text-xs',
+          onClick: () => {
+            if (exportPoemAsImage) {
+              exportPoemAsImage(poem);
+              utils.hideModal(dom);
+            }
           }
         }
       ]);
