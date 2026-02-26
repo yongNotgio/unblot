@@ -133,18 +133,31 @@ export async function renderHome(dom, page = 1) {
       const content = utils.escapeHTML(poem.content);
       const preview = content.length > 200 ? content.slice(0, 200) + '...' : content;
       const tags = utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None');
-      const isTopPick = index < 3;
+      const isLatest = index < 3;
+      const timeAgo = utils.formatDate(poem.created_at);
+      const avatarColor = getAvatarColor(poem.user_id);
+      const poetNumber = poem.user_id ? poem.user_id.substring(poem.user_id.length - 4).toUpperCase() : '0000';
+      const category = tags.length > 0 ? tags[0] : '';
 
       return `
       <article class="poem-card-enhanced animate-fade-in stagger-${(index % 4) + 1}" data-poem-id="${poem.id}">
+        <div class="poem-card-header">
+          <div class="card-avatar" style="background: ${avatarColor};">
+            <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="card-author-info">
+            <div class="card-author-name">Anonymous Poet #${poetNumber}</div>
+            <div class="card-author-date">Posted ${timeAgo}</div>
+          </div>
+        </div>
         <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
-        <div class="color-bar"></div>
-        ${isTopPick ? `<div style="margin-bottom: 0.75rem;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Latest</span></div>` : ''}
+        ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+        ${isLatest ? `<div style="margin: 0.75rem 0;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Latest</span></div>` : ''}
         ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
         <div class="card-actions">
           <button class="card-action-btn like-btn" data-id="${poem.id}">
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <span class="like-count" id="like-count-${poem.id}">0</span>
           </button>
           <button class="card-action-btn toggle-comments-btn" data-id="${poem.id}">
@@ -154,9 +167,7 @@ export async function renderHome(dom, page = 1) {
           <button class="card-action-btn share-btn" data-id="${poem.id}">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </button>
-          <button class="card-action-btn bookmark-btn" data-id="${poem.id}">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </button>
+          <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
         </div>
         <div class="comments-section hidden" id="comments-section-${poem.id}">
           <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -269,10 +280,12 @@ export async function renderHome(dom, page = 1) {
 
     // === INTERACTION WIRING FUNCTION (reusable for each batch) ===
     function attachPoemInteractions(poemBatch, dom) {
-      // Title click handlers
+      // Title + Read More click handlers
       poemBatch.forEach(poem => {
         const titleEl = dom.app.querySelector(`.card-poem-title[data-poem-id='${poem.id}']`);
         if (titleEl) titleEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
+        const readMoreEl = dom.app.querySelector(`.card-read-more[data-poem-id='${poem.id}']`);
+        if (readMoreEl) readMoreEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
       });
 
       // Like & comment counts
@@ -337,16 +350,16 @@ export async function renderHome(dom, page = 1) {
                       utils.showToast(dom, 'Link copied!');
                       utils.hideModal(dom);
                     }
+                  },
+                  {
+                    label: 'Download as Image',
+                    class: 'nav-btn px-2 py-1 text-xs',
+                    onClick: async () => {
+                      utils.hideModal(dom);
+                      if (exportPoemAsImage) await exportPoemAsImage(poem.id);
+                    }
                   }
                 ]);
-              };
-            }
-
-            // Export button
-            const exportBtn = dom.app.querySelector(`.export-btn[data-id='${poem.id}']`);
-            if (exportBtn) {
-              exportBtn.onclick = async () => {
-                if (exportPoemAsImage) await exportPoemAsImage(poem.id);
               };
             }
 
