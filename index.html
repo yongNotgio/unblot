@@ -59,26 +59,26 @@
       --primary-dark: #7c3aed;
       --accent: #f472b6;
       --accent-light: #fbcfe8;
-      --surface: rgba(22, 22, 40, 0.85);
-      --surface-elevated: rgba(26, 26, 46, 0.95);
-      --surface-card: #1e1e36;
-      --surface-hover: #252542;
-      --background: #0a0a18;
-      --text-primary: #f0f0f5;
-      --text-secondary: #9ca3af;
-      --text-muted: #6b7280;
-      --border: rgba(139, 92, 246, 0.15);
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
-      --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
-      --shadow-lg: 0 16px 48px rgba(0,0,0,0.45);
-      --shadow-glow: 0 0 40px rgba(139,92,246,0.2);
-      --sidebar-bg: #12122a;
-      --sidebar-hover: rgba(139,92,246,0.1);
+      --surface: #1a1b26;
+      --surface-elevated: #24253a;
+      --surface-card: #1a1b26;
+      --surface-hover: #24253a;
+      --background: #0d0e14;
+      --text-primary: #c5c8d4;
+      --text-secondary: #888b98;
+      --text-muted: #5a5d6b;
+      --border: #24253a;
+      --border-subtle: #1a1b26;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+      --shadow-glow: 0 0 40px rgba(139,92,246,0.15);
+      --sidebar-bg: #1a1b26;
+      --sidebar-hover: #24253a;
       --sidebar-active: rgba(139,92,246,0.15);
-      --sidebar-border: rgba(255,255,255,0.06);
-      --topbar-bg: rgba(10,10,24,0.9);
-      --card-border: rgba(139,92,246,0.15);
+      --sidebar-border: #24253a;
+      --topbar-bg: #1a1b26;
+      --card-border: #24253a;
     }
 
     /* === RESET & BASE === */
@@ -1073,6 +1073,20 @@
       transform: scale(1.05);
     }
 
+    /* Minimal action buttons */
+    .action-btn-minimal {
+      font-family: 'Inter', 'Quicksand', sans-serif;
+      font-weight: 500;
+    }
+
+    .action-btn-minimal:hover {
+      background: var(--surface-hover) !important;
+    }
+
+    .action-btn-minimal.liked {
+      color: #ef4444 !important;
+    }
+
     /* === TAGS === */
     .tag-pill {
       display: inline-flex;
@@ -1083,7 +1097,7 @@
       border-radius: var(--radius-full);
       font-size: 0.75rem;
       font-weight: 600;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      border: none;
       transition: all var(--transition-fast);
     }
 
@@ -1770,6 +1784,102 @@
       background: var(--primary);
       border-color: var(--primary);
       color: #fff;
+    }
+    /* Card more button */
+    .card-more-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      padding: 0.25rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+    .card-more-btn:hover {
+      color: var(--text-primary);
+      background: var(--surface-hover);
+    }
+    /* Card poem image */
+    .card-poem-image {
+      margin: 1rem 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      max-height: 320px;
+    }
+    .card-poem-image img {
+      width: 100%;
+      height: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      display: block;
+      border-radius: var(--radius-md);
+    }
+    /* Read More link */
+    .card-read-more {
+      margin-left: auto;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: color var(--transition-fast);
+      text-decoration: none;
+      background: none !important;
+    }
+    .card-read-more:hover {
+      color: var(--primary);
+      background: none !important;
+    }
+    /* Image upload area */
+    .image-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .image-upload-area:hover, .image-upload-area.drag-over {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 5%, transparent);
+    }
+    .image-upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 2rem;
+    }
+    .image-preview-container {
+      position: relative;
+    }
+    .image-preview {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      display: block;
+      border-radius: var(--radius-md);
+    }
+    .remove-image-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition-fast);
+      line-height: 1;
+    }
+    .remove-image-btn:hover {
+      background: rgba(239, 68, 68, 0.9);
     }
 
     /* === RICH FOOTER === */
