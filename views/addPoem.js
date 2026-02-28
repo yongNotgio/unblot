@@ -140,7 +140,12 @@ export function renderAddPoem(dom, promptTitle = null) {
         const { data: urlData } = supabase.storage.from('images').getPublicUrl(fileName);
         imageUrl = urlData.publicUrl;
       }
-      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl });
+      // If written from a daily prompt, store today's date (Philippine time)
+      let promptDate = null;
+      if (isPrompt) {
+        promptDate = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
+      }
+      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, prompt_date: promptDate });
       utils.showToast(dom, 'Poem added!');
       setTimeout(() => navigate('/my-poems'), 1000);
     } catch (err) {
