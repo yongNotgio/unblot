@@ -51,16 +51,13 @@ async function getDailyPromptFromDB() {
 
 export async function renderHome(dom, page = 1) {
   const BATCH_SIZE = 10;
-  let search = '';
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  search = urlParams.get('q') || '';
 
   dom.app.innerHTML = `<div class="text-center text-lg" style="padding: 3rem 0;">Loading poems...</div>`;
   utils.showLoading(dom, true);
 
   try {
     // Fetch first batch + totals
-    const result = await fetchPoemsPaginated({ search, page: 1, limit: BATCH_SIZE });
+    const result = await fetchPoemsPaginated({ page: 1, limit: BATCH_SIZE });
     const { data: poems, total: totalCount, hasNextPage } = result;
 
     // Track infinite-scroll state
@@ -96,8 +93,7 @@ export async function renderHome(dom, page = 1) {
 
     // === BUILD HERO ===
     let heroHtml = '';
-    if (!search) {
-      heroHtml = `
+    heroHtml = `
       <section class="hero-section animate-fade-in">
         <div class="stats-line">${totalPoems} Works &bull; ${totalLikes.toLocaleString()} Likes &bull; ${totalViews.toLocaleString()} Views</div>
         <h1 class="hero-title">Ready to inspire today?</h1>
@@ -112,7 +108,6 @@ export async function renderHome(dom, page = 1) {
           </button>
         </div>
       </section>`;
-    }
 
     // === DAILY PROMPT WIDGET ===
     const dailyPromptHtml = `
@@ -174,6 +169,9 @@ export async function renderHome(dom, page = 1) {
           </button>
           <button class="card-action-btn share-btn" data-id="${poem.id}">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+          <button class="card-action-btn save-btn" data-id="${poem.id}" title="Save to collection">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
           <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
         </div>
@@ -237,7 +235,7 @@ export async function renderHome(dom, page = 1) {
 
       try {
         currentPage++;
-        const nextResult = await fetchPoemsPaginated({ search, page: currentPage, limit: BATCH_SIZE });
+        const nextResult = await fetchPoemsPaginated({ page: currentPage, limit: BATCH_SIZE });
         const newPoems = nextResult.data;
         hasMore = nextResult.hasNextPage;
 
@@ -391,6 +389,31 @@ export async function renderHome(dom, page = 1) {
                   }
                 ]);
               };
+            }
+
+            // Save/bookmark button
+            const saveBtn = dom.app.querySelector(`.save-btn[data-id='${poem.id}']`);
+            if (saveBtn && currentUser) {
+              import('../poems.js').then(({ hasUserSaved, savePoem, unsavePoem }) => {
+                (async () => {
+                  const saved = await hasUserSaved(poem.id, currentUser.id);
+                  if (saved) saveBtn.classList.add('save-active');
+                  saveBtn.onclick = async () => {
+                    const isSaved = await hasUserSaved(poem.id, currentUser.id);
+                    if (isSaved) {
+                      await unsavePoem(poem.id, currentUser.id);
+                      saveBtn.classList.remove('save-active');
+                      utils.showToast(dom, 'Removed from saved');
+                    } else {
+                      await savePoem(poem.id, currentUser.id);
+                      saveBtn.classList.add('save-active');
+                      utils.showToast(dom, 'Saved to collection');
+                    }
+                  };
+                })();
+              });
+            } else if (saveBtn) {
+              saveBtn.onclick = () => utils.showModal(dom, 'Login to save poems!');
             }
 
             // Comments logic
