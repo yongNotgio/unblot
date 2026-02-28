@@ -43,14 +43,14 @@ export async function renderViewPoem(dom, poemId) {
       <div class="poem-content mb-6" id="poem-content-${poemId}" style="font-size: 1.15rem; line-height: 1.9;">
         <span style="white-space: pre-line;">
           ${utils.escapeHTML(poem.content).length > 500
-            ? utils.escapeHTML(poem.content).slice(0, 500) + `... <button class='see-more-btn' data-id='${poemId}' style='color: var(--primary); font-weight: 600; border: none; background: none; padding: 0; cursor: pointer; font-family: Inter, sans-serif; font-size: 0.875rem;'>see more</button>`
+            ? utils.escapeHTML(poem.content).slice(0, 500) + `... <button class='see-more-btn' data-id='${poemId}' style='color: var(--primary); font-weight: 600; border: none; background: none; padding: 0; cursor: pointer; font-size: 0.875rem;'>see more</button>`
             : utils.escapeHTML(poem.content)
           }
         </span>
       </div>
       
+      ${poem.prompt_date ? `<div style="margin-bottom: 0.75rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
       <div class="flex flex-wrap gap-2 mb-6">
-        ${poem.prompt_date ? utils.promptDayTag(poem.prompt_date) : ''}
         ${utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None').map(tag => `<span class="tag-pill">${tag}</span>`).join('')}
       </div>
       
@@ -101,6 +101,15 @@ export async function renderViewPoem(dom, poemId) {
         </div>
     </article>`;
     dom.app.innerHTML = html;
+
+    // Prompt day tag click handler
+    const promptTag = dom.app.querySelector('.prompt-day-tag');
+    if (promptTag) {
+      promptTag.addEventListener('click', (e) => {
+        e.stopPropagation();
+        utils.showPromptDetails(dom, promptTag.dataset.promptDate);
+      });
+    }
     
     // See more functionality
     const seeMoreBtn = dom.app.querySelector('.see-more-btn');
