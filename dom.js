@@ -30,6 +30,12 @@ export const dom = {
   // Top bar search
   headerSearchForm: document.getElementById('header-search-form'),
   headerSearchInput: document.getElementById('header-search-input'),
+  // Mobile search
+  mobileSearchToggle: document.getElementById('mobile-search-toggle'),
+  mobileSearchBar: document.getElementById('mobile-search-bar'),
+  mobileSearchForm: document.getElementById('mobile-search-form'),
+  mobileSearchInput: document.getElementById('mobile-search-input'),
+  mobileSearchClose: document.getElementById('mobile-search-close'),
   // Legacy elements
   currentUserId: document.getElementById('current-user-id'),
   headerSearchIcon: document.getElementById('header-search-icon'),
