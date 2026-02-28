@@ -307,6 +307,17 @@ export async function renderHome(dom, page = 1) {
         }
       });
 
+      // Image lightbox click handlers
+      dom.app.querySelectorAll('.card-poem-image').forEach(el => {
+        if (!el.dataset.bound) {
+          el.dataset.bound = '1';
+          el.addEventListener('click', () => {
+            const img = el.querySelector('img');
+            if (img && img.src) utils.openImageLightbox(img.src);
+          });
+        }
+      });
+
       // Like & comment counts
       import('../likes.js').then(({ fetchLikeCount }) => {
         import('../comments.js').then(({ fetchComments }) => {

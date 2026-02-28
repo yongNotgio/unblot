@@ -39,7 +39,6 @@ export async function renderViewPoem(dom, poemId) {
         </div>
       </div>
       
-      ${poem.image ? `<div class="card-poem-image" style="margin-bottom: 1.5rem;"><img src="${poem.image}" alt="Poem image" /></div>` : ''}
       <div class="poem-content mb-6" id="poem-content-${poemId}" style="font-size: 1.15rem; line-height: 1.9;">
         <span style="white-space: pre-line;">
           ${utils.escapeHTML(poem.content).length > 500
@@ -48,6 +47,8 @@ export async function renderViewPoem(dom, poemId) {
           }
         </span>
       </div>
+
+      ${poem.image ? `<div class="card-poem-image" style="margin-bottom: 1.5rem;"><img src="${poem.image}" alt="Poem image" /></div>` : ''}
       
       ${poem.prompt_date ? `<div style="margin-bottom: 0.75rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
       <div class="flex flex-wrap gap-2 mb-6">
@@ -108,6 +109,15 @@ export async function renderViewPoem(dom, poemId) {
       promptTag.addEventListener('click', (e) => {
         e.stopPropagation();
         utils.showPromptDetails(dom, promptTag.dataset.promptDate);
+      });
+    }
+
+    // Image lightbox click handler
+    const poemImageEl = dom.app.querySelector('.card-poem-image');
+    if (poemImageEl) {
+      poemImageEl.addEventListener('click', () => {
+        const img = poemImageEl.querySelector('img');
+        if (img && img.src) utils.openImageLightbox(img.src);
       });
     }
     

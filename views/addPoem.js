@@ -52,7 +52,10 @@ export function renderAddPoem(dom, promptTitle = null) {
                 <span style="font-size: 0.85rem; color: var(--text-muted);">Click or drag to upload an image</span>
               </div>
               <div id="image-preview-container" class="image-preview-container" style="display: none;">
-                <img id="image-preview" class="image-preview" />
+                <img id="image-preview" class="image-preview" style="cursor: pointer;" title="Click to adjust crop" />
+                <button type="button" id="recrop-image-btn" class="remove-image-btn" title="Adjust crop" style="right: 2.5rem; background: rgba(0,0,0,0.6);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2v4H2"/><path d="M18 22v-4h4"/><path d="M2 6l4-4"/><path d="M22 18l-4 4"/><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                </button>
                 <button type="button" id="remove-image-btn" class="remove-image-btn" title="Remove image">&times;</button>
               </div>
             </div>
@@ -79,7 +82,10 @@ export function renderAddPoem(dom, promptTitle = null) {
   const previewContainer = document.getElementById('image-preview-container');
   const previewImg = document.getElementById('image-preview');
   const removeBtn = document.getElementById('remove-image-btn');
+  const recropBtn = document.getElementById('recrop-image-btn');
   let selectedFile = null;
+  let originalFile = null;
+  let originalImageSrc = null;
 
   uploadArea.addEventListener('click', () => { if (!selectedFile) imageInput.click(); });
   uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
@@ -88,27 +94,55 @@ export function renderAddPoem(dom, promptTitle = null) {
     e.preventDefault();
     uploadArea.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) { selectedFile = file; showPreview(file); }
+    if (file && file.type.startsWith('image/')) handleImageFile(file);
   });
   imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
-    if (file) { selectedFile = file; showPreview(file); }
+    if (file) handleImageFile(file);
   });
   removeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     selectedFile = null;
+    originalFile = null;
+    originalImageSrc = null;
     imageInput.value = '';
     previewContainer.style.display = 'none';
     placeholder.style.display = 'flex';
   });
-  function showPreview(file) {
+  // Re-crop: click the crop button or the image itself to re-adjust
+  recropBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (!originalImageSrc) return;
+    const result = await utils.openImageCropper(originalImageSrc);
+    if (result) {
+      selectedFile = result.file;
+      previewImg.src = result.dataUrl;
+    }
+  });
+  previewImg.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (!originalImageSrc) return;
+    const result = await utils.openImageCropper(originalImageSrc);
+    if (result) {
+      selectedFile = result.file;
+      previewImg.src = result.dataUrl;
+    }
+  });
+  async function handleImageFile(file) {
+    // Store the original uncropped file and data URL for re-crop
+    originalFile = file;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
+    reader.onload = (e) => { originalImageSrc = e.target.result; };
+    reader.readAsDataURL(file);
+    const result = await utils.openImageCropper(file);
+    if (result) {
+      selectedFile = result.file;
+      previewImg.src = result.dataUrl;
       previewContainer.style.display = 'block';
       placeholder.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
+    } else {
+      imageInput.value = '';
+    }
   }
 
   document.getElementById('add-poem-form').onsubmit = async (e) => {
@@ -119,7 +153,9 @@ export function renderAddPoem(dom, promptTitle = null) {
     const tags = utils.parseTags(document.getElementById('poem-tags').value);
     try {
       let imageUrl = null;
+      let originalImageUrl = null;
       if (selectedFile) {
+        // Upload cropped image
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -135,6 +171,22 @@ export function renderAddPoem(dom, promptTitle = null) {
         }
         const { data: urlData } = supabase.storage.from('images').getPublicUrl(fileName);
         imageUrl = urlData.publicUrl;
+        // Upload original uncropped image
+        if (originalFile) {
+          const origExt = originalFile.name.split('.').pop();
+          const origFileName = `original_${Date.now()}-${Math.random().toString(36).substring(7)}.${origExt}`;
+          const { error: origUploadError } = await supabase.storage
+            .from('images')
+            .upload(origFileName, originalFile, {
+              cacheControl: '3600',
+              upsert: true,
+              contentType: originalFile.type
+            });
+          if (!origUploadError) {
+            const { data: origUrlData } = supabase.storage.from('images').getPublicUrl(origFileName);
+            originalImageUrl = origUrlData.publicUrl;
+          }
+        }
       }
       // If written from a daily prompt, store today's date (Philippine time) and prompt title
       let promptDate = null;
@@ -143,7 +195,7 @@ export function renderAddPoem(dom, promptTitle = null) {
         promptDate = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
         promptTitleVal = decodedTitle;
       }
-      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, prompt_date: promptDate, prompt_title: promptTitleVal });
+      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, original_image: originalImageUrl, prompt_date: promptDate, prompt_title: promptTitleVal });
       utils.showToast(dom, 'Poem added!');
       setTimeout(() => navigate('/my-poems'), 1000);
     } catch (err) {

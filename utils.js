@@ -184,4 +184,231 @@ export const utils = {
       });
     });
   },
+
+  /**
+   * Opens a fullscreen lightbox for an image. Click anywhere to close.
+   */
+  openImageLightbox(src) {
+    const lb = document.createElement('div');
+    lb.className = 'image-lightbox';
+    lb.innerHTML = `
+      <button class="image-lightbox-close" title="Close">&times;</button>
+      <img src="${src}" alt="Full image" />
+    `;
+    const close = () => lb.remove();
+    lb.addEventListener('click', close);
+    lb.querySelector('img').addEventListener('click', (e) => e.stopPropagation());
+    lb.querySelector('.image-lightbox-close').addEventListener('click', close);
+    document.addEventListener('keydown', function onKey(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+    });
+    document.body.appendChild(lb);
+  },
+
+  /**
+   * Opens a crop/pan modal for the given image file or URL.
+   * Accepts a File object or a URL string.
+   * Returns a Promise that resolves with { file: File, dataUrl: string } or null if cancelled.
+   */
+  openImageCropper(source) {
+    return new Promise((resolve) => {
+      function startCropper(imgSrc, fileName) {
+
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'image-crop-overlay';
+        overlay.innerHTML = `
+          <div class="image-crop-modal">
+            <div class="image-crop-header">
+              <div>
+                <h3>Adjust Image</h3>
+                <p>Drag to reposition &middot; Scroll or slide to zoom</p>
+              </div>
+            </div>
+            <div class="image-crop-viewport" id="crop-viewport">
+              <img id="crop-img" src="${imgSrc}" draggable="false" crossorigin="anonymous" />
+            </div>
+            <div class="image-crop-controls">
+              <label>Zoom</label>
+              <input type="range" id="crop-zoom" min="100" max="300" value="100" step="1" />
+            </div>
+            <div class="image-crop-actions">
+              <button type="button" class="action-btn action-btn-secondary" id="crop-cancel">Cancel</button>
+              <button type="button" class="action-btn action-btn-primary" id="crop-confirm">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Crop &amp; Use
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const viewport = overlay.querySelector('#crop-viewport');
+        const img = overlay.querySelector('#crop-img');
+        const zoomSlider = overlay.querySelector('#crop-zoom');
+        const cancelBtn = overlay.querySelector('#crop-cancel');
+        const confirmBtn = overlay.querySelector('#crop-confirm');
+
+        let scale = 1;
+        let imgX = 0, imgY = 0;
+        let dragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        let startImgX = 0, startImgY = 0;
+        let naturalW = 0, naturalH = 0;
+
+        // Shared mouse handlers (need outer scope for cleanup)
+        function onMouseMove(ev) {
+          if (!dragging) return;
+          imgX = startImgX + (ev.clientX - dragStartX);
+          imgY = startImgY + (ev.clientY - dragStartY);
+          if (_applyTransform) _applyTransform();
+        }
+        function onMouseUp() { dragging = false; }
+        let _applyTransform = null;
+
+        function cleanup() {
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+          overlay.remove();
+        }
+
+        // Wait for image to load to get natural dimensions
+        const imgEl = new Image();
+        imgEl.crossOrigin = 'anonymous';
+        imgEl.onload = () => {
+          naturalW = imgEl.naturalWidth;
+          naturalH = imgEl.naturalHeight;
+
+          // Fit image to fill the viewport initially
+          const vpRect = viewport.getBoundingClientRect();
+          const scaleW = vpRect.width / naturalW;
+          const scaleH = vpRect.height / naturalH;
+          const fitScale = Math.max(scaleW, scaleH);
+          // Use fitScale as our base (100% on slider)
+          const baseScale = fitScale;
+
+          function applyTransform() {
+            const currentScale = baseScale * scale;
+            const displayW = naturalW * currentScale;
+            const displayH = naturalH * currentScale;
+            img.style.width = displayW + 'px';
+            img.style.height = displayH + 'px';
+
+            // Clamp so viewport is always filled
+            const maxX = 0;
+            const minX = vpRect.width - displayW;
+            const maxY = 0;
+            const minY = vpRect.height - displayH;
+            imgX = Math.min(maxX, Math.max(minX, imgX));
+            imgY = Math.min(maxY, Math.max(minY, imgY));
+            img.style.left = imgX + 'px';
+            img.style.top = imgY + 'px';
+          }
+          _applyTransform = applyTransform;
+
+          // Initial position — centered
+          const initW = naturalW * baseScale;
+          const initH = naturalH * baseScale;
+          imgX = (vpRect.width - initW) / 2;
+          imgY = (vpRect.height - initH) / 2;
+          applyTransform();
+
+          // Zoom slider
+          zoomSlider.addEventListener('input', () => {
+            const oldScale = scale;
+            scale = parseInt(zoomSlider.value) / 100;
+            // Zoom toward center of viewport
+            const cx = vpRect.width / 2;
+            const cy = vpRect.height / 2;
+            imgX = cx - (cx - imgX) * (scale / oldScale);
+            imgY = cy - (cy - imgY) * (scale / oldScale);
+            applyTransform();
+          });
+
+          // Mouse wheel zoom
+          viewport.addEventListener('wheel', (ev) => {
+            ev.preventDefault();
+            const oldScale = scale;
+            const delta = ev.deltaY > 0 ? -5 : 5;
+            const newVal = Math.min(300, Math.max(100, parseInt(zoomSlider.value) + delta));
+            zoomSlider.value = newVal;
+            scale = newVal / 100;
+            const rect = viewport.getBoundingClientRect();
+            const cx = ev.clientX - rect.left;
+            const cy = ev.clientY - rect.top;
+            imgX = cx - (cx - imgX) * (scale / oldScale);
+            imgY = cy - (cy - imgY) * (scale / oldScale);
+            applyTransform();
+          }, { passive: false });
+
+          // Drag to pan (mouse)
+          viewport.addEventListener('mousedown', (ev) => {
+            ev.preventDefault();
+            dragging = true;
+            dragStartX = ev.clientX;
+            dragStartY = ev.clientY;
+            startImgX = imgX;
+            startImgY = imgY;
+          });
+          window.addEventListener('mousemove', onMouseMove);
+          window.addEventListener('mouseup', onMouseUp);
+
+          // Drag to pan (touch)
+          viewport.addEventListener('touchstart', (ev) => {
+            if (ev.touches.length === 1) {
+              dragging = true;
+              dragStartX = ev.touches[0].clientX;
+              dragStartY = ev.touches[0].clientY;
+              startImgX = imgX;
+              startImgY = imgY;
+            }
+          }, { passive: true });
+          viewport.addEventListener('touchmove', (ev) => {
+            if (!dragging || ev.touches.length !== 1) return;
+            ev.preventDefault();
+            imgX = startImgX + (ev.touches[0].clientX - dragStartX);
+            imgY = startImgY + (ev.touches[0].clientY - dragStartY);
+            applyTransform();
+          }, { passive: false });
+          viewport.addEventListener('touchend', () => { dragging = false; });
+
+          // Cancel
+          cancelBtn.addEventListener('click', () => {
+            cleanup();
+            resolve(null);
+          });
+
+          // Confirm — render to canvas
+          confirmBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = vpRect.width * 2;   // 2x for retina
+            canvas.height = vpRect.height * 2;
+            const ctx = canvas.getContext('2d');
+            const currentScale = baseScale * scale;
+            const sx = -imgX / currentScale;
+            const sy = -imgY / currentScale;
+            const sw = vpRect.width / currentScale;
+            const sh = vpRect.height / currentScale;
+            ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => {
+              const croppedFile = new File([blob], fileName.replace(/\.[^.]+$/, '') + '_cropped.jpg', { type: 'image/jpeg' });
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+              cleanup();
+              resolve({ file: croppedFile, dataUrl });
+            }, 'image/jpeg', 0.92);
+          });
+        };
+        imgEl.src = imgSrc;
+      }
+
+      // Accept File or URL string
+      if (typeof source === 'string') {
+        startCropper(source, 'image');
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => startCropper(e.target.result, source.name || 'image');
+        reader.readAsDataURL(source);
+      }
+    });
+  },
 };

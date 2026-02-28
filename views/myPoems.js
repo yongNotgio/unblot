@@ -58,7 +58,7 @@ export async function renderMyPoems(dom, page = 1) {
           ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
-          ${poem.image ? `<div class="card-poem-image" style="margin-top: 0.75rem;"><img src="${poem.image}" alt="Poem image" loading="lazy" style="width: 100%; border-radius: var(--radius-md);" /></div>` : ''}
+          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           <div class="card-meta">
             <span style="font-size: 0.7rem; color: var(--text-muted);">${timeAgo}</span>
           </div>
@@ -258,6 +258,17 @@ export async function renderMyPoems(dom, page = 1) {
           tag.addEventListener('click', (e) => {
             e.stopPropagation();
             utils.showPromptDetails(dom, tag.dataset.promptDate);
+          });
+        }
+      });
+
+      // Image lightbox click handlers
+      dom.app.querySelectorAll('.card-poem-image').forEach(el => {
+        if (!el.dataset.bound) {
+          el.dataset.bound = '1';
+          el.addEventListener('click', () => {
+            const img = el.querySelector('img');
+            if (img && img.src) utils.openImageLightbox(img.src);
           });
         }
       });
