@@ -50,6 +50,7 @@ export async function renderViewPoem(dom, poemId) {
       </div>
       
       <div class="flex flex-wrap gap-2 mb-6">
+        ${poem.prompt_date ? utils.promptDayTag(poem.prompt_date) : ''}
         ${utils.tagsToString(poem.tags).split(', ').filter(t => t && t !== 'None').map(tag => `<span class="tag-pill">${tag}</span>`).join('')}
       </div>
       
