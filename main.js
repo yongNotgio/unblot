@@ -91,7 +91,28 @@ if (dom.headerSearchForm && dom.headerSearchInput) {
   });
 }
 
-// Mobile searchbar expand/collapse
+// Mobile searchbar expand/collapse (new mobile topbar)
+if (dom.mobileSearchToggle && dom.mobileSearchBar && dom.mobileSearchForm && dom.mobileSearchInput && dom.mobileSearchClose) {
+  dom.mobileSearchToggle.addEventListener('click', function() {
+    dom.mobileSearchBar.style.display = 'block';
+    dom.mobileSearchInput.focus();
+  });
+  dom.mobileSearchClose.addEventListener('click', function() {
+    dom.mobileSearchBar.style.display = 'none';
+    dom.mobileSearchInput.value = '';
+  });
+  dom.mobileSearchForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const query = dom.mobileSearchInput.value.trim();
+    if (query) {
+      navigate(`/discover?q=${encodeURIComponent(query)}`);
+      dom.mobileSearchBar.style.display = 'none';
+      dom.mobileSearchInput.value = '';
+    }
+  });
+}
+
+// Legacy mobile searchbar expand/collapse
 if (dom.headerSearchIcon && dom.headerSearchFormMobile && dom.headerSearchInputMobile) {
   dom.headerSearchIcon.addEventListener('click', function() {
     // Show mobile searchbar, focus input
