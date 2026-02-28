@@ -79,6 +79,14 @@ export const utils = {
     }, duration);
   },
 
+  // --- Prompt Day Tag ---
+  promptDayTag(promptDate) {
+    if (!promptDate) return '';
+    const d = new Date(promptDate + 'T00:00:00');
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `<span class="prompt-day-tag"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Daily Prompt &middot; ${label}</span>`;
+  },
+
   // --- Parsing & Formatting ---
   parseTags(str) {
     return str.split(',').map(t => t.trim()).filter(Boolean);
