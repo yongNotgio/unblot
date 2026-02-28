@@ -16,7 +16,7 @@ export async function renderEditPoem(dom, poemId) {
       dom.app.innerHTML = `
         <div class="text-center py-12 animate-fade-in">
 
-          <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You are not authorized to edit this poem.</p>
+          <p style="font-size: 1.25rem; color: var(--text-primary);">You are not authorized to edit this poem.</p>
           <button id="unauthorized-discover-btn" class="action-btn action-btn-secondary mt-4">Go to Discover</button>
         </div>`;
       document.getElementById('unauthorized-discover-btn').onclick = () => navigate('/discover');
@@ -37,7 +37,7 @@ export async function renderEditPoem(dom, poemId) {
             </div>
             <div>
               <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Your Poem</label>
-              <textarea id="poem-content" class="modern-input" placeholder="Your poem content..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.8;">${utils.escapeHTML(poem.content)}</textarea>
+              <textarea id="poem-content" class="modern-input" placeholder="Your poem content..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'EB Garamond', Georgia, serif; font-size: 1.1rem; line-height: 1.8;">${utils.escapeHTML(poem.content)}</textarea>
             </div>
             <div>
               <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Tags</label>
