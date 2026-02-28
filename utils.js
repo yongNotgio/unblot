@@ -80,11 +80,47 @@ export const utils = {
   },
 
   // --- Prompt Day Tag ---
-  promptDayTag(promptDate) {
+  promptDayTag(promptDate, promptTitle = '') {
     if (!promptDate) return '';
     const d = new Date(promptDate + 'T00:00:00');
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    return `<span class="prompt-day-tag"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Daily Prompt &middot; ${label}</span>`;
+    const titleText = promptTitle ? ` &middot; ${utils.escapeHTML(promptTitle)}` : '';
+    return `<span class="prompt-day-tag" data-prompt-date="${promptDate}" title="Click to view prompt details"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${label}${titleText}</span>`;
+  },
+
+  // --- Show Prompt Details Modal ---
+  async showPromptDetails(dom, promptDate) {
+    if (!promptDate) return;
+    try {
+      const { supabase } = await import('./utils/supabase.js');
+      const { data, error } = await supabase
+        .from('prompts')
+        .select('*')
+        .eq('active_date', promptDate)
+        .single();
+      if (error || !data) {
+        utils.showModal(dom, 'Prompt details not found for this date.');
+        return;
+      }
+      const d = new Date(promptDate + 'T00:00:00');
+      const dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      const modalMsg = `\u{1F4A1} Daily Prompt \u2014 ${dateLabel}`;
+      dom.modalMessage.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">${dateLabel}</div>
+          <div style="font-family: 'EB Garamond', Georgia, serif; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem;">${utils.escapeHTML(data.title)}</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">${utils.escapeHTML(data.description || 'Write a poem inspired by this prompt.')}</div>
+        </div>`;
+      dom.modalActions.innerHTML = '';
+      const btn = document.createElement('button');
+      btn.textContent = 'Close';
+      btn.className = 'action-btn action-btn-secondary';
+      btn.onclick = () => utils.hideModal(dom);
+      dom.modalActions.appendChild(btn);
+      dom.modalBg.classList.remove('hidden');
+    } catch (e) {
+      utils.showModal(dom, 'Could not load prompt details.');
+    }
   },
 
   // --- Parsing & Formatting ---

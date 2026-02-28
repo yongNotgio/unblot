@@ -11,7 +11,7 @@ export function renderAddPoem(dom, promptTitle = null) {
     dom.app.innerHTML = `
       <div class="text-center py-12 animate-fade-in">
 
-        <p style="font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--text-primary);">You must be logged in to add a poem.</p>
+        <p style="font-size: 1.25rem; color: var(--text-primary);">You must be logged in to add a poem.</p>
         <button id="login-redirect-btn" class="action-btn action-btn-primary mt-4">Sign In</button>
       </div>`;
     document.getElementById('login-redirect-btn').onclick = () => navigate('/login');
@@ -28,16 +28,16 @@ export function renderAddPoem(dom, promptTitle = null) {
           <div style="font-size: 3rem; margin-bottom: 1rem;">${isPrompt ? '💡' : '✍️'}</div>
           <h2 class="section-header" style="margin-bottom: 0.5rem;">${isPrompt ? 'Write from Prompt' : 'Share Your Words'}</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">${isPrompt ? 'Respond to today\'s writing prompt' : 'Let your thoughts flow freely'}</p>
+          ${isPrompt ? `<div style="margin-top: 0.75rem;"><span class="prompt-day-tag"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Prompt: ${utils.escapeHTML(decodedTitle)}</span></div>` : ''}
         </div>
         <div class="flex flex-col gap-5">
           <div>
-            <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Title${isPrompt ? ' <span style="color: var(--text-muted); font-weight: 400;">(from prompt)</span>' : ''}</label>
-            <input type="text" id="poem-title" class="modern-input${isPrompt ? ' prompt-locked-title' : ''}" placeholder="Give your poem a title" required value="${isPrompt ? utils.escapeHTML(decodedTitle) : ''}" ${isPrompt ? 'readonly' : ''} />
-            ${isPrompt ? '<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">This title is from the daily prompt and cannot be changed.</p>' : ''}
+            <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Title</label>
+            <input type="text" id="poem-title" class="modern-input" placeholder="Give your poem a title" required />
           </div>
           <div>
             <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Your Poem</label>
-            <textarea id="poem-content" class="modern-input" placeholder="Write your heart out..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.8;"></textarea>
+            <textarea id="poem-content" class="modern-input" placeholder="Write your heart out..." rows="8" required style="resize: vertical; min-height: 200px; font-family: 'EB Garamond', Georgia, serif; font-size: 1.1rem; line-height: 1.8;"></textarea>
           </div>
           <div>
             <label style="display: block; font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem;">Tags</label>
@@ -71,10 +71,6 @@ export function renderAddPoem(dom, promptTitle = null) {
     </div>
   `;
   document.getElementById('cancel-btn').onclick = () => navigate('/my-poems');
-  // Focus on content if title is pre-filled from prompt
-  if (isPrompt) {
-    document.getElementById('poem-content')?.focus();
-  }
 
   // Image upload handling
   const imageInput = document.getElementById('poem-image');
@@ -140,12 +136,14 @@ export function renderAddPoem(dom, promptTitle = null) {
         const { data: urlData } = supabase.storage.from('images').getPublicUrl(fileName);
         imageUrl = urlData.publicUrl;
       }
-      // If written from a daily prompt, store today's date (Philippine time)
+      // If written from a daily prompt, store today's date (Philippine time) and prompt title
       let promptDate = null;
+      let promptTitleVal = null;
       if (isPrompt) {
         promptDate = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
+        promptTitleVal = decodedTitle;
       }
-      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, prompt_date: promptDate });
+      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, prompt_date: promptDate, prompt_title: promptTitleVal });
       utils.showToast(dom, 'Poem added!');
       setTimeout(() => navigate('/my-poems'), 1000);
     } catch (err) {
