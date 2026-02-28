@@ -14,15 +14,24 @@ function getAvatarColor(str) {
 export async function renderDiscover(dom, searchParam = '', page = 1) {
   let search = searchParam || '';
   if (!search) {
-    const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-    search = urlParams.get('q') || '';
+    // Parse query string from hash URL (e.g., #/discover?q=silt)
+    const hash = window.location.hash || '';
+    const queryIndex = hash.indexOf('?');
+    if (queryIndex !== -1) {
+      const queryString = hash.substring(queryIndex + 1);
+      const urlParams = new URLSearchParams(queryString);
+      search = urlParams.get('q') || '';
+    }
   }
+  
+  console.log('[Discover] Search query:', search);
   
   dom.app.innerHTML = `<div class="text-center text-lg" style="padding: 3rem 0;">Loading poems...</div>`;
   utils.showLoading(dom, true);
   
   try {
     const result = await fetchPoemsWithSmartSortPaginated({ search, page, limit: 50 });
+    console.log('[Discover] Fetched poems:', result.data.length, 'total:', result.total);
     const { data: poems, ...paginationData } = result;
 
     // Get saved view mode or default to grid
@@ -74,6 +83,9 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
               <span class="comments-count" id="comments-count-${poem.id}">0</span>
             </button>
+            <button class="card-action-btn-compact save-btn" data-id="${poem.id}" title="Save to collection">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
             <a class="card-action-btn-compact card-read-more" data-poem-id="${poem.id}" style="cursor: pointer;">Read More</a>
           </div>
           <div class="comments-section hidden" id="comments-section-${poem.id}">
@@ -114,6 +126,9 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             </button>
             <button class="card-action-btn share-btn" data-id="${poem.id}">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+            <button class="card-action-btn save-btn" data-id="${poem.id}" title="Save to collection">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             </button>
             <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
           </div>
@@ -289,6 +304,31 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
                   }
                 ]);
               };
+            }
+
+            // Save/bookmark button
+            const saveBtn = dom.app.querySelector(`.save-btn[data-id='${poem.id}']`);
+            if (saveBtn && currentUser) {
+              import('../poems.js').then(({ hasUserSaved, savePoem, unsavePoem }) => {
+                (async () => {
+                  const saved = await hasUserSaved(poem.id, currentUser.id);
+                  if (saved) saveBtn.classList.add('save-active');
+                  saveBtn.onclick = async () => {
+                    const isSaved = await hasUserSaved(poem.id, currentUser.id);
+                    if (isSaved) {
+                      await unsavePoem(poem.id, currentUser.id);
+                      saveBtn.classList.remove('save-active');
+                      utils.showToast(dom, 'Removed from saved');
+                    } else {
+                      await savePoem(poem.id, currentUser.id);
+                      saveBtn.classList.add('save-active');
+                      utils.showToast(dom, 'Saved to collection');
+                    }
+                  };
+                })();
+              });
+            } else if (saveBtn) {
+              saveBtn.onclick = () => utils.showModal(dom, 'Login to save poems!');
             }
 
             // Comments logic (only for list view)
