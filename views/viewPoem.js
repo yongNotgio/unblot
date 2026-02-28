@@ -1,6 +1,6 @@
 // views/viewPoem.js
 // Single poem view
-import { fetchPoemById, deletePoem, incrementPoemViews } from '../poems.js';
+import { fetchPoemById, deletePoem, incrementPoemViews, recordPoemView } from '../poems.js';
 import { fetchComments, addComment } from '../comments.js';
 import { fetchLikeCount, hasUserLiked, likePoem, unlikePoem } from '../likes.js';
 import { currentUser } from '../auth.js';
@@ -15,6 +15,8 @@ export async function renderViewPoem(dom, poemId) {
     const poem = await fetchPoemById(poemId);
     if (!poem) throw new Error('Poem not found');
     await incrementPoemViews(poemId);
+    // Record view for history tracking (fire and forget)
+    if (currentUser) recordPoemView(poemId, currentUser.id).catch(() => {});
     const [likeCount, comments] = await Promise.all([
       fetchLikeCount(poemId),
       fetchComments(poemId)
@@ -66,6 +68,9 @@ export async function renderViewPoem(dom, poemId) {
         </button>
         <button id="share-btn" class="action-btn-minimal" title="Share" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button id="save-poem-btn" class="action-btn-minimal save-btn" title="Save to collection" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
         ${(currentUser && currentUser.id === poem.user_id) ? `
           <button id="edit-btn" class="action-btn-minimal" title="Edit" style="display: inline-flex; align-items: center; padding: 0.5rem 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 20px; transition: all 0.2s;">
@@ -175,6 +180,30 @@ export async function renderViewPoem(dom, poemId) {
         }
       ]);
     };
+    // Save/bookmark button
+    const savePoemBtn = document.getElementById('save-poem-btn');
+    if (savePoemBtn && currentUser) {
+      import('../poems.js').then(({ hasUserSaved, savePoem: savePoemFn, unsavePoem: unsavePoemFn }) => {
+        (async () => {
+          const saved = await hasUserSaved(poemId, currentUser.id);
+          if (saved) savePoemBtn.classList.add('save-active');
+          savePoemBtn.onclick = async () => {
+            const isSaved = await hasUserSaved(poemId, currentUser.id);
+            if (isSaved) {
+              await unsavePoemFn(poemId, currentUser.id);
+              savePoemBtn.classList.remove('save-active');
+              utils.showToast(dom, 'Removed from saved');
+            } else {
+              await savePoemFn(poemId, currentUser.id);
+              savePoemBtn.classList.add('save-active');
+              utils.showToast(dom, 'Saved to collection');
+            }
+          };
+        })();
+      });
+    } else if (savePoemBtn) {
+      savePoemBtn.onclick = () => utils.showModal(dom, 'Login to save poems!');
+    }
     // Edit/Delete buttons
     if (currentUser && currentUser.id === poem.user_id) {
       document.getElementById('edit-btn').onclick = () => navigate(`/edit-poem/${poemId}`);
