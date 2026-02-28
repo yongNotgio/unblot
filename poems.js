@@ -242,9 +242,10 @@ export async function fetchPoemById(id) {
 /**
  * Add a new poem
  */
-export async function addPoem({ title, content, tags, user_id, image = null }) {
+export async function addPoem({ title, content, tags, user_id, image = null, prompt_date = null }) {
   const row = { title, content, tags, user_id };
   if (image) row.image = image;
+  if (prompt_date) row.prompt_date = prompt_date;
   const { data, error } = await supabase.from('poems').insert([row]).select().single();
   if (error) throw error;
   return data;

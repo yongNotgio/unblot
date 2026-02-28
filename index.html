@@ -1106,6 +1106,30 @@
       transform: translateY(-1px);
     }
 
+    /* === DAILY PROMPT TAG === */
+    .prompt-day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      background: linear-gradient(135deg, #f97316, #ec4899);
+      color: #fff;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+      transition: all var(--transition-fast);
+    }
+    .prompt-day-tag svg {
+      flex-shrink: 0;
+    }
+    .prompt-day-tag:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+    }
+
     /* === SECTION HEADERS === */
     .section-header {
       font-family: 'Playfair Display', Georgia, serif;
