@@ -242,10 +242,11 @@ export async function fetchPoemById(id) {
 /**
  * Add a new poem
  */
-export async function addPoem({ title, content, tags, user_id, image = null, original_image = null, prompt_date = null, prompt_title = null }) {
+export async function addPoem({ title, content, tags, user_id, image = null, original_image = null, aspect_ratio = null, prompt_date = null, prompt_title = null }) {
   const row = { title, content, tags, user_id };
   if (image) row.image = image;
   if (original_image) row.original_image = original_image;
+  if (aspect_ratio) row.aspect_ratio = aspect_ratio;
   if (prompt_date) row.prompt_date = prompt_date;
   if (prompt_title) row.prompt_title = prompt_title;
   const { data, error } = await supabase.from('poems').insert([row]).select().single();
@@ -256,10 +257,11 @@ export async function addPoem({ title, content, tags, user_id, image = null, ori
 /**
  * Update a poem by id
  */
-export async function updatePoem(id, { title, content, tags, image, original_image }) {
+export async function updatePoem(id, { title, content, tags, image, original_image, aspect_ratio }) {
   const updates = { title, content, tags };
   if (image !== undefined) updates.image = image;
   if (original_image !== undefined) updates.original_image = original_image;
+  if (aspect_ratio !== undefined) updates.aspect_ratio = aspect_ratio;
   const { data, error } = await supabase.from('poems').update(updates).eq('id', id).select().single();
   if (error) throw error;
   return data;

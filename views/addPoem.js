@@ -86,6 +86,7 @@ export function renderAddPoem(dom, promptTitle = null) {
   let selectedFile = null;
   let originalFile = null;
   let originalImageSrc = null;
+  let chosenAspectRatio = '4:3';
 
   uploadArea.addEventListener('click', () => { if (!selectedFile) imageInput.click(); });
   uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
@@ -105,6 +106,7 @@ export function renderAddPoem(dom, promptTitle = null) {
     selectedFile = null;
     originalFile = null;
     originalImageSrc = null;
+    chosenAspectRatio = '4:3';
     imageInput.value = '';
     previewContainer.style.display = 'none';
     placeholder.style.display = 'flex';
@@ -113,19 +115,23 @@ export function renderAddPoem(dom, promptTitle = null) {
   recropBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
     if (!originalImageSrc) return;
-    const result = await utils.openImageCropper(originalImageSrc);
+    const result = await utils.openImageCropper(originalImageSrc, chosenAspectRatio);
     if (result) {
       selectedFile = result.file;
       previewImg.src = result.dataUrl;
+      chosenAspectRatio = result.aspectRatio;
+      previewImg.style.aspectRatio = '';
     }
   });
   previewImg.addEventListener('click', async (e) => {
     e.stopPropagation();
     if (!originalImageSrc) return;
-    const result = await utils.openImageCropper(originalImageSrc);
+    const result = await utils.openImageCropper(originalImageSrc, chosenAspectRatio);
     if (result) {
       selectedFile = result.file;
       previewImg.src = result.dataUrl;
+      chosenAspectRatio = result.aspectRatio;
+      previewImg.style.aspectRatio = '';
     }
   });
   async function handleImageFile(file) {
@@ -138,6 +144,7 @@ export function renderAddPoem(dom, promptTitle = null) {
     if (result) {
       selectedFile = result.file;
       previewImg.src = result.dataUrl;
+      chosenAspectRatio = result.aspectRatio;
       previewContainer.style.display = 'block';
       placeholder.style.display = 'none';
     } else {
@@ -195,7 +202,7 @@ export function renderAddPoem(dom, promptTitle = null) {
         promptDate = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
         promptTitleVal = decodedTitle;
       }
-      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, original_image: originalImageUrl, prompt_date: promptDate, prompt_title: promptTitleVal });
+      await addPoem({ title, content, tags, user_id: currentUser.id, image: imageUrl, original_image: originalImageUrl, aspect_ratio: selectedFile ? chosenAspectRatio : null, prompt_date: promptDate, prompt_title: promptTitleVal });
       utils.showToast(dom, 'Poem added!');
       setTimeout(() => navigate('/my-poems'), 1000);
     } catch (err) {

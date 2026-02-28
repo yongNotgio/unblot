@@ -1835,7 +1835,6 @@
       margin: 1rem 0;
       border-radius: var(--radius-md);
       overflow: hidden;
-      aspect-ratio: 4 / 3;
       cursor: pointer;
       position: relative;
     }
@@ -1952,6 +1951,8 @@
       padding: 1.5rem;
       max-width: 560px;
       width: 100%;
+      max-height: 95vh;
+      overflow-y: auto;
       box-shadow: var(--shadow-xl);
     }
     .image-crop-header {
@@ -1972,9 +1973,37 @@
       color: var(--text-muted);
       margin: 0.25rem 0 0;
     }
+    .crop-ratio-bar {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .crop-ratio-btn {
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .crop-ratio-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .crop-ratio-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
     .image-crop-viewport {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      max-height: 55vh;
+      aspect-ratio: 4 / 3; /* default, overridden dynamically */
       border-radius: var(--radius-md);
       overflow: hidden;
       position: relative;
@@ -1983,6 +2012,7 @@
       border: 2px solid var(--border);
       touch-action: none;
       user-select: none;
+      margin: 0 auto;
     }
     .image-crop-viewport:active {
       cursor: grabbing;

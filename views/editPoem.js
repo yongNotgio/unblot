@@ -86,6 +86,7 @@ export async function renderEditPoem(dom, poemId) {
     let existingImage = poem.image || null;
     let originalFile = null;
     let originalImageSrc = poem.original_image || poem.image || null;
+    let chosenAspectRatio = poem.aspect_ratio || '4:3';
 
     uploadArea.addEventListener('click', () => { if (!previewImg.src || imageRemoved) imageInput.click(); });
     uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
@@ -106,6 +107,7 @@ export async function renderEditPoem(dom, poemId) {
       imageRemoved = true;
       originalFile = null;
       originalImageSrc = null;
+      chosenAspectRatio = '4:3';
       imageInput.value = '';
       previewContainer.style.display = 'none';
       placeholder.style.display = 'flex';
@@ -114,21 +116,25 @@ export async function renderEditPoem(dom, poemId) {
     recropBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!originalImageSrc) return;
-      const result = await utils.openImageCropper(originalImageSrc);
+      const result = await utils.openImageCropper(originalImageSrc, chosenAspectRatio);
       if (result) {
         selectedFile = result.file;
         imageRemoved = false;
         previewImg.src = result.dataUrl;
+        chosenAspectRatio = result.aspectRatio;
+        previewImg.style.aspectRatio = '';
       }
     });
     previewImg.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!originalImageSrc) return;
-      const result = await utils.openImageCropper(originalImageSrc);
+      const result = await utils.openImageCropper(originalImageSrc, chosenAspectRatio);
       if (result) {
         selectedFile = result.file;
         imageRemoved = false;
         previewImg.src = result.dataUrl;
+        chosenAspectRatio = result.aspectRatio;
+        previewImg.style.aspectRatio = '';
       }
     });
     async function handleImageFile(file) {
@@ -142,6 +148,7 @@ export async function renderEditPoem(dom, poemId) {
         selectedFile = result.file;
         imageRemoved = false;
         previewImg.src = result.dataUrl;
+        chosenAspectRatio = result.aspectRatio;
         previewContainer.style.display = 'block';
         placeholder.style.display = 'none';
       } else {
@@ -195,7 +202,7 @@ export async function renderEditPoem(dom, poemId) {
           imageUrl = null;
           originalImageUrl = null;
         }
-        await updatePoem(poemId, { title, content, tags, image: imageUrl, original_image: originalImageUrl });
+        await updatePoem(poemId, { title, content, tags, image: imageUrl, original_image: originalImageUrl, aspect_ratio: imageUrl ? chosenAspectRatio : null });
         utils.showToast(dom, 'Poem updated!');
         setTimeout(() => navigate(`/view-poem/${poemId}`), 1000);
       } catch (err) {

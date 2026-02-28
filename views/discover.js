@@ -64,7 +64,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
           ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
-          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+          ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           <div class="card-actions-compact">
             <button class="card-action-btn-compact like-btn" data-id="${poem.id}">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -101,7 +101,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
           </div>
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
-          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+          ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
           <div class="card-actions">
             <button class="card-action-btn like-btn" data-id="${poem.id}">

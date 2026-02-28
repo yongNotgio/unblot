@@ -210,9 +210,24 @@ export const utils = {
    * Accepts a File object or a URL string.
    * Returns a Promise that resolves with { file: File, dataUrl: string } or null if cancelled.
    */
-  openImageCropper(source) {
+  openImageCropper(source, defaultRatio = '4:3') {
+    const RATIOS = {
+      '4:3': 4 / 3,
+      '16:9': 16 / 9,
+      '9:16': 9 / 16,
+      '21:9': 21 / 9,
+      '1:1': 1,
+      '4:5': 4 / 5,
+    };
+
     return new Promise((resolve) => {
       function startCropper(imgSrc, fileName) {
+        let chosenRatio = defaultRatio;
+
+        // Build ratio buttons HTML
+        const ratioButtons = Object.keys(RATIOS).map(r =>
+          `<button type="button" class="crop-ratio-btn${r === chosenRatio ? ' active' : ''}" data-ratio="${r}">${r}</button>`
+        ).join('');
 
         // Create overlay
         const overlay = document.createElement('div');
@@ -225,7 +240,8 @@ export const utils = {
                 <p>Drag to reposition &middot; Scroll or slide to zoom</p>
               </div>
             </div>
-            <div class="image-crop-viewport" id="crop-viewport">
+            <div class="crop-ratio-bar">${ratioButtons}</div>
+            <div class="image-crop-viewport" id="crop-viewport" style="aspect-ratio: ${RATIOS[chosenRatio]};">
               <img id="crop-img" src="${imgSrc}" draggable="false" crossorigin="anonymous" />
             </div>
             <div class="image-crop-controls">
@@ -248,6 +264,7 @@ export const utils = {
         const zoomSlider = overlay.querySelector('#crop-zoom');
         const cancelBtn = overlay.querySelector('#crop-cancel');
         const confirmBtn = overlay.querySelector('#crop-confirm');
+        const ratioBtns = overlay.querySelectorAll('.crop-ratio-btn');
 
         let scale = 1;
         let imgX = 0, imgY = 0;
@@ -255,22 +272,78 @@ export const utils = {
         let dragStartX = 0, dragStartY = 0;
         let startImgX = 0, startImgY = 0;
         let naturalW = 0, naturalH = 0;
+        let baseScale = 1;
 
         // Shared mouse handlers (need outer scope for cleanup)
         function onMouseMove(ev) {
           if (!dragging) return;
           imgX = startImgX + (ev.clientX - dragStartX);
           imgY = startImgY + (ev.clientY - dragStartY);
-          if (_applyTransform) _applyTransform();
+          applyTransform();
         }
         function onMouseUp() { dragging = false; }
-        let _applyTransform = null;
+
+        function getVpRect() { return viewport.getBoundingClientRect(); }
+
+        function recalcBase() {
+          const vpRect = getVpRect();
+          const scaleW = vpRect.width / naturalW;
+          const scaleH = vpRect.height / naturalH;
+          baseScale = Math.max(scaleW, scaleH);
+        }
+
+        function applyTransform() {
+          const vpRect = getVpRect();
+          const currentScale = baseScale * scale;
+          const displayW = naturalW * currentScale;
+          const displayH = naturalH * currentScale;
+          img.style.width = displayW + 'px';
+          img.style.height = displayH + 'px';
+
+          // Clamp so viewport is always filled
+          const maxX = 0;
+          const minX = vpRect.width - displayW;
+          const maxY = 0;
+          const minY = vpRect.height - displayH;
+          imgX = Math.min(maxX, Math.max(minX, imgX));
+          imgY = Math.min(maxY, Math.max(minY, imgY));
+          img.style.left = imgX + 'px';
+          img.style.top = imgY + 'px';
+        }
+
+        function resetView() {
+          const vpRect = getVpRect();
+          recalcBase();
+          scale = 1;
+          zoomSlider.value = 100;
+          const initW = naturalW * baseScale;
+          const initH = naturalH * baseScale;
+          imgX = (vpRect.width - initW) / 2;
+          imgY = (vpRect.height - initH) / 2;
+          applyTransform();
+        }
 
         function cleanup() {
           window.removeEventListener('mousemove', onMouseMove);
           window.removeEventListener('mouseup', onMouseUp);
           overlay.remove();
         }
+
+        // Ratio button clicks
+        ratioBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            ratioBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            chosenRatio = btn.dataset.ratio;
+            viewport.style.aspectRatio = String(RATIOS[chosenRatio]);
+            // Wait one frame for layout to update, then refit
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                resetView();
+              });
+            });
+          });
+        });
 
         // Wait for image to load to get natural dimensions
         const imgEl = new Image();
@@ -280,41 +353,11 @@ export const utils = {
           naturalH = imgEl.naturalHeight;
 
           // Fit image to fill the viewport initially
-          const vpRect = viewport.getBoundingClientRect();
-          const scaleW = vpRect.width / naturalW;
-          const scaleH = vpRect.height / naturalH;
-          const fitScale = Math.max(scaleW, scaleH);
-          // Use fitScale as our base (100% on slider)
-          const baseScale = fitScale;
-
-          function applyTransform() {
-            const currentScale = baseScale * scale;
-            const displayW = naturalW * currentScale;
-            const displayH = naturalH * currentScale;
-            img.style.width = displayW + 'px';
-            img.style.height = displayH + 'px';
-
-            // Clamp so viewport is always filled
-            const maxX = 0;
-            const minX = vpRect.width - displayW;
-            const maxY = 0;
-            const minY = vpRect.height - displayH;
-            imgX = Math.min(maxX, Math.max(minX, imgX));
-            imgY = Math.min(maxY, Math.max(minY, imgY));
-            img.style.left = imgX + 'px';
-            img.style.top = imgY + 'px';
-          }
-          _applyTransform = applyTransform;
-
-          // Initial position — centered
-          const initW = naturalW * baseScale;
-          const initH = naturalH * baseScale;
-          imgX = (vpRect.width - initW) / 2;
-          imgY = (vpRect.height - initH) / 2;
-          applyTransform();
+          resetView();
 
           // Zoom slider
           zoomSlider.addEventListener('input', () => {
+            const vpRect = getVpRect();
             const oldScale = scale;
             scale = parseInt(zoomSlider.value) / 100;
             // Zoom toward center of viewport
@@ -333,7 +376,7 @@ export const utils = {
             const newVal = Math.min(300, Math.max(100, parseInt(zoomSlider.value) + delta));
             zoomSlider.value = newVal;
             scale = newVal / 100;
-            const rect = viewport.getBoundingClientRect();
+            const rect = getVpRect();
             const cx = ev.clientX - rect.left;
             const cy = ev.clientY - rect.top;
             imgX = cx - (cx - imgX) * (scale / oldScale);
@@ -380,6 +423,7 @@ export const utils = {
 
           // Confirm — render to canvas
           confirmBtn.addEventListener('click', () => {
+            const vpRect = getVpRect();
             const canvas = document.createElement('canvas');
             canvas.width = vpRect.width * 2;   // 2x for retina
             canvas.height = vpRect.height * 2;
@@ -394,7 +438,7 @@ export const utils = {
               const croppedFile = new File([blob], fileName.replace(/\.[^.]+$/, '') + '_cropped.jpg', { type: 'image/jpeg' });
               const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
               cleanup();
-              resolve({ file: croppedFile, dataUrl });
+              resolve({ file: croppedFile, dataUrl, aspectRatio: chosenRatio });
             }, 'image/jpeg', 0.92);
           });
         };

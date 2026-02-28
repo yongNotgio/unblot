@@ -58,7 +58,7 @@ export async function renderMyPoems(dom, page = 1) {
           ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
-          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+          ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           <div class="card-meta">
             <span style="font-size: 0.7rem; color: var(--text-muted);">${timeAgo}</span>
           </div>
@@ -103,7 +103,7 @@ export async function renderMyPoems(dom, page = 1) {
           </div>
           <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
           <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
-          ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+          ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
           <div class="card-actions">
             <button class="card-action-btn like-btn" data-id="${poem.id}">

@@ -48,7 +48,7 @@ export async function renderViewPoem(dom, poemId) {
         </span>
       </div>
 
-      ${poem.image ? `<div class="card-poem-image" style="margin-bottom: 1.5rem;"><img src="${poem.image}" alt="Poem image" /></div>` : ''}
+      ${poem.image ? `<div class="card-poem-image" style="margin-bottom: 1.5rem; aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" /></div>` : ''}
       
       ${poem.prompt_date ? `<div style="margin-bottom: 0.75rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
       <div class="flex flex-wrap gap-2 mb-6">

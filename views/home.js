@@ -160,7 +160,7 @@ export async function renderHome(dom, page = 1) {
         </div>
         <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
-        ${poem.image ? `<div class="card-poem-image"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
+        ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
         ${isLatest ? `<div style="margin: 0.75rem 0;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Latest</span></div>` : ''}
         ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
         <div class="card-actions">
