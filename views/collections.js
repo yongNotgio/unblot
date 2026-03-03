@@ -147,7 +147,7 @@ export async function renderCollections(dom) {
                 // Move all poems in this collection to unsorted
                 const inCollection = savedPoems.filter(p => p._collection_id === cid);
                 for (const p of inCollection) {
-                  await moveSavedPoemToCollection(p.id, null);
+                  await moveSavedPoemToCollection(p.id, currentUser.id, null);
                   p._collection_id = null;
                 }
                 await deleteCollection(cid);
@@ -166,32 +166,31 @@ export async function renderCollections(dom) {
         const createBtn = dom.app.querySelector('#create-collection-btn');
         if (createBtn) {
           createBtn.addEventListener('click', () => {
-            utils.showModal(dom, 'Create Collection', []);
-            const modalContent = document.querySelector('.modal-content') || document.querySelector('[style*="modal"]');
-            if (modalContent) {
-              // Replace modal content with a form
-              const formHtml = `
-                <div style="padding:1rem;">
-                  <h3 style="margin-bottom:1rem;font-size:1.1rem;color:var(--text-primary);">New Collection</h3>
-                  <input id="new-collection-name" class="modern-input" type="text" placeholder="Collection name" style="width:100%;margin-bottom:0.75rem;padding:0.5rem 1rem;font-size:0.9rem;" />
-                  <input id="new-collection-desc" class="modern-input" type="text" placeholder="Description (optional)" style="width:100%;margin-bottom:1rem;padding:0.5rem 1rem;font-size:0.9rem;" />
-                  <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                    <button id="cancel-create-collection" class="action-btn action-btn-secondary" style="padding:0.4rem 1rem;font-size:0.85rem;">Cancel</button>
-                    <button id="confirm-create-collection" class="action-btn action-btn-primary" style="padding:0.4rem 1rem;font-size:0.85rem;">Create</button>
-                  </div>
-                </div>`;
-              modalContent.innerHTML = formHtml;
-              document.getElementById('cancel-create-collection')?.addEventListener('click', () => utils.hideModal(dom));
-              document.getElementById('confirm-create-collection')?.addEventListener('click', async () => {
-                const name = document.getElementById('new-collection-name')?.value.trim();
-                if (!name) return;
-                const desc = document.getElementById('new-collection-desc')?.value.trim() || '';
+            // Build the form directly inside the modal elements
+            dom.modalMessage.innerHTML = `
+              <h3 style="margin-bottom:1rem;font-size:1.1rem;color:var(--text-primary);">New Collection</h3>
+              <input id="new-collection-name" class="modern-input" type="text" placeholder="Collection name" style="width:100%;margin-bottom:0.75rem;padding:0.5rem 1rem;font-size:0.9rem;" />
+              <input id="new-collection-desc" class="modern-input" type="text" placeholder="Description (optional)" style="width:100%;margin-bottom:1rem;padding:0.5rem 1rem;font-size:0.9rem;" />`;
+            dom.modalActions.innerHTML = `
+              <button id="cancel-create-collection" class="action-btn action-btn-secondary" style="padding:0.4rem 1rem;font-size:0.85rem;">Cancel</button>
+              <button id="confirm-create-collection" class="action-btn action-btn-primary" style="padding:0.4rem 1rem;font-size:0.85rem;">Create</button>`;
+            dom.modalBg.classList.remove('hidden');
+            document.getElementById('new-collection-name')?.focus();
+            document.getElementById('cancel-create-collection')?.addEventListener('click', () => utils.hideModal(dom));
+            document.getElementById('confirm-create-collection')?.addEventListener('click', async () => {
+              const name = document.getElementById('new-collection-name')?.value.trim();
+              if (!name) return;
+              const desc = document.getElementById('new-collection-desc')?.value.trim() || '';
+              try {
                 const newCol = await createCollection(currentUser.id, name, desc);
                 collections.unshift(newCol);
                 utils.hideModal(dom);
+                utils.showToast(dom, `Collection "${name}" created!`);
                 render();
-              });
-            }
+              } catch (err) {
+                utils.showToast(dom, 'Failed to create collection: ' + (err.message || err), 3000, 'error');
+              }
+            });
           });
         }
 
@@ -211,10 +210,15 @@ export async function renderCollections(dom) {
           sel.addEventListener('change', async () => {
             const pid = sel.dataset.poemId;
             const cid = sel.value || null;
-            await moveSavedPoemToCollection(pid, cid);
-            const poem = savedPoems.find(p => p.id === pid);
-            if (poem) poem._collection_id = cid;
-            render();
+            try {
+              await moveSavedPoemToCollection(pid, currentUser.id, cid);
+              const poem = savedPoems.find(p => p.id === pid);
+              if (poem) poem._collection_id = cid;
+              render();
+            } catch (err) {
+              utils.showToast(dom, 'Failed to move poem: ' + (err.message || err), 3000, 'error');
+              render();
+            }
           });
         });
 
