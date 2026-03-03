@@ -449,10 +449,11 @@ export async function deleteCollection(id) {
   if (error) throw error;
 }
 
-export async function moveSavedPoemToCollection(savedPoemId, collectionId) {
+export async function moveSavedPoemToCollection(poemId, userId, collectionId) {
   const { error } = await supabase
     .from('saved_poems')
     .update({ collection_id: collectionId })
-    .eq('poem_id', savedPoemId);
+    .eq('poem_id', poemId)
+    .eq('user_id', userId);
   if (error) throw error;
 }
