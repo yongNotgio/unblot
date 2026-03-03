@@ -394,7 +394,7 @@ export async function renderHome(dom, page = 1) {
             // Save/bookmark button
             const saveBtn = dom.app.querySelector(`.save-btn[data-id='${poem.id}']`);
             if (saveBtn && currentUser) {
-              import('../poems.js').then(({ hasUserSaved, savePoem, unsavePoem }) => {
+              import('../poems.js').then(({ hasUserSaved, savePoem, unsavePoem, fetchCollections, createCollection }) => {
                 (async () => {
                   const saved = await hasUserSaved(poem.id, currentUser.id);
                   if (saved) saveBtn.classList.add('save-active');
@@ -405,9 +405,67 @@ export async function renderHome(dom, page = 1) {
                       saveBtn.classList.remove('save-active');
                       utils.showToast(dom, 'Removed from saved');
                     } else {
-                      await savePoem(poem.id, currentUser.id);
-                      saveBtn.classList.add('save-active');
-                      utils.showToast(dom, 'Saved to collection');
+                      // Fetch collections to prompt user where to save
+                      const collections = await fetchCollections(currentUser.id);
+                      if (collections.length === 0) {
+                        // No collections - prompt to create one
+                        dom.modalMessage.innerHTML = `
+                          <h3 style="margin-bottom:1rem;font-size:1.1rem;color:var(--text-primary);">Create your first collection</h3>
+                          <p style="margin-bottom:1rem;color:var(--text-secondary);font-size:0.9rem;">Collections help organize your saved poems.</p>
+                          <input id="new-collection-name" class="modern-input" type="text" placeholder="Collection name" style="width:100%;margin-bottom:0.75rem;padding:0.5rem 1rem;font-size:0.9rem;" />
+                          <input id="new-collection-desc" class="modern-input" type="text" placeholder="Description (optional)" style="width:100%;margin-bottom:1rem;padding:0.5rem 1rem;font-size:0.9rem;" />`;
+                        dom.modalActions.innerHTML = `
+                          <button id="cancel-create-collection" class="action-btn action-btn-secondary" style="padding:0.4rem 1rem;font-size:0.85rem;">Save Unsorted</button>
+                          <button id="confirm-create-collection" class="action-btn action-btn-primary" style="padding:0.4rem 1rem;font-size:0.85rem;">Create & Save</button>`;
+                        dom.modalBg.classList.remove('hidden');
+                        document.getElementById('new-collection-name')?.focus();
+                        document.getElementById('cancel-create-collection')?.addEventListener('click', async () => {
+                          utils.hideModal(dom);
+                          await savePoem(poem.id, currentUser.id, null);
+                          saveBtn.classList.add('save-active');
+                          utils.showToast(dom, 'Saved to Unsorted');
+                        });
+                        document.getElementById('confirm-create-collection')?.addEventListener('click', async () => {
+                          const name = document.getElementById('new-collection-name')?.value.trim();
+                          if (!name) return;
+                          const desc = document.getElementById('new-collection-desc')?.value.trim() || '';
+                          try {
+                            const newCol = await createCollection(currentUser.id, name, desc);
+                            await savePoem(poem.id, currentUser.id, newCol.id);
+                            saveBtn.classList.add('save-active');
+                            utils.hideModal(dom);
+                            utils.showToast(dom, `Saved to "${name}"`);
+                          } catch (err) {
+                            utils.showToast(dom, 'Failed to create collection: ' + (err.message || err), 3000, 'error');
+                          }
+                        });
+                      } else {
+                        // Collections exist - show selection
+                        dom.modalMessage.innerHTML = `
+                          <h3 style="margin-bottom:1rem;font-size:1.1rem;color:var(--text-primary);">Save to collection</h3>
+                          <select id="collection-select" class="modern-input" style="width:100%;padding:0.5rem 1rem;font-size:0.9rem;margin-bottom:1rem;">
+                            <option value="">Unsorted</option>
+                            ${collections.map(c => `<option value="${c.id}">${utils.escapeHTML(c.name)}</option>`).join('')}
+                          </select>`;
+                        dom.modalActions.innerHTML = `
+                          <button id="cancel-save" class="action-btn action-btn-secondary" style="padding:0.4rem 1rem;font-size:0.85rem;">Cancel</button>
+                          <button id="confirm-save" class="action-btn action-btn-primary" style="padding:0.4rem 1rem;font-size:0.85rem;">Save</button>`;
+                        dom.modalBg.classList.remove('hidden');
+                        document.getElementById('collection-select')?.focus();
+                        document.getElementById('cancel-save')?.addEventListener('click', () => utils.hideModal(dom));
+                        document.getElementById('confirm-save')?.addEventListener('click', async () => {
+                          const selectedId = document.getElementById('collection-select')?.value || null;
+                          try {
+                            await savePoem(poem.id, currentUser.id, selectedId);
+                            saveBtn.classList.add('save-active');
+                            utils.hideModal(dom);
+                            const collectionName = selectedId ? collections.find(c => c.id === selectedId)?.name : 'Unsorted';
+                            utils.showToast(dom, `Saved to ${collectionName}`);
+                          } catch (err) {
+                            utils.showToast(dom, 'Failed to save: ' + (err.message || err), 3000, 'error');
+                          }
+                        });
+                      }
                     }
                   };
                 })();
