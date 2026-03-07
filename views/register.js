@@ -1,4 +1,3 @@
-// views/register.js
 // Registration view
 import { utils } from '../utils.js';
 import { supabase } from '../utils/supabase.js';
