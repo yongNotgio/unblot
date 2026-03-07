@@ -169,7 +169,6 @@ function attachInteractions(poems, dom) {
           };
         }
 
-        // Save/bookmark button
         const saveBtn = dom.app.querySelector(`.save-btn[data-id='${poem.id}']`);
         if (saveBtn && currentUser) {
           import('../poems.js').then(({ hasUserSaved, savePoem, unsavePoem, fetchCollections, createCollection }) => {
