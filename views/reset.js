@@ -4,7 +4,6 @@ import { utils } from '../utils.js';
 import { supabase } from '../utils/supabase.js';
 import { navigate } from '../router.js';
 
-// Track OTP state
 let resetEmail = '';
 let otpSent = false;
 let otpVerified = false;
