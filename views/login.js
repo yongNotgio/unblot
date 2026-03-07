@@ -5,7 +5,6 @@ import { supabase } from '../utils/supabase.js';
 import { forceRefreshUser } from '../auth.js';
 import { navigate } from '../router.js';
 
-// Track OTP state
 let otpEmail = '';
 let otpSent = false;
 
