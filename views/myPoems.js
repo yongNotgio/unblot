@@ -6,7 +6,6 @@ import { utils } from '../utils.js';
 import { navigate } from '../router.js';
 import { supabase } from '../utils/supabase.js';
 
-// Color palette for avatars
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
 function getAvatarColor(str) {
   let hash = 0;
