@@ -23,7 +23,6 @@ export async function renderViewPoem(dom, poemId) {
     ]);
     let userLiked = false;
     if (currentUser) userLiked = await hasUserLiked(poemId, currentUser.id);
-    // Render poem
     let html = `<article class="poem-card max-w-2xl mx-auto animate-fade-in" data-poem-id="${poemId}">
       <header class="flex justify-between items-start mb-4">
         <h1 class="poem-title-link text-2xl md:text-3xl" style="font-weight: 700; max-width: 80%;">${utils.escapeHTML(poem.title)}</h1>
