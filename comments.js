@@ -28,9 +28,7 @@ export async function deleteComment(id) {
   if (error) throw error;
 }
 
-/**
- * Update a comment by id
- */
+
 export async function updateComment(id, comment_text) {
   const { error } = await supabase.from('comments').update({ comment_text }).eq('id', id);
   if (error) throw error;
