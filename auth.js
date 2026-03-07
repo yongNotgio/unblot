@@ -15,9 +15,7 @@ export async function fetchCurrentUser() {
   return currentUser;
 }
 
-/**
- * Force refresh user from server (use after login/logout)
- */
+
 export async function forceRefreshUser() {
   currentUser = await refreshUser();
   updateNav();
