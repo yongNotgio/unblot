@@ -1,4 +1,3 @@
-// Notifications view placeholder
 export function renderNotifications(dom) {
   dom.app.innerHTML = `
     <div style="max-width:700px;margin:2rem auto;padding:0 1rem;">
