@@ -222,7 +222,6 @@ export async function renderHome(dom, page = 1) {
 
     dom.app.innerHTML = html;
 
-    // === INFINITE SCROLL ===
     const feedEl = document.getElementById('poems-feed');
     const loaderEl = document.getElementById('feed-loader');
     const endEl = document.getElementById('feed-end');
