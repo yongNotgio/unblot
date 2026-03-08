@@ -1,5 +1,4 @@
 // views/addPoem.js
-// Add new poem view
 import { addPoem } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
