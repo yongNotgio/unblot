@@ -1,4 +1,3 @@
-// views/reset.js
 // Password reset view with OTP support
 import { utils } from '../utils.js';
 import { supabase } from '../utils/supabase.js';
