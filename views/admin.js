@@ -86,7 +86,6 @@ async function fetchUserEmails(userIds) {
     (data || []).forEach(row => { map[row.id] = row.email; });
     return map;
   } catch (e) {
-    // RPC doesn't exist yet — fall back silently
     console.warn('[Admin] get_user_emails RPC not available. User emails will not be shown. See admin.js for setup SQL.');
     return {};
   }
