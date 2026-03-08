@@ -1,4 +1,3 @@
-// Reading history view — shows all poems the user has viewed, most recent first
 import { fetchViewHistory } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
