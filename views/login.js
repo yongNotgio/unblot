@@ -56,7 +56,6 @@ function renderLoginForm(dom) {
   document.getElementById('to-register').onclick = () => navigate('/register');
   document.getElementById('to-reset').onclick = () => navigate('/reset');
   
-  // OTP sign-in button
   document.getElementById('otp-sign-in').onclick = async () => {
     const email = document.getElementById('login-email').value;
     if (!email) {
