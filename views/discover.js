@@ -14,7 +14,6 @@ function getAvatarColor(str) {
 export async function renderDiscover(dom, searchParam = '', page = 1) {
   let search = searchParam || '';
   if (!search) {
-    // Parse query string from hash URL (e.g., #/discover?q=silt)
     const hash = window.location.hash || '';
     const queryIndex = hash.indexOf('?');
     if (queryIndex !== -1) {
