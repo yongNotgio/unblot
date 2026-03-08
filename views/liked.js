@@ -1,4 +1,3 @@
-// Liked poems view — shows all poems the user has liked, most recent first
 import { fetchLikedPoems } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
