@@ -1,4 +1,3 @@
-// Collections view — saved poems organized into collections
 import { fetchSavedPoems, unsavePoem, fetchCollections, createCollection, deleteCollection, moveSavedPoemToCollection } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
