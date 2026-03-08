@@ -1,4 +1,3 @@
-// Registration view
 import { utils } from '../utils.js';
 import { supabase } from '../utils/supabase.js';
 import { navigate } from '../router.js';
