@@ -8,7 +8,6 @@ let otpSent = false;
 let otpVerified = false;
 
 export function renderReset(dom) {
-  // Check for Supabase password reset link (type=recovery in hash) - legacy support
   const hash = window.location.hash;
   const isRecovery = hash.includes('type=recovery');
   const params = new URLSearchParams(hash.split('?')[1] || '');
