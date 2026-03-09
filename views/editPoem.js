@@ -1,4 +1,3 @@
-// Edit poem view
 import { fetchPoemById, updatePoem } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
