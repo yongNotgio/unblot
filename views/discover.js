@@ -33,7 +33,6 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
     console.log('[Discover] Fetched poems:', result.data.length, 'total:', result.total);
     const { data: poems, ...paginationData } = result;
 
-    // Get saved view mode or default to grid
     const savedView = localStorage.getItem('discoverViewMode') || 'grid';
 
     // View toggle HTML
