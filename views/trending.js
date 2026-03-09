@@ -115,7 +115,6 @@ export async function renderTrending(dom) {
       dom.app.querySelectorAll('.prompt-day-tag').forEach(tag => {
         tag.addEventListener('click', (e) => { e.stopPropagation(); utils.showPromptDetails(dom, tag.dataset.promptDate); });
       });
-      // Like, comment, share interactions
       attachInteractions(poems, dom);
     }, 0);
 
