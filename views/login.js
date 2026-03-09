@@ -83,7 +83,6 @@ function renderLoginForm(dom) {
     }
   };
   
-  // Password sign-in form
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     utils.showLoading(dom, true);
