@@ -36,7 +36,8 @@ export const dom = {
   mobileSearchForm: document.getElementById('mobile-search-form'),
   mobileSearchInput: document.getElementById('mobile-search-input'),
   mobileSearchClose: document.getElementById('mobile-search-close'),
-  // Legacy elements
+
+
   currentUserId: document.getElementById('current-user-id'),
   headerSearchIcon: document.getElementById('header-search-icon'),
   headerSearchFormMobile: document.getElementById('header-search-form-mobile'),
