@@ -1,4 +1,3 @@
-// 'My Poems' view with enhanced card layout
 import { fetchPoemsPaginated } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
