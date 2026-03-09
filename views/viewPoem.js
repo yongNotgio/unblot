@@ -1,4 +1,3 @@
-// Single poem view
 import { fetchPoemById, deletePoem, incrementPoemViews, recordPoemView } from '../poems.js';
 import { fetchComments, addComment } from '../comments.js';
 import { fetchLikeCount, hasUserLiked, likePoem, unlikePoem } from '../likes.js';
