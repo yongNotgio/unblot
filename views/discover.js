@@ -1,4 +1,3 @@
-// views/discover.js
 // Discover view with smart sorting and enhanced cards
 import { fetchPoemsWithSmartSortPaginated } from '../poems.js';
 import { utils } from '../utils.js';
