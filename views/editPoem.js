@@ -136,7 +136,6 @@ export async function renderEditPoem(dom, poemId) {
       }
     });
     async function handleImageFile(file) {
-      // Store the original uncropped file and data URL for re-crop
       originalFile = file;
       const reader = new FileReader();
       reader.onload = (e) => { originalImageSrc = e.target.result; };
