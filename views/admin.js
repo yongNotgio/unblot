@@ -32,7 +32,6 @@ async function fetchStats() {
   const { data: userRows } = await supabase.from('poems').select('user_id');
   const uniqueUsers = new Set((userRows || []).map(r => r.user_id));
 
-  // Total views across all poems
   const { data: viewRows } = await supabase.from('poems').select('views_count');
   const totalViews = (viewRows || []).reduce((sum, r) => sum + (r.views_count || 0), 0);
 
