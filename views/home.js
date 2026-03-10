@@ -248,7 +248,6 @@ export async function renderHome(dom, page = 1) {
           while (temp.firstChild) fragment.appendChild(temp.firstChild);
           feedEl.appendChild(fragment);
 
-          // Wire up interactions for new poems
           attachPoemInteractions(newPoems, dom);
         }
 
