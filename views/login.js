@@ -30,8 +30,17 @@ function renderLoginForm(dom) {
             <svg class="absolute right-4 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           </div>
           <div class="relative">
-            <input type="password" id="login-password" class="modern-input" placeholder="Password" required />
-            <svg class="absolute right-4 top-1/2 transform -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="login-password" class="modern-input" placeholder="Password" required style="padding-right: 48px;" />
+            <button type="button" id="toggle-login-password" class="absolute right-4 top-1/2 transform -translate-y-1/2" style="background: none; border: none; cursor: none; padding: 4px; color: var(--text-muted); display: flex; align-items: center; justify-content: center;" title="Toggle password visibility">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="eye-icon">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="eye-off-icon" style="display: none;">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
           </div>
           <button type="submit" class="action-btn action-btn-primary w-full justify-center py-3" style="font-size: 1rem;">
             Sign In
@@ -55,6 +64,19 @@ function renderLoginForm(dom) {
   
   document.getElementById('to-register').onclick = () => navigate('/register');
   document.getElementById('to-reset').onclick = () => navigate('/reset');
+  
+  // Password visibility toggle
+  const toggleBtn = document.getElementById('toggle-login-password');
+  const passwordInput = document.getElementById('login-password');
+  const eyeIcon = toggleBtn.querySelector('.eye-icon');
+  const eyeOffIcon = toggleBtn.querySelector('.eye-off-icon');
+  
+  toggleBtn.onclick = () => {
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    eyeIcon.style.display = isPassword ? 'none' : 'block';
+    eyeOffIcon.style.display = isPassword ? 'block' : 'none';
+  };
   
   document.getElementById('otp-sign-in').onclick = async () => {
     const email = document.getElementById('login-email').value;
@@ -107,7 +129,12 @@ function renderOTPVerificationForm(dom) {
     <div class="w-full max-w-md mx-auto animate-fade-in">
       <form id="otp-form" class="cozy-card">
         <div class="text-center mb-8">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">📬</div>
+          <div style="margin-bottom: 1rem;">
+            <svg width="64" height="64" fill="none" stroke="var(--rust)" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto; display: block;">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
           <h2 class="section-header" style="margin-bottom: 0.5rem;">Enter Verification Code</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">We sent a 6-digit code to <strong>${otpEmail}</strong></p>
         </div>

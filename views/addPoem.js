@@ -23,7 +23,23 @@ export function renderAddPoem(dom, promptTitle = null) {
     <div class="w-full max-w-xl mx-auto animate-fade-in">
       <form id="add-poem-form" class="cozy-card">
         <div class="text-center mb-8">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">${isPrompt ? '💡' : '✍️'}</div>
+          ${isPrompt ? `
+            <svg width="64" height="64" fill="none" stroke="var(--rust)" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 1rem; display: block;">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          ` : `
+            <svg width="64" height="64" fill="none" stroke="var(--rust)" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 1rem; display: block;">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+          `}
           <h2 class="section-header" style="margin-bottom: 0.5rem;">${isPrompt ? 'Write from Prompt' : 'Share Your Words'}</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">${isPrompt ? 'Respond to today\'s writing prompt' : 'Let your thoughts flow freely'}</p>
           ${isPrompt ? `<div style="margin-top: 0.75rem;"><span class="prompt-day-tag"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Prompt: ${utils.escapeHTML(decodedTitle)}</span></div>` : ''}
