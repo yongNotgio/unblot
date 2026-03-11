@@ -170,7 +170,7 @@ export async function renderViewPoem(dom, poemId) {
           class: 'nav-btn px-2 py-1 text-xs',
           onClick: () => {
             if (exportPoemAsImage) {
-              exportPoemAsImage(poem);
+              exportPoemAsImage(poem.id);
               utils.hideModal(dom);
             }
           }

@@ -2,59 +2,65 @@
 // Export a poem as an image using html2canvas
 
 const COLOR_SCHEMES = {
-  lavender: {
-    name: 'Soft Lavender',
-    gradient: 'linear-gradient(135deg, #e8e4ff 0%, #f3f0ff 50%, #fff 100%)',
-    textColor: '#4a5568',
-    brandColor: '#7c3aed',
-    contentBg: 'rgba(255, 255, 255, 0.85)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  cream: {
+    name: 'Warm Cream',
+    background: '#f0ebe0',
+    textColor: '#0f0e0b',
+    brandColor: '#c17445',
+    contentBg: '#ffffff',
+    contentTextColor: '#0f0e0b',
+    borderColor: '#0f0e0b',
+    type: 'solid'
   },
-  blush: {
-    name: 'Rose Blush',
-    gradient: 'linear-gradient(135deg, #fed7d7 0%, #fed7e2 50%, #fef5e7 100%)',
-    textColor: '#744210',
-    brandColor: '#d53f8c',
-    contentBg: 'rgba(255, 255, 255, 0.9)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  paper: {
+    name: 'Classic Paper',
+    background: '#ffffff',
+    textColor: '#0f0e0b',
+    brandColor: '#c17445',
+    contentBg: '#f0ebe0',
+    contentTextColor: '#0f0e0b',
+    borderColor: '#0f0e0b',
+    type: 'solid'
   },
-  mint: {
-    name: 'Fresh Mint',
-    gradient: 'linear-gradient(135deg, #d4edda 0%, #e6fffa 50%, #f0fff4 100%)',
-    textColor: '#276749',
-    brandColor: '#38a169',
-    contentBg: 'rgba(255, 255, 255, 0.85)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  rust: {
+    name: 'Bold Rust',
+    background: '#c17445',
+    textColor: '#ffffff',
+    brandColor: '#ffffff',
+    contentBg: '#f0ebe0',
+    contentTextColor: '#0f0e0b',
+    borderColor: '#0f0e0b',
+    type: 'solid'
   },
-  sky: {
-    name: 'Gentle Sky',
-    gradient: 'linear-gradient(135deg, #e0f2fe 0%, #e6f3ff 50%, #f0f9ff 100%)',
-    textColor: '#2b6cb0',
-    brandColor: '#3182ce',
-    contentBg: 'rgba(255, 255, 255, 0.9)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  midnight: {
+    name: 'Midnight Ink',
+    background: '#0f0e0b',
+    textColor: '#f0ebe0',
+    brandColor: '#d4a574',
+    contentBg: '#1a1916',
+    contentTextColor: '#f0ebe0',
+    borderColor: '#d4a574',
+    type: 'solid'
   },
-  peach: {
-    name: 'Soft Peach',
-    gradient: 'linear-gradient(135deg, #fed7cc 0%, #feebc8 50%, #fff5f5 100%)',
-    textColor: '#c05621',
-    brandColor: '#dd6b20',
-    contentBg: 'rgba(255, 255, 255, 0.9)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  gold: {
+    name: 'Golden Hour',
+    background: '#d4a574',
+    textColor: '#0f0e0b',
+    brandColor: '#0f0e0b',
+    contentBg: '#f0ebe0',
+    contentTextColor: '#0f0e0b',
+    borderColor: '#0f0e0b',
+    type: 'solid'
   },
-  classic: {
-    name: 'Classic Light',
-    gradient: 'linear-gradient(135deg, #e0e7ff 0%, #f7fafc 50%, #fff 100%)',
-    textColor: '#4a5568',
-    brandColor: '#4f46e5',
-    contentBg: 'rgba(255, 255, 255, 0.85)',
-    contentTextColor: '#2d3748',
-    type: 'gradient'
+  minimal: {
+    name: 'Minimal White',
+    background: '#ffffff',
+    textColor: '#0f0e0b',
+    brandColor: '#0f0e0b',
+    contentBg: '#ffffff',
+    contentTextColor: '#0f0e0b',
+    borderColor: '#0f0e0b',
+    type: 'solid'
   }
 };
 
@@ -80,31 +86,33 @@ function showColorSchemeModal(poemId) {
     // Create modal content
     const modal = document.createElement('div');
     modal.style.cssText = `
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      max-width: 600px;
+      background: var(--paper, #ffffff);
+      border: 3px solid var(--ink, #0f0e0b);
+      padding: 32px;
+      max-width: 700px;
       width: 90%;
       max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
     `;
 
     modal.innerHTML = `
-      <div style="margin-bottom: 20px;">
-        <h2 style="margin: 0 0 8px 0; font-family: 'EB Garamond', serif; font-size: 24px; color: #2d3748;">Choose Export Style</h2>
-        <p style="margin: 0; color: #718096; font-size: 14px;">Select a color scheme for your poem image</p>
+      <div style="margin-bottom: 24px;">
+        <h2 style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; font-size: 28px; color: var(--ink, #0f0e0b); font-weight: 700;">Choose Export Style</h2>
+        <p style="margin: 0; color: var(--text-muted, #0f0e0b); font-size: 15px; opacity: 0.7;">Select a color scheme for your poem image</p>
       </div>
-      <div id="color-schemes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px;"></div>
+      <div id="color-schemes-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;"></div>
       <div style="display: flex; gap: 12px; justify-content: flex-end;">
         <button id="cancel-export" style="
-          padding: 8px 16px;
-          border: 1px solid #e2e8f0;
-          background: white;
-          color: #4a5568;
-          border-radius: 8px;
-          cursor: pointer;
+          padding: 12px 24px;
+          border: 2px solid var(--ink, #0f0e0b);
+          background: var(--paper, #ffffff);
+          color: var(--ink, #0f0e0b);
+          font-weight: 600;
+          cursor: none;
           font-size: 14px;
+          box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+          transition: all 0.15s;
         ">Cancel</button>
       </div>
     `;
@@ -116,56 +124,56 @@ function showColorSchemeModal(poemId) {
       
       // Set background based on scheme type
       option.style.cssText = `
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 16px;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: ${scheme.gradient};
+        border: 3px solid ${scheme.borderColor};
+        padding: 20px;
+        cursor: none;
+        transition: all 0.15s;
+        background: ${scheme.background};
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
       `;
       
       option.innerHTML = `
         <div style="
           background: ${scheme.contentBg};
-          border-radius: 8px;
-          padding: 12px;
-          margin-bottom: 8px;
-          min-height: 60px;
+          border: 2px solid ${scheme.borderColor};
+          padding: 16px;
+          margin-bottom: 12px;
+          min-height: 80px;
           display: flex;
           flex-direction: column;
           justify-content: center;
         ">
           <div style="
-            font-family: 'EB Garamond', serif;
-            font-weight: bold;
-            color: ${scheme.brandColor};
-            font-size: 16px;
-            margin-bottom: 4px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: ${scheme.contentTextColor};
+            font-size: 18px;
+            margin-bottom: 6px;
           ">Sample Poem Title</div>
           <div style="
             color: ${scheme.contentTextColor};
-            font-size: 12px;
-            line-height: 1.4;
-          ">This is how your poem content will look in this beautiful color scheme...</div>
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: 0.8;
+          ">This is how your poem will look in this scheme...</div>
         </div>
         <div style="
-          color: ${scheme.brandColor};
-          font-weight: 600;
-          font-size: 14px;
+          color: ${scheme.textColor};
+          font-weight: 700;
+          font-size: 15px;
           text-align: center;
+          font-family: 'Playfair Display', serif;
         ">${scheme.name}</div>
       `;
 
       option.addEventListener('mouseenter', () => {
-        option.style.borderColor = scheme.brandColor;
-        option.style.transform = 'translateY(-2px)';
-        option.style.boxShadow = '0 8px 25px -5px rgba(0, 0, 0, 0.1)';
+        option.style.transform = 'translate(-2px, -2px)';
+        option.style.boxShadow = '6px 6px 0 rgba(0, 0, 0, 0.15)';
       });
 
       option.addEventListener('mouseleave', () => {
-        option.style.borderColor = '#e2e8f0';
-        option.style.transform = 'translateY(0)';
-        option.style.boxShadow = 'none';
+        option.style.transform = 'translate(0, 0)';
+        option.style.boxShadow = '4px 4px 0 rgba(0, 0, 0, 0.1)';
       });
 
       option.addEventListener('click', () => {
@@ -177,9 +185,20 @@ function showColorSchemeModal(poemId) {
     });
 
     // Cancel button
-    modal.querySelector('#cancel-export').addEventListener('click', () => {
+    const cancelBtn = modal.querySelector('#cancel-export');
+    cancelBtn.addEventListener('click', () => {
       document.body.removeChild(overlay);
       resolve(null);
+    });
+    
+    cancelBtn.addEventListener('mouseenter', () => {
+      cancelBtn.style.transform = 'translate(-2px, -2px)';
+      cancelBtn.style.boxShadow = '5px 5px 0 rgba(0, 0, 0, 0.15)';
+    });
+    
+    cancelBtn.addEventListener('mouseleave', () => {
+      cancelBtn.style.transform = 'translate(0, 0)';
+      cancelBtn.style.boxShadow = '3px 3px 0 rgba(0, 0, 0, 0.1)';
     });
 
     // Close on overlay click
@@ -214,9 +233,9 @@ export async function exportPoemAsImage(poemId) {
 }
 
 // Internal function to generate the actual image
-async function generatePoemImage(poemId, colorScheme = 'classic') {
+async function generatePoemImage(poemId, colorScheme = 'cream') {
   // Get the selected color scheme
-  const colors = COLOR_SCHEMES[colorScheme] || COLOR_SCHEMES.classic;
+  const colors = COLOR_SCHEMES[colorScheme] || COLOR_SCHEMES.cream;
   
   // Import and fetch the full poem data from the database instead of DOM
   const { fetchPoemById } = await import('../poems.js');
@@ -239,34 +258,26 @@ async function generatePoemImage(poemId, colorScheme = 'classic') {
   const container = document.createElement('div');
   
   // Set background
-  container.style.background = colors.gradient;
-  container.style.borderRadius = '0';
-  container.style.boxShadow = '0 4px 24px 0 rgba(37,99,235,0.07)';
-  container.style.padding = '2em 2.5em';
-  container.style.fontFamily = "'Quicksand', 'EB Garamond', Arial, sans-serif";
+  container.style.background = colors.background;
+  container.style.border = `4px solid ${colors.borderColor}`;
+  container.style.boxShadow = '12px 12px 0 rgba(0, 0, 0, 0.15)';
+  container.style.padding = '48px';
+  container.style.fontFamily = "'Playfair Display', serif";
   container.style.color = colors.textColor;
-  container.style.width = '600px';
+  container.style.width = '700px';
   container.style.maxWidth = '100%';
-  // Create an SVG logo that matches the color scheme
-  function createColoredSVG(brandColor) {
-    return `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-      <path d="M10 36 Q18 18 34 6 Q36 4 37 7 Q38 10 36 13 Q32 19 22 28 Q16 33 10 36 Z" fill="#44bfa3" stroke="${brandColor}" stroke-width="2"/>
-      <path d="M13 33 Q20 25 32 13" stroke="${brandColor}" stroke-width="2.2" fill="none"/>
-    </svg>`;
-  }
 
-  // Header: logo and tagline
+  // Header: brand text and tagline (no logo icon)
   container.innerHTML = `
-    <div style="display:flex;align-items:center;gap:0.7em;margin-bottom:0.5em;">
-      ${createColoredSVG(colors.brandColor)}
-      <span style="font-family:'EB Garamond',serif;font-size:2rem;color:${colors.brandColor};letter-spacing:0.04em;text-shadow:0 2px 8px #e0e7ff;font-weight:bold;display:flex;align-items:center;">Unblot</span>
+    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:3px solid ${colors.borderColor};">
+      <div style="font-family:'Playfair Display',serif;font-size:2.2rem;color:${colors.brandColor};font-weight:900;letter-spacing:-0.02em;line-height:1;">Un<span style="color:${colors.brandColor};">blot</span></div>
+      <div style="font-family:'Playfair Display',serif;font-size:0.95rem;color:${colors.textColor};font-style:italic;margin-top:6px;opacity:0.7;">For the words that won't disappear.</div>
     </div>
-    <div style="font-family:'EB Garamond',serif;font-size:1.1em;color:${colors.brandColor};font-style:italic;margin-bottom:1.5em;">For the words that won't disappear.</div>
-    <div style="background:${colors.contentBg};border-radius:1.2em;box-shadow:0 4px 24px 0 rgba(37,99,235,0.07);padding:1.5em 2em;margin-bottom:1em;">
-      <div style="font-family:'EB Garamond',serif;font-size:1.5em;font-weight:bold;color:${colors.brandColor};margin-bottom:0.5em;">${title}</div>
-      <div style="font-size:1.15em;line-height:1.7;color:${colors.contentTextColor};white-space:pre-line;margin-bottom:1em;">${content}</div>
+    <div style="background:${colors.contentBg};border:3px solid ${colors.borderColor};box-shadow:6px 6px 0 rgba(0, 0, 0, 0.1);padding:32px;margin:24px 0;">
+      <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:${colors.contentTextColor};margin-bottom:20px;line-height:1.2;letter-spacing:-0.02em;">${title}</div>
+      <div style="font-size:1.1em;line-height:1.8;color:${colors.contentTextColor};white-space:pre-line;font-family:'EB Garamond',serif;">${content}</div>
     </div>
-    <div style="font-size:0.9em;color:${colors.textColor};text-align:right;opacity:0.7;">unblot.vercel.app</div>
+    <div style="font-size:0.85rem;color:${colors.textColor};text-align:right;opacity:0.6;font-weight:600;font-family:'Space Mono',monospace;margin-top:16px;">unblot.vercel.app</div>
   `;
   
   document.body.appendChild(container);

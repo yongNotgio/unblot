@@ -1737,8 +1737,17 @@
       nav { transform: translateX(0) !important; }
     }
     @media (max-width: 600px) {
-      .poems-grid-view { grid-template-columns: 1fr; }
-      .poem-card-grid { padding: 16px; }
+      .poems-grid-view { grid-template-columns: repeat(2, 1fr); }
+      .poem-card-grid { padding: 10px; gap: 6px; }
+      .poem-card-grid .poem-card-header { gap: 0.4rem !important; margin-bottom: 0.4rem !important; }
+      .poem-card-grid .card-avatar { width: 24px !important; height: 24px !important; }
+      .poem-card-grid .card-avatar svg { width: 12px; height: 12px; }
+      .poem-card-grid .card-poem-title { font-size: 0.88rem; -webkit-line-clamp: 1; line-clamp: 1; }
+      .poem-card-grid .card-poem-preview { font-size: 0.7rem; -webkit-line-clamp: 2; line-clamp: 2; line-height: 1.4; }
+      .poem-card-grid .card-actions-compact { flex-wrap: wrap; gap: 4px; }
+      .poem-card-grid .card-action-btn-compact { padding: 3px 5px; font-size: 0.5rem; gap: 2px; }
+      .poem-card-grid .card-action-btn-compact svg { width: 11px; height: 11px; }
+      .poem-card-grid .card-read-more { font-size: 0.5rem !important; }
       .poem-card-list { padding: 16px; }
       .hero-title { font-size: 1.8rem; }
       .section-header { font-size: 1.5rem; }

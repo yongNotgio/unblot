@@ -83,7 +83,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             <button class="card-action-btn-compact save-btn" data-id="${poem.id}" title="Save to collection">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             </button>
-            <a class="card-action-btn-compact card-read-more" data-poem-id="${poem.id}" style="cursor: pointer;">Read More</a>
+            <a class="card-read-more" data-poem-id="${poem.id}">Read More</a>
           </div>
           <div class="comments-section hidden" id="comments-section-${poem.id}">
             <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
