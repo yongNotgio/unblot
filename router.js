@@ -63,7 +63,7 @@ function updateNavActiveState(route) {
     'admin': 'nav-admin',
   };
   
-  // Remove all active states from sidebar nav (include compose button)
+  // Remove all active states from nav links
   const allNavBtns = document.querySelectorAll('.nav-sidebar-btn, .compose-btn');
   allNavBtns.forEach(btn => btn.classList.remove('nav-active'));
   
