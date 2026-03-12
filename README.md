@@ -29,7 +29,7 @@ An anonymous poetry-sharing platform where poets can create, discover, and engag
 
 ## Getting Started
 
-Unblot is live and accessible at: **[unblot.vercel.app](https://unblot.vercel.app)**
+Unblot is live and accessible at: **[www.unblot.app](https://www.unblot.app)**
 
 Simply visit the website to start reading, writing, and sharing poetry anonymously. No installation required.
 

@@ -277,7 +277,7 @@ async function generatePoemImage(poemId, colorScheme = 'cream') {
       <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:${colors.contentTextColor};margin-bottom:20px;line-height:1.2;letter-spacing:-0.02em;">${title}</div>
       <div style="font-size:1.1em;line-height:1.8;color:${colors.contentTextColor};white-space:pre-line;font-family:'EB Garamond',serif;">${content}</div>
     </div>
-    <div style="font-size:0.85rem;color:${colors.textColor};text-align:right;opacity:0.6;font-weight:600;font-family:'Space Mono',monospace;margin-top:16px;">unblot.vercel.app</div>
+    <div style="font-size:0.85rem;color:${colors.textColor};text-align:right;opacity:0.6;font-weight:600;font-family:'Space Mono',monospace;margin-top:16px;">www.unblot.app</div>
   `;
   
   document.body.appendChild(container);
