@@ -169,8 +169,10 @@ function userDisplay(userId) {
   const shortId = `${escapedId.substring(0, 8)}...`;
 
   return `
-    <span class="admin-user-email">${utils.escapeHTML(email || 'No email')}</span><br>
-    <span class="admin-user-id" title="${escapedId}">${shortId}</span>`;
+    <button type="button" class="admin-user-link" data-user-id="${escapedId}" title="Show poems by this user">
+      <span class="admin-user-email">${utils.escapeHTML(email || 'No email')}</span><br>
+      <span class="admin-user-id" title="${escapedId}">${shortId}</span>
+    </button>`;
 }
 
 function poemTitleDisplay(poemId) {
@@ -360,14 +362,19 @@ function buildOverviewTab(poems, comments, likes, stats) {
 
 // ── Poems Tab ──
 
-function buildPoemsTable(poems, filter = '', page = 1) {
+function buildPoemsTable(poems, filter = '', page = 1, userIdFilter = '') {
   let filtered = poems;
+  if (userIdFilter) {
+    filtered = filtered.filter(p => p.user_id === userIdFilter);
+  }
+
   if (filter) {
     const q = filter.toLowerCase();
-    filtered = poems.filter(p =>
+    filtered = filtered.filter(p =>
       (p.title || '').toLowerCase().includes(q) ||
       (p.content || '').toLowerCase().includes(q) ||
       (userEmailMap[p.user_id] || '').toLowerCase().includes(q) ||
+      (p.user_id || '').toLowerCase().includes(q) ||
       (Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(q)))
     );
   }
@@ -378,6 +385,7 @@ function buildPoemsTable(poems, filter = '', page = 1) {
   _currentPages.poems = page;
   const start = (page - 1) * ITEMS_PER_PAGE;
   const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+  const filteredUserLabel = userIdFilter ? utils.escapeHTML(userEmailMap[userIdFilter] || userIdFilter) : '';
 
   const rows = pageItems.map(p => `
     <tr>
@@ -398,6 +406,7 @@ function buildPoemsTable(poems, filter = '', page = 1) {
     </tr>`).join('');
 
   return `
+    ${userIdFilter ? `<div class="admin-table-footer">Showing poems by ${filteredUserLabel} <button type="button" class="admin-action-btn" data-clear-poems-user-filter="1" title="Show all poems">Clear</button></div>` : ''}
     <div class="admin-table-wrap">
       <table class="admin-table">
         <thead>
@@ -704,6 +713,7 @@ function buildPromptsTab(prompts) {
 let _activeTab = 'overview';
 let _searchFilters = { poems: '', comments: '', likes: '' };
 let _currentPages = { poems: 1, comments: 1, likes: 1, users: 1 };
+let _poemsUserFilter = '';
 const ITEMS_PER_PAGE = 15;
 
 export async function renderAdmin(dom) {
@@ -829,7 +839,7 @@ export async function renderAdmin(dom) {
           ${buildOverviewTab(poems, comments, likes, stats)}
         </div>
         <div class="admin-tab-content ${_activeTab === 'poems' ? '' : 'hidden'}" id="admin-tab-poems">
-          ${buildPoemsTable(poems, _searchFilters.poems, _currentPages.poems)}
+          ${buildPoemsTable(poems, _searchFilters.poems, _currentPages.poems, _poemsUserFilter)}
         </div>
         <div class="admin-tab-content ${_activeTab === 'comments' ? '' : 'hidden'}" id="admin-tab-comments">
           ${buildCommentsTable(comments, _searchFilters.comments, _currentPages.comments)}
@@ -848,7 +858,7 @@ export async function renderAdmin(dom) {
     // ── Attach handlers ──
     attachTabHandlers(dom, poems, comments, likes);
     attachSearchHandler(dom, poems, comments, likes, registeredUsers);
-    attachActionHandlers(dom);
+    attachActionHandlers(dom, poems, comments, likes, registeredUsers);
     attachPaginationHandlers(dom, poems, comments, likes, registeredUsers);
     attachPromptHandlers(dom);
     attachRefreshHandler(dom);
@@ -874,33 +884,39 @@ export async function renderAdmin(dom) {
 
 function attachTabHandlers(dom, poems, comments, likes) {
   const tabs = dom.app.querySelectorAll('.admin-tab');
-  const searchBar = dom.app.querySelector('#admin-search-bar');
-  const searchInput = dom.app.querySelector('#admin-search-input');
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      dom.app.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
-
-      tab.classList.add('active');
       const target = tab.getAttribute('data-tab');
-      _activeTab = target;
-
-      const content = dom.app.querySelector(`#admin-tab-${target}`);
-      if (content) content.classList.remove('hidden');
-
-      // Show/hide search bar
-      if (target === 'overview' || target === 'users' || target === 'prompts') {
-        searchBar.classList.add('hidden');
-      } else {
-        searchBar.classList.remove('hidden');
-        if (searchInput) {
-          searchInput.placeholder = `Search ${target}…`;
-          searchInput.value = _searchFilters[target] || '';
-        }
-      }
+      setActiveTab(dom, target);
     });
   });
+}
+
+function setActiveTab(dom, target) {
+  const tabs = dom.app.querySelectorAll('.admin-tab');
+  const searchBar = dom.app.querySelector('#admin-search-bar');
+  const searchInput = dom.app.querySelector('#admin-search-input');
+
+  tabs.forEach(t => {
+    t.classList.toggle('active', t.getAttribute('data-tab') === target);
+  });
+  dom.app.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+
+  _activeTab = target;
+  const content = dom.app.querySelector(`#admin-tab-${target}`);
+  if (content) content.classList.remove('hidden');
+
+  if (!searchBar) return;
+  if (target === 'overview' || target === 'users' || target === 'prompts') {
+    searchBar.classList.add('hidden');
+  } else {
+    searchBar.classList.remove('hidden');
+    if (searchInput) {
+      searchInput.placeholder = `Search ${target}…`;
+      searchInput.value = _searchFilters[target] || '';
+    }
+  }
 }
 
 function attachSearchHandler(dom, poems, comments, likes, registeredUsers) {
@@ -936,13 +952,13 @@ function rerenderTabContent(dom, tab, poems, comments, likes, registeredUsers) {
   const container = dom.app.querySelector(`#admin-tab-${tab}`);
   if (!container) return;
 
-  if (tab === 'poems') container.innerHTML = buildPoemsTable(poems, _searchFilters.poems, _currentPages.poems);
+  if (tab === 'poems') container.innerHTML = buildPoemsTable(poems, _searchFilters.poems, _currentPages.poems, _poemsUserFilter);
   else if (tab === 'comments') container.innerHTML = buildCommentsTable(comments, _searchFilters.comments, _currentPages.comments);
   else if (tab === 'likes') container.innerHTML = buildLikesTable(likes, _searchFilters.likes, _currentPages.likes);
   else if (tab === 'users') container.innerHTML = buildUsersTable(poems, comments, likes, registeredUsers);
 
   // Re-attach action + pagination handlers for the refreshed content
-  attachActionHandlers(dom);
+  attachActionHandlers(dom, poems, comments, likes, registeredUsers);
   attachPaginationHandlers(dom, poems, comments, likes, registeredUsers);
 }
 
@@ -1055,8 +1071,32 @@ function attachPaginationHandlers(dom, poems, comments, likes, registeredUsers) 
   });
 }
 
-function attachActionHandlers(dom) {
+function attachActionHandlers(dom, poems, comments, likes, registeredUsers) {
   // Use :not([data-bound]) to prevent duplicate handlers when called from rerenderTabContent
+
+  // Filter poems by selected user
+  dom.app.querySelectorAll('.admin-user-link:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
+    btn.addEventListener('click', () => {
+      const userId = btn.getAttribute('data-user-id');
+      if (!userId) return;
+      _poemsUserFilter = userId;
+      _searchFilters.poems = '';
+      _currentPages.poems = 1;
+      setActiveTab(dom, 'poems');
+      rerenderTabContent(dom, 'poems', poems, comments, likes, registeredUsers);
+    });
+  });
+
+  // Clear selected user poem filter
+  dom.app.querySelectorAll('[data-clear-poems-user-filter]:not([data-bound])').forEach(btn => {
+    btn.setAttribute('data-bound', '1');
+    btn.addEventListener('click', () => {
+      _poemsUserFilter = '';
+      _currentPages.poems = 1;
+      rerenderTabContent(dom, 'poems', poems, comments, likes, registeredUsers);
+    });
+  });
 
   // View poem
   dom.app.querySelectorAll('.admin-view-btn:not([data-bound])').forEach(btn => {
