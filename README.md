@@ -43,12 +43,13 @@ git clone https://github.com/yourusername/unblot.git
 cd unblot
 ```
 
-2. Configure environment variables:
-   - Update `env.js` with your Supabase credentials:
-   ```javascript
-   export const SUPABASE_URL = 'your-supabase-url';
-   export const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
-   ```
+2. Configure environment variables (do not commit env files):
+   - Set these variables in your deployment environment:
+     - `SUPABASE_URL`
+     - `SUPABASE_ANON_KEY`
+     - `ADMIN_USER_IDS` (comma-separated UUIDs)
+   - Vercel runs `node scripts/generate-runtime-env.mjs` during build to generate runtime `env.js` and `env.loader.js`.
+   - Keep `.env`, `env.js`, and `env.loader.js` out of git.
 
 3. Set up Supabase database with the following tables:
    - `poems` - Store poetry content and metadata

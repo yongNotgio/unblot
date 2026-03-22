@@ -3,3 +3,9 @@ MIGRATION_CHECKLIST.md
 PRD.md
 QUICK_START.md
 VISUAL_COMPARISON.md
+
+# Local/runtime environment files (never commit)
+.env
+.env.*
+env.js
+env.loader.js
