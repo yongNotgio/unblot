@@ -148,7 +148,17 @@ async function adminTogglePrompt(id, currentActive) {
 // ─── Helpers ─────────────────────────────────────────────────
 
 function userDisplay(userId) {
-  return '<span class="admin-user-id">Anonymous</span>';
+  if (!userId) {
+    return '<span class="admin-user-id">Unknown user</span>';
+  }
+
+  const email = userEmailMap[userId];
+  const escapedId = utils.escapeHTML(userId);
+  const shortId = `${escapedId.substring(0, 8)}...`;
+
+  return `
+    <span class="admin-user-email">${utils.escapeHTML(email || 'No email')}</span><br>
+    <span class="admin-user-id" title="${escapedId}">${shortId}</span>`;
 }
 
 function poemTitleDisplay(poemId) {
@@ -554,7 +564,7 @@ function buildUsersTable(poems, comments, likes) {
     return `
       <tr>
         <td class="admin-td">${userDisplay(uid)}</td>
-        <td class="admin-td admin-td-id">—</td>
+        <td class="admin-td admin-td-id" title="${utils.escapeHTML(uid)}">${utils.escapeHTML(uid)}</td>
         <td class="admin-td">${s.poems}</td>
         <td class="admin-td">${s.comments}</td>
         <td class="admin-td">${s.likes}</td>
