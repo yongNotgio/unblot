@@ -11,7 +11,7 @@ import { ADMIN_USER_IDS } from '../env.js';
  */
 export function isAdmin() {
   if (!currentUser) return false;
-  return ADMIN_USER_IDS.includes(currentUser.id);
+  return ADMIN_USER_IDS.some(id => String(id).trim().replace(/^['"]|['"]$/g, '') === currentUser.id);
 }
 
 // ─── Lookup Maps ─────────────────────────────────────────────

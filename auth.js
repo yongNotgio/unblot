@@ -64,7 +64,7 @@ export function updateNav() {
       if (navUserName) navUserName.textContent = 'Poet';
     }
     // Show admin button only for admin users
-    const isAdminUser = ADMIN_USER_IDS.includes(currentUser.id);
+    const isAdminUser = ADMIN_USER_IDS.some(id => String(id).trim().replace(/^['"]|['"]$/g, '') === currentUser.id);
     if (dom.navAdmin) {
       if (isAdminUser) dom.navAdmin.classList.remove('hidden');
       else dom.navAdmin.classList.add('hidden');
