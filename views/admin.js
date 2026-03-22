@@ -23,14 +23,19 @@ let userEmailMap = {}; // user_id → email string
 // ─── Data Fetching ───────────────────────────────────────────
 
 async function fetchStats() {
-  const [poemsRes, commentsRes, likesRes] = await Promise.all([
+  const [poemsRes, commentsRes, likesRes, poemUsersRes, commentUsersRes, likeUsersRes] = await Promise.all([
     supabase.from('poems').select('*', { count: 'exact', head: true }),
     supabase.from('comments').select('*', { count: 'exact', head: true }),
     supabase.from('likes').select('*', { count: 'exact', head: true }),
+    supabase.from('poems').select('user_id'),
+    supabase.from('comments').select('user_id'),
+    supabase.from('likes').select('user_id'),
   ]);
 
-  const { data: userRows } = await supabase.from('poems').select('user_id');
-  const uniqueUsers = new Set((userRows || []).map(r => r.user_id));
+  const uniqueUsers = new Set();
+  (poemUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
+  (commentUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
+  (likeUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
 
   const { data: viewRows } = await supabase.from('poems').select('views_count');
   const totalViews = (viewRows || []).reduce((sum, r) => sum + (r.views_count || 0), 0);
