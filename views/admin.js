@@ -23,19 +23,11 @@ let userEmailMap = {}; // user_id → email string
 // ─── Data Fetching ───────────────────────────────────────────
 
 async function fetchStats() {
-  const [poemsRes, commentsRes, likesRes, poemUsersRes, commentUsersRes, likeUsersRes] = await Promise.all([
+  const [poemsRes, commentsRes, likesRes] = await Promise.all([
     supabase.from('poems').select('*', { count: 'exact', head: true }),
     supabase.from('comments').select('*', { count: 'exact', head: true }),
     supabase.from('likes').select('*', { count: 'exact', head: true }),
-    supabase.from('poems').select('user_id'),
-    supabase.from('comments').select('user_id'),
-    supabase.from('likes').select('user_id'),
   ]);
-
-  const uniqueUsers = new Set();
-  (poemUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
-  (commentUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
-  (likeUsersRes.data || []).forEach(r => { if (r.user_id) uniqueUsers.add(r.user_id); });
 
   const { data: viewRows } = await supabase.from('poems').select('views_count');
   const totalViews = (viewRows || []).reduce((sum, r) => sum + (r.views_count || 0), 0);
@@ -44,7 +36,7 @@ async function fetchStats() {
     totalPoems: poemsRes.count || 0,
     totalComments: commentsRes.count || 0,
     totalLikes: likesRes.count || 0,
-    totalUsers: uniqueUsers.size,
+    totalUsers: 0,
     totalViews,
   };
 }
@@ -92,6 +84,21 @@ async function fetchUserEmails(userIds) {
   } catch (e) {
     console.warn('[Admin] get_user_emails RPC not available. User emails will not be shown. See admin.js for setup SQL.');
     return {};
+  }
+}
+
+/**
+ * Fetch all registered users (id + email) via RPC.
+ * Falls back gracefully if the function doesn't exist.
+ */
+async function fetchRegisteredUsers() {
+  try {
+    const { data, error } = await supabase.rpc('get_all_users');
+    if (error) throw error;
+    return (data || []).filter(u => u && u.id);
+  } catch (e) {
+    console.warn('[Admin] get_all_users RPC not available. Users tab will show only users with activity. See admin.js for setup SQL.');
+    return [];
   }
 }
 
@@ -520,12 +527,14 @@ function buildLikesTable(likes, filter = '', page = 1) {
 
 // ── Users Tab ──
 
-function buildUsersTable(poems, comments, likes) {
-  // Gather all unique user_ids across tables
-  const userSet = new Set();
-  poems.forEach(p => userSet.add(p.user_id));
-  comments.forEach(c => userSet.add(c.user_id));
-  likes.forEach(l => userSet.add(l.user_id));
+function buildUsersTable(poems, comments, likes, registeredUsers = []) {
+  // Prefer all registered users when available; otherwise fall back to interaction users.
+  const userSet = new Set(registeredUsers.map(u => u.id).filter(Boolean));
+  if (!userSet.size) {
+    poems.forEach(p => userSet.add(p.user_id));
+    comments.forEach(c => userSet.add(c.user_id));
+    likes.forEach(l => userSet.add(l.user_id));
+  }
 
   // Build per-user stats
   const userStats = {};
@@ -533,16 +542,19 @@ function buildUsersTable(poems, comments, likes) {
     userStats[uid] = { poems: 0, comments: 0, likes: 0, lastActive: null };
   });
   poems.forEach(p => {
+    if (!userStats[p.user_id]) userStats[p.user_id] = { poems: 0, comments: 0, likes: 0, lastActive: null };
     userStats[p.user_id].poems++;
     const d = new Date(p.created_at);
     if (!userStats[p.user_id].lastActive || d > userStats[p.user_id].lastActive) userStats[p.user_id].lastActive = d;
   });
   comments.forEach(c => {
+    if (!userStats[c.user_id]) userStats[c.user_id] = { poems: 0, comments: 0, likes: 0, lastActive: null };
     userStats[c.user_id].comments++;
     const d = new Date(c.created_at);
     if (!userStats[c.user_id].lastActive || d > userStats[c.user_id].lastActive) userStats[c.user_id].lastActive = d;
   });
   likes.forEach(l => {
+    if (!userStats[l.user_id]) userStats[l.user_id] = { poems: 0, comments: 0, likes: 0, lastActive: null };
     userStats[l.user_id].likes++;
     const d = new Date(l.created_at);
     if (!userStats[l.user_id].lastActive || d > userStats[l.user_id].lastActive) userStats[l.user_id].lastActive = d;
@@ -726,24 +738,34 @@ export async function renderAdmin(dom) {
 
   try {
     // Fetch all data in parallel
-    const [stats, poems, comments, likes, prompts] = await Promise.all([
+    const [stats, poems, comments, likes, prompts, registeredUsers] = await Promise.all([
       fetchStats(),
       fetchAllPoems(),
       fetchAllComments(),
       fetchAllLikes(),
       fetchAllPrompts().catch(() => []), // Gracefully handle if table doesn't exist
+      fetchRegisteredUsers(),
     ]);
 
     // Build lookup maps
     poemMap = {};
     poems.forEach(p => { poemMap[p.id] = p; });
 
-    // Collect all unique user_ids and try to fetch emails
-    const allUserIds = new Set();
-    poems.forEach(p => allUserIds.add(p.user_id));
-    comments.forEach(c => allUserIds.add(c.user_id));
-    likes.forEach(l => allUserIds.add(l.user_id));
-    userEmailMap = await fetchUserEmails([...allUserIds]);
+    // Build user maps and total users from registered users when available.
+    if (registeredUsers.length) {
+      userEmailMap = {};
+      registeredUsers.forEach(u => {
+        if (u.id) userEmailMap[u.id] = u.email || '';
+      });
+      stats.totalUsers = registeredUsers.length;
+    } else {
+      const allUserIds = new Set();
+      poems.forEach(p => allUserIds.add(p.user_id));
+      comments.forEach(c => allUserIds.add(c.user_id));
+      likes.forEach(l => allUserIds.add(l.user_id));
+      userEmailMap = await fetchUserEmails([...allUserIds]);
+      stats.totalUsers = allUserIds.size;
+    }
 
     // Render dashboard
     dom.app.innerHTML = `
@@ -762,7 +784,7 @@ export async function renderAdmin(dom) {
             </div>
           </div>
           <span class="admin-subtitle">Manage content and monitor platform activity</span>
-          ${Object.keys(userEmailMap).length === 0 ? '<span class="admin-notice">Tip: Run the SQL function in Supabase to show user emails. See console for details.</span>' : ''}
+          ${Object.keys(userEmailMap).length === 0 ? '<span class="admin-notice">Tip: Run the SQL functions in Supabase to show all registered users and user emails. See console for details.</span>' : ''}
         </div>
 
         ${buildStatsSection(stats)}
@@ -816,7 +838,7 @@ export async function renderAdmin(dom) {
           ${buildLikesTable(likes, _searchFilters.likes, _currentPages.likes)}
         </div>
         <div class="admin-tab-content ${_activeTab === 'users' ? '' : 'hidden'}" id="admin-tab-users">
-          ${buildUsersTable(poems, comments, likes)}
+          ${buildUsersTable(poems, comments, likes, registeredUsers)}
         </div>
         <div class="admin-tab-content ${_activeTab === 'prompts' ? '' : 'hidden'}" id="admin-tab-prompts">
           ${buildPromptsTab(prompts)}
@@ -825,9 +847,9 @@ export async function renderAdmin(dom) {
 
     // ── Attach handlers ──
     attachTabHandlers(dom, poems, comments, likes);
-    attachSearchHandler(dom, poems, comments, likes);
+    attachSearchHandler(dom, poems, comments, likes, registeredUsers);
     attachActionHandlers(dom);
-    attachPaginationHandlers(dom, poems, comments, likes);
+    attachPaginationHandlers(dom, poems, comments, likes, registeredUsers);
     attachPromptHandlers(dom);
     attachRefreshHandler(dom);
 
@@ -881,7 +903,7 @@ function attachTabHandlers(dom, poems, comments, likes) {
   });
 }
 
-function attachSearchHandler(dom, poems, comments, likes) {
+function attachSearchHandler(dom, poems, comments, likes, registeredUsers) {
   const searchInput = dom.app.querySelector('#admin-search-input');
   const clearBtn = dom.app.querySelector('#admin-search-clear');
   if (!searchInput) return;
@@ -894,7 +916,7 @@ function attachSearchHandler(dom, poems, comments, likes) {
       _searchFilters[_activeTab] = val;
       _currentPages[_activeTab] = 1; // Reset to page 1 on search
       clearBtn.classList.toggle('hidden', !val);
-      rerenderTabContent(dom, _activeTab, poems, comments, likes);
+      rerenderTabContent(dom, _activeTab, poems, comments, likes, registeredUsers);
     }, 250);
   });
 
@@ -904,24 +926,24 @@ function attachSearchHandler(dom, poems, comments, likes) {
       _searchFilters[_activeTab] = '';
       _currentPages[_activeTab] = 1; // Reset to page 1 on clear
       clearBtn.classList.add('hidden');
-      rerenderTabContent(dom, _activeTab, poems, comments, likes);
+      rerenderTabContent(dom, _activeTab, poems, comments, likes, registeredUsers);
       searchInput.focus();
     });
   }
 }
 
-function rerenderTabContent(dom, tab, poems, comments, likes) {
+function rerenderTabContent(dom, tab, poems, comments, likes, registeredUsers) {
   const container = dom.app.querySelector(`#admin-tab-${tab}`);
   if (!container) return;
 
   if (tab === 'poems') container.innerHTML = buildPoemsTable(poems, _searchFilters.poems, _currentPages.poems);
   else if (tab === 'comments') container.innerHTML = buildCommentsTable(comments, _searchFilters.comments, _currentPages.comments);
   else if (tab === 'likes') container.innerHTML = buildLikesTable(likes, _searchFilters.likes, _currentPages.likes);
-  else if (tab === 'users') container.innerHTML = buildUsersTable(poems, comments, likes);
+  else if (tab === 'users') container.innerHTML = buildUsersTable(poems, comments, likes, registeredUsers);
 
   // Re-attach action + pagination handlers for the refreshed content
   attachActionHandlers(dom);
-  attachPaginationHandlers(dom, poems, comments, likes);
+  attachPaginationHandlers(dom, poems, comments, likes, registeredUsers);
 }
 
 function attachPromptHandlers(dom) {
@@ -1019,13 +1041,13 @@ function attachRefreshHandler(dom) {
   if (btn) btn.addEventListener('click', () => renderAdmin(dom));
 }
 
-function attachPaginationHandlers(dom, poems, comments, likes) {
+function attachPaginationHandlers(dom, poems, comments, likes, registeredUsers) {
   dom.app.querySelectorAll('.admin-pagination-buttons .admin-page-btn:not(.disabled)').forEach(btn => {
     btn.addEventListener('click', () => {
       const page = parseInt(btn.getAttribute('data-page'), 10);
       if (isNaN(page) || page < 1) return;
       _currentPages[_activeTab] = page;
-      rerenderTabContent(dom, _activeTab, poems, comments, likes);
+      rerenderTabContent(dom, _activeTab, poems, comments, likes, registeredUsers);
       // Scroll table into view
       const tabContent = dom.app.querySelector(`#admin-tab-${_activeTab}`);
       if (tabContent) tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1127,5 +1149,21 @@ function attachActionHandlers(dom) {
  * -- Grant access to the anon role so the client can call it
  * GRANT EXECUTE ON FUNCTION public.get_user_emails(uuid[]) TO anon;
  * GRANT EXECUTE ON FUNCTION public.get_user_emails(uuid[]) TO authenticated;
+ *
+ * To show all registered users (even with zero activity), also run:
+ *
+ * CREATE OR REPLACE FUNCTION public.get_all_users()
+ * RETURNS TABLE(id uuid, email text)
+ * LANGUAGE sql
+ * SECURITY DEFINER
+ * SET search_path = ''
+ * AS $$
+ *   SELECT au.id, au.email::text
+ *   FROM auth.users au
+ *   ORDER BY au.created_at DESC;
+ * $$;
+ *
+ * GRANT EXECUTE ON FUNCTION public.get_all_users() TO anon;
+ * GRANT EXECUTE ON FUNCTION public.get_all_users() TO authenticated;
  *
  */
