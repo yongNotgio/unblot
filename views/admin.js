@@ -5,6 +5,7 @@ import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
 import { navigate } from '../router.js';
 import { ADMIN_USER_IDS } from '../env.js';
+import { poemPath } from '../shared/site.js';
 
 /**
  * Check if current user is an admin
@@ -727,7 +728,7 @@ export async function renderAdmin(dom) {
         </svg>
         <h2>Access Denied</h2>
         <p>You don't have admin privileges.</p>
-        <button class="action-btn action-btn-primary" onclick="window.location.hash='#/home'">Go Home</button>
+        <a class="action-btn action-btn-primary" href="/">Go Home</a>
       </div>`;
     return;
   }
@@ -1103,7 +1104,7 @@ function attachActionHandlers(dom, poems, comments, likes, registeredUsers) {
     btn.setAttribute('data-bound', '1');
     btn.addEventListener('click', () => {
       const poemId = btn.getAttribute('data-poem-id');
-      if (poemId) navigate(`/view-poem/${poemId}`);
+      if (poemId) navigate(poemPath(poemId));
     });
   });
 

@@ -3,7 +3,7 @@
 import { fetchPoemsPaginated } from '../poems.js';
 import { supabase } from '../utils/supabase.js';
 import { utils } from '../utils.js';
-import { navigate } from '../router.js';
+import { poemPath } from '../shared/site.js';
 
 // Color palette for avatars
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
@@ -98,14 +98,14 @@ export async function renderHome(dom, page = 1) {
         <div class="stats-line">${totalPoems} Works &bull; ${totalLikes.toLocaleString()} Likes &bull; ${totalViews.toLocaleString()} Views</div>
         <h1 class="hero-title">Ready to inspire today?</h1>
         <div class="hero-actions">
-          <button class="hero-btn-primary" onclick="window.location.hash='#/${currentUser ? 'add-poem' : 'register'}'">
+          <a class="hero-btn-primary" href="/${currentUser ? 'add-poem' : 'register'}">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            ${currentUser ? 'New Poem' : 'New Poem'}
-          </button>
-          <button class="hero-btn-secondary" onclick="window.location.hash='#/discover'">
+            New Poem
+          </a>
+          <a class="hero-btn-secondary" href="/discover">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             Collection Feed
-          </button>
+          </a>
         </div>
       </section>`;
 
@@ -127,7 +127,7 @@ export async function renderHome(dom, page = 1) {
       </div>
       <div class="daily-prompt-text">"${prompt.title}"</div>
       <div class="prompt-description">${prompt.desc}</div>
-      <button class="daily-prompt-btn" onclick="window.location.hash='#/add-poem?prompt_title=${encodeURIComponent(prompt.title)}'">Accept Challenge</button>
+      <button class="daily-prompt-btn" onclick="window.location.assign('/add-poem?prompt_title=${encodeURIComponent(prompt.title)}')">Accept Challenge</button>
     </div>`;
 
     // === POEM CARD BUILDER ===
@@ -153,7 +153,7 @@ export async function renderHome(dom, page = 1) {
           </div>
           ${poem.prompt_date ? `<div style="margin-left: auto;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
         </div>
-        <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+        <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
         ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
         ${isLatest ? `<div style="margin: 0.75rem 0;"><span class="card-top-pick"><svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Latest</span></div>` : ''}
@@ -173,7 +173,7 @@ export async function renderHome(dom, page = 1) {
           <button class="card-action-btn save-btn" data-id="${poem.id}" title="Save to collection">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
-          <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
+          <a class="card-action-btn card-read-more" href="${poemPath(poem)}" data-poem-id="${poem.id}">Read More</a>
         </div>
         <div class="comments-section hidden" id="comments-section-${poem.id}">
           <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -284,14 +284,6 @@ export async function renderHome(dom, page = 1) {
 
     // === INTERACTION WIRING FUNCTION (reusable for each batch) ===
     function attachPoemInteractions(poemBatch, dom) {
-      // Title + Read More click handlers
-      poemBatch.forEach(poem => {
-        const titleEl = dom.app.querySelector(`.card-poem-title[data-poem-id='${poem.id}']`);
-        if (titleEl) titleEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
-        const readMoreEl = dom.app.querySelector(`.card-read-more[data-poem-id='${poem.id}']`);
-        if (readMoreEl) readMoreEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
-      });
-
       // Prompt day tag click handlers
       dom.app.querySelectorAll('.prompt-day-tag').forEach(tag => {
         if (!tag.dataset.bound) {
@@ -366,7 +358,7 @@ export async function renderHome(dom, page = 1) {
             const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
             if (shareBtn) {
               shareBtn.onclick = () => {
-                const url = window.location.origin + '/#view-poem/' + poem.id;
+                const url = window.location.origin + poemPath(poem);
                 utils.showModal(dom, 'Share this poem', [
                   {
                     label: 'Copy Link',

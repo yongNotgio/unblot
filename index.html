@@ -3,8 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="./assets/unblot_logo.png">
-  <title>Unblot</title>
+  <link rel="icon" type="image/png" href="/assets/unblot_logo.png">
+  <link rel="apple-touch-icon" href="/assets/unblot_logo.png">
+  <meta name="theme-color" content="#f0ebe0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f0e0b" media="(prefers-color-scheme: dark)">
+  <meta name="author" content="Unblot">
+  <meta name="application-name" content="Unblot">
+
+  <!-- Everything between these markers is replaced per-route: at request time by the
+       server renderers in /api, and on client-side navigation by /seo.js. -->
+  <!--SEO_HEAD-->
+  <title>Unblot — read and publish anonymous poetry, free</title>
+  <meta name="description" content="Unblot is a free anonymous poetry platform. Publish a poem without a byline, read new work from writers worldwide, and respond with likes and comments. No pen name, no profile, just the poem.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://www.unblot.app/">
+  <meta property="og:site_name" content="Unblot">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Unblot — read and publish anonymous poetry, free">
+  <meta property="og:description" content="A free anonymous poetry platform. Publish a poem without a byline, read new work from writers worldwide, and respond with likes and comments.">
+  <meta property="og:url" content="https://www.unblot.app/">
+  <meta property="og:image" content="https://www.unblot.app/assets/unblot_logo.png">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Unblot — read and publish anonymous poetry, free">
+  <meta name="twitter:description" content="A free anonymous poetry platform. Publish a poem without a byline, read new work from writers worldwide, and respond with likes and comments.">
+  <meta name="twitter:image" content="https://www.unblot.app/assets/unblot_logo.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.unblot.app/#organization","name":"Unblot","url":"https://www.unblot.app","description":"Unblot is a free anonymous poetry platform where anyone can publish a poem without a byline, read new work from writers worldwide, and respond with likes and comments.","logo":{"@type":"ImageObject","url":"https://www.unblot.app/assets/unblot_logo.png","width":512,"height":512}},{"@type":"WebSite","@id":"https://www.unblot.app/#website","name":"Unblot","url":"https://www.unblot.app","description":"Unblot is a free anonymous poetry platform where anyone can publish a poem without a byline, read new work from writers worldwide, and respond with likes and comments.","inLanguage":"en","publisher":{"@id":"https://www.unblot.app/#organization"},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.unblot.app/discover?q={search_term_string}"},"query-input":"required name=search_term_string"}}]}</script>
+  <!--/SEO_HEAD-->
+
+  <link rel="alternate" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+  <!-- Legacy #/ URLs predate clean routing; send them to their canonical path before
+       anything else runs. Auth hashes (#access_token=…) are deliberately left alone. -->
+  <script>
+    (function () {
+      var hash = window.location.hash;
+      if (!hash || hash.charAt(1) !== '/') return;
+      var path = hash.slice(1).replace(/^\/view-poem\//, '/poem/');
+      if (path === '/home') path = '/';
+      window.location.replace(path + window.location.search);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
@@ -704,6 +747,9 @@
       border: 2px solid var(--ink);
     }
     .card-poem-title {
+      /* Rendered as an <a> so poem titles are real, crawlable, openable links. */
+      display: block;
+      text-decoration: none;
       font-family: var(--font-serif);
       font-size: 1.3rem;
       font-weight: 900;
@@ -1127,6 +1173,8 @@
       letter-spacing: -0.03em;
     }
     .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    /* The hero calls to action are anchors so crawlers can follow them. */
+    .hero-btn-primary, .hero-btn-secondary { text-decoration: none; }
     .hero-btn-primary {
       display: inline-flex;
       align-items: center;
@@ -1763,9 +1811,104 @@
       .poem-grid-tile .tile-preview { font-size: 0.7rem !important; -webkit-line-clamp: 3 !important; line-clamp: 3 !important; }
       .poem-grid-tile .tile-meta { font-size: 0.58rem !important; }
     }
+
+    /* ======================================
+       SERVER-RENDERED / NO-SCRIPT DOCUMENTS
+       Used by the crawler-facing pages in /api and by the static landing copy
+       below. Styled to match the brutalist system so a crawl-time render and a
+       JS-disabled visit both look intentional.
+       ====================================== */
+    .seo-doc {
+      width: 100%;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 1.5rem 0 3rem;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+    .seo-doc h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin: 0 0 0.75rem;
+    }
+    .seo-doc h2 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 2.5rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .seo-doc h3 { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 0.35rem; }
+    .seo-doc p { margin: 0 0 1rem; }
+    .seo-doc a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+    .seo-doc a:hover { background: var(--primary); color: var(--paper); text-decoration: none; }
+    .seo-doc-lede { font-size: 1.05rem; color: var(--text-secondary); }
+    .seo-doc-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .seo-doc-image { max-width: 100%; height: auto; border: 2px solid var(--border); margin: 0 0 1.5rem; }
+    .seo-doc-poem {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      line-height: 1.9;
+      border-left: 4px solid var(--primary);
+      padding-left: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .seo-doc-poem p { margin: 0 0 1.5rem; }
+    .seo-doc-tags, .seo-doc-prompt { font-size: 0.82rem; color: var(--text-muted); }
+
+    .seo-breadcrumb { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .seo-breadcrumb a { color: var(--text-muted); }
+
+    .seo-list { list-style: none; margin: 0; padding: 0; }
+    .seo-item { border-bottom: 1px solid var(--border-subtle); padding: 1.1rem 0; }
+    .seo-item-title { margin: 0 0 0.35rem; font-size: 1.15rem; }
+    .seo-item-title a { text-decoration: none; }
+    .seo-item-excerpt { margin: 0 0 0.35rem; font-size: 0.88rem; color: var(--text-secondary); }
+    .seo-item-meta { margin: 0; font-size: 0.72rem; color: var(--text-muted); }
+    .seo-item-tags::before { content: ' · '; }
+    .seo-empty { color: var(--text-muted); }
+
+    .seo-facts { margin: 0 0 1rem; padding: 0; }
+    .seo-fact { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle); }
+    .seo-fact dt { font-weight: 700; min-width: 10rem; }
+    .seo-fact dd { margin: 0; flex: 1 1 16rem; color: var(--text-secondary); }
+
+    .seo-faq-item { padding: 0.5rem 0 1rem; border-bottom: 1px solid var(--border-subtle); }
+    .seo-faq-item p { margin: 0; color: var(--text-secondary); }
+
+    .seo-pagination { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 2rem 0; font-size: 0.85rem; }
+    .seo-page-status { color: var(--text-muted); }
+
+    .seo-sitelinks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 2px solid var(--border);
+      font-size: 0.82rem;
+    }
+
+    .seo-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.5rem 0 0; }
+    .seo-cta a {
+      display: inline-block;
+      padding: 0.6rem 1.25rem;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+      text-decoration: none;
+      background: var(--paper);
+      color: var(--text-primary);
+    }
+    .seo-cta a:first-child { background: var(--primary); color: #fff; }
+    .seo-cta a:hover { transform: translate(-1px, -1px); box-shadow: var(--shadow-md); }
   </style>
 
-  <script src="./env.loader.js"></script>
+  <script src="/env.loader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/navigo"></script>
   <script>
@@ -1783,7 +1926,7 @@
     <div class="nav-bar">
       <!-- Brand -->
       <div id="nav-title" class="nav-logo" style="cursor: none;">
-        <img src="./assets/unblot_logo.png" alt="Unblot Logo" width="32" height="32" />
+        <img src="/assets/unblot_logo.png" alt="Unblot Logo" width="32" height="32" />
         <strong class="nav-brand-text">Un<span class="rust">blot</span></strong>
       </div>
 
@@ -1906,7 +2049,53 @@
 
   <!-- Main Content -->
   <main class="main-content flex flex-col">
-    <div id="app" class="flex flex-col items-center w-full py-4 px-2 sm:px-4" style="max-width: 100%; margin: 0 auto;"></div>
+    <div id="app" class="flex flex-col items-center w-full py-4 px-2 sm:px-4" style="max-width: 100%; margin: 0 auto;">
+      <!-- Replaced per-route: server-side by the renderers in /api, client-side by the
+           SPA as soon as it boots. The copy below is the crawlable, JS-free baseline. -->
+      <!--SSR_CONTENT-->
+      <section class="seo-doc">
+        <h1>Unblot — anonymous poetry, published in the open</h1>
+        <p class="seo-doc-lede">
+          Unblot is a free anonymous poetry platform. Anyone can publish a poem without a byline,
+          read new work from writers worldwide, and respond with likes and comments. Every poem is
+          credited only to &ldquo;Anonymous&rdquo;, so readers judge the writing rather than the writer.
+        </p>
+        <p>
+          Reading is completely open &mdash; no account, no paywall, no submission fee. An account is
+          only needed to publish your own poems, comment, or save the work of others. Writers keep
+          full copyright and can edit or delete a poem at any time.
+        </p>
+        <div class="seo-cta">
+          <a href="/poems">Read the poems</a>
+          <a href="/register">Publish anonymously</a>
+        </div>
+
+        <h2>Browse Unblot</h2>
+        <ul class="seo-list">
+          <li class="seo-item">
+            <h3 class="seo-item-title"><a href="/poems">All poems</a></h3>
+            <p class="seo-item-excerpt">The complete archive of every poem published on Unblot, newest first.</p>
+          </li>
+          <li class="seo-item">
+            <h3 class="seo-item-title"><a href="/trending">Trending poetry</a></h3>
+            <p class="seo-item-excerpt">Recent poems ranked by reader likes, comments and views.</p>
+          </li>
+          <li class="seo-item">
+            <h3 class="seo-item-title"><a href="/discover">Search the collection</a></h3>
+            <p class="seo-item-excerpt">Find poems by title, line or tag across the whole site.</p>
+          </li>
+          <li class="seo-item">
+            <h3 class="seo-item-title"><a href="/collections">Collections</a></h3>
+            <p class="seo-item-excerpt">Curated groupings of poems around a shared theme or form.</p>
+          </li>
+          <li class="seo-item">
+            <h3 class="seo-item-title"><a href="/about">About Unblot &amp; FAQ</a></h3>
+            <p class="seo-item-excerpt">How anonymity works, who owns the poems, and how to publish your first one.</p>
+          </li>
+        </ul>
+      </section>
+      <!--/SSR_CONTENT-->
+    </div>
   </main>
 
   <!-- Legacy hidden elements (for JS compat) -->
@@ -1957,24 +2146,26 @@
     <div class="footer-grid">
       <div>
         <div class="footer-brand">
-          <img src="./assets/unblot_logo.png" alt="Unblot" width="28" height="28" style="opacity: 0.9;" />
+          <img src="/assets/unblot_logo.png" alt="Unblot" width="28" height="28" style="opacity: 0.9;" />
           <span class="footer-brand-name">Un<span style="color:var(--rust)">blot</span></span>
         </div>
         <div class="footer-brand-desc">A platform for poets and poetry lovers. Discover, create, and share your words with the world.</div>
       </div>
       <div>
-        <div class="footer-col-title">Navigate</div>
+        <div class="footer-col-title">Read</div>
         <div class="footer-col-links">
-          <a href="#/discover" class="footer-link">Discover</a>
-          <a href="#/trending" class="footer-link">Trending</a>
-          <a href="#/collections" class="footer-link">Collections</a>
+          <a href="/poems" class="footer-link">All Poems</a>
+          <a href="/discover" class="footer-link">Discover</a>
+          <a href="/trending" class="footer-link">Trending</a>
+          <a href="/collections" class="footer-link">Collections</a>
         </div>
       </div>
       <div>
         <div class="footer-col-title">Create</div>
         <div class="footer-col-links">
-          <a href="#/add-poem" class="footer-link">Compose Poem</a>
-          <a href="#/my-poems" class="footer-link">My Poems</a>
+          <a href="/add-poem" class="footer-link">Compose Poem</a>
+          <a href="/my-poems" class="footer-link">My Poems</a>
+          <a href="/about" class="footer-link">About Unblot</a>
         </div>
       </div>
     </div>
@@ -1989,12 +2180,12 @@
   </div><!-- /.page-wrapper -->
 
   <!-- App Modules -->
-  <script type="module" src="./env.js"></script>
-  <script type="module" src="./dom.js"></script>
-  <script type="module" src="./utils.js"></script>
-  <script type="module" src="./auth.js"></script>
-  <script type="module" src="./router.js"></script>
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="/env.js"></script>
+  <script type="module" src="/dom.js"></script>
+  <script type="module" src="/utils.js"></script>
+  <script type="module" src="/auth.js"></script>
+  <script type="module" src="/router.js"></script>
+  <script type="module" src="/main.js"></script>
 
   <script>
     // ===== THEME TOGGLE =====
@@ -2079,10 +2270,11 @@
       updateThemeIcons();
 
       // Nav logo â†’ home
+      var goHome = function () { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); };
       var navTitle = document.getElementById('nav-title');
-      if (navTitle) navTitle.addEventListener('click', function() { window.location.hash = '#/home'; });
+      if (navTitle) navTitle.addEventListener('click', goHome);
       var navTitleMobile = document.getElementById('nav-title-mobile');
-      if (navTitleMobile) navTitleMobile.addEventListener('click', function() { window.location.hash = '#/home'; });
+      if (navTitleMobile) navTitleMobile.addEventListener('click', goHome);
 
       // Mobile theme toggle
       var mobileThemeToggle = document.getElementById('mobile-theme-toggle');

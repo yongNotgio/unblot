@@ -1,7 +1,7 @@
 // Discover view with smart sorting and enhanced cards
 import { fetchPoemsWithSmartSortPaginated } from '../poems.js';
 import { utils } from '../utils.js';
-import { navigate } from '../router.js';
+import { poemPath } from '../shared/site.js';
 
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
 function getAvatarColor(str) {
@@ -13,13 +13,8 @@ function getAvatarColor(str) {
 export async function renderDiscover(dom, searchParam = '', page = 1) {
   let search = searchParam || '';
   if (!search) {
-    const hash = window.location.hash || '';
-    const queryIndex = hash.indexOf('?');
-    if (queryIndex !== -1) {
-      const queryString = hash.substring(queryIndex + 1);
-      const urlParams = new URLSearchParams(queryString);
-      search = urlParams.get('q') || '';
-    }
+    // Query lives in the real query string now that routing uses clean paths.
+    search = new URLSearchParams(window.location.search).get('q') || '';
   }
   
   console.log('[Discover] Search query:', search);
@@ -68,7 +63,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             </div>
           </div>
           ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
-          <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+          <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
           ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           <div class="card-actions-compact">
@@ -83,7 +78,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             <button class="card-action-btn-compact save-btn" data-id="${poem.id}" title="Save to collection">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             </button>
-            <a class="card-read-more" data-poem-id="${poem.id}">Read More</a>
+            <a class="card-read-more" href="${poemPath(poem)}" data-poem-id="${poem.id}">Read More</a>
           </div>
           <div class="comments-section hidden" id="comments-section-${poem.id}">
             <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -108,7 +103,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             </div>
           ${poem.prompt_date ? `<div style="margin-left: auto;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
           </div>
-          <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+          <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
           ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
@@ -127,7 +122,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             <button class="card-action-btn save-btn" data-id="${poem.id}" title="Save to collection">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             </button>
-            <a class="card-action-btn card-read-more" data-poem-id="${poem.id}">Read More</a>
+            <a class="card-action-btn card-read-more" href="${poemPath(poem)}" data-poem-id="${poem.id}">Read More</a>
           </div>
           <div class="comments-section hidden" id="comments-section-${poem.id}">
             <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -156,7 +151,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
           </div>` : poemCardsHtml}
       </div>`;
     
-    const baseRoute = search ? `#discover?q=${encodeURIComponent(search)}` : '#discover';
+    const baseRoute = search ? `/discover?q=${encodeURIComponent(search)}` : '/discover';
     html += utils.createPaginationControls(paginationData, (newPage) => {
       renderDiscover(dom, search, newPage);
     }, baseRoute);
@@ -193,13 +188,6 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
       });
 
       function attachAllHandlers() {
-        // Poem title click handlers
-        dom.app.querySelectorAll('.card-poem-title').forEach(title => {
-          title.addEventListener('click', () => {
-            navigate('/view-poem/' + title.dataset.poemId);
-          });
-        });
-
         // Prompt day tag click handlers
         dom.app.querySelectorAll('.prompt-day-tag').forEach(tag => {
           tag.addEventListener('click', (e) => {
@@ -213,14 +201,6 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
           el.addEventListener('click', () => {
             const img = el.querySelector('img');
             if (img && img.src) utils.openImageLightbox(img.src);
-          });
-        });
-
-        // Read More link handlers
-        dom.app.querySelectorAll('.card-read-more').forEach(link => {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigate('/view-poem/' + link.dataset.poemId);
           });
         });
 
@@ -280,7 +260,7 @@ export async function renderDiscover(dom, searchParam = '', page = 1) {
             const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
             if (shareBtn) {
               shareBtn.onclick = () => {
-                const url = window.location.origin + '/#view-poem/' + poem.id;
+                const url = window.location.origin + poemPath(poem);
                 utils.showModal(dom, 'Share this poem', [
                   {
                     label: 'Copy Link',

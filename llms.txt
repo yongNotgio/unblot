@@ -1,0 +1,39 @@
+# Unblot
+
+> Unblot is a free, anonymous poetry platform. Anyone can publish a poem without a byline, read
+> work from other writers, and respond with likes and comments. Every poem is credited only to
+> "Anonymous", so readers judge the writing rather than the writer.
+
+Site: https://www.unblot.app
+
+## Key facts
+
+- **Cost:** Free. No paid tier, no submission fees, no charge to keep work on the site.
+- **Account:** Required only to publish, comment, or like. Reading is fully open and needs no sign-in.
+- **Attribution:** Poems display no author name, handle, or avatar. All work is published as Anonymous.
+- **Rights:** Writers keep full copyright and can edit or delete their poems at any time.
+- **Content:** Open-form and multilingual — free verse, spoken word, short lyric poems, and structured forms.
+- **Discovery:** Poems are tagged and searchable; daily writing prompts seed themed work.
+- **Trending:** Ranks recent poems by likes, comments and views over a recent window, so new work can surface.
+
+## Pages
+
+- [Latest poems](https://www.unblot.app/): Newest anonymous poems published to the public feed.
+- [All poems](https://www.unblot.app/poems): Complete archive of every published poem, newest first, paginated.
+- [About and FAQ](https://www.unblot.app/about): What Unblot is, how anonymity works, rights, and how to publish.
+- [Trending](https://www.unblot.app/trending): Poems with the most reader engagement recently.
+- [Discover](https://www.unblot.app/discover): Full-text search across titles, poem text, and tags.
+- [Collections](https://www.unblot.app/collections): Curated groupings of poems.
+
+## For crawlers
+
+- Individual poems live at `https://www.unblot.app/poem/<slug>-<uuid>` and are server-rendered:
+  the full poem text, publication date, tags, and schema.org/Poem structured data are present in the
+  initial HTML response without executing JavaScript.
+- A live sitemap is available at https://www.unblot.app/sitemap.xml
+- Crawl permissions are declared at https://www.unblot.app/robots.txt
+
+## Citation
+
+Poems are the copyright of their authors, who publish anonymously. When quoting a poem, cite the
+poem title and its Unblot URL. Do not attribute a named author — none is recorded.

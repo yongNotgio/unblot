@@ -4,14 +4,30 @@ import { fetchLikeCount, hasUserLiked, likePoem, unlikePoem } from '../likes.js'
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
 import { navigate } from '../router.js';
+import { setPoemSeo, setNotFoundSeo } from '../seo.js';
+import { poemPath } from '../shared/site.js';
 
 export async function renderViewPoem(dom, poemId) {
-  dom.app.innerHTML = `<div class="text-center text-lg">Loading poem...</div>`;
+  // On a server-rendered poem page the poem is already on screen. Swapping in a
+  // spinner would replace real content with a placeholder, so leave it in place
+  // until the interactive version is ready.
+  const hasServerRender = Boolean(dom.app.querySelector(`[data-ssr-poem="${poemId}"]`));
+  if (!hasServerRender) {
+    dom.app.innerHTML = `<div class="text-center text-lg">Loading poem...</div>`;
+  }
   utils.showLoading(dom, true);
   try {
     // Fetch poem, increment views, likes, comments
     const poem = await fetchPoemById(poemId);
     if (!poem) throw new Error('Poem not found');
+
+    // Collapse legacy and slug-less links onto the canonical URL so a poem is
+    // never indexed under two addresses.
+    const canonical = poemPath(poem);
+    if (window.location.pathname !== canonical) {
+      window.history.replaceState({}, '', canonical + window.location.search);
+    }
+
     await incrementPoemViews(poemId);
     // Record view for history tracking (fire and forget)
     if (currentUser) recordPoemView(poemId, currentUser.id).catch(() => {});
@@ -21,6 +37,9 @@ export async function renderViewPoem(dom, poemId) {
     ]);
     let userLiked = false;
     if (currentUser) userLiked = await hasUserLiked(poemId, currentUser.id);
+
+    setPoemSeo(poem, { likes: likeCount, comments: comments.length });
+
     let html = `<article class="poem-card max-w-2xl mx-auto animate-fade-in" data-poem-id="${poemId}">
       <header class="flex justify-between items-start mb-4">
         <h1 class="poem-title-link text-2xl md:text-3xl" style="font-weight: 700; max-width: 80%;">${utils.escapeHTML(poem.title)}</h1>
@@ -154,7 +173,7 @@ export async function renderViewPoem(dom, poemId) {
     let exportPoemAsImage;
     import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
     document.getElementById('share-btn').onclick = () => {
-      const url = window.location.origin + '/#view-poem/' + poemId;
+      const url = window.location.origin + poemPath(poem);
       utils.showModal(dom, 'Share this poem', [
         {
           label: 'Copy Link',
@@ -361,7 +380,17 @@ export async function renderViewPoem(dom, poemId) {
       });
     }
   } catch (err) {
-    dom.app.innerHTML = `<div class="text-center text-red-600">Failed to load poem: ${err.message || err}</div>`;
+    // A missing poem is a 404, not a generic error — keep it out of the index
+    // and give the reader (and the crawler) somewhere to go next.
+    setNotFoundSeo(window.location.pathname);
+    dom.app.innerHTML = `<section class="seo-doc">
+      <h1>This poem is no longer available</h1>
+      <p class="seo-doc-lede">It may have been deleted by its author, or the link may be incorrect.</p>
+      <div class="seo-cta">
+        <a href="/poems">Browse all poems</a>
+        <a href="/">Back to the latest</a>
+      </div>
+    </section>`;
   } finally {
     utils.showLoading(dom, false);
   }

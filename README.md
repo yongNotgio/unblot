@@ -59,6 +59,61 @@ cd unblot
 
 4. Deploy to Vercel or serve locally
 
+## Search & Answer Engine Optimization
+
+Unblot is a client-rendered SPA, which search crawlers handle poorly and AI answer
+engines (which generally do not execute JavaScript) handle not at all. The site is
+set up so that every public page is readable without running any JS.
+
+### URLs
+
+Routing uses the History API, not hash fragments — a `#fragment` is never treated as
+a distinct URL by any crawler. Canonical addresses:
+
+| Page | URL |
+| --- | --- |
+| Home | `/` |
+| A poem | `/poem/<slug>-<uuid>` |
+| Full archive | `/poems`, `/poems?page=N` |
+| About + FAQ | `/about` |
+| Trending / Discover / Collections | `/trending`, `/discover`, `/collections` |
+
+The trailing UUID identifies the poem; the slug is for humans and keywords. Legacy
+`#/view-poem/<id>` links redirect to the canonical path on load, and `/view-poem/:id`
+is kept as a permanent redirect.
+
+### Server-rendered pages
+
+Functions in `api/` render real HTML — poem text, metadata and JSON-LD — in the
+initial response, then the SPA hydrates over the top with identical content:
+
+- `api/poem.js` → `/poem/*` — full poem, `schema.org/Poem`, breadcrumbs, interaction counts
+- `api/poems.js` → `/poems` — the crawl hub; links to every poem on the site
+- `api/about.js` → `/about` — `AboutPage` + `FAQPage`, the primary answer-engine surface
+- `api/sitemap.js` → `/sitemap.xml` — generated live from Supabase, so poems published
+  after the last deploy are still discoverable
+
+They read `index.html` at request time and swap the content between the
+`<!--SEO_HEAD-->` and `<!--SSR_CONTENT-->` markers, so there is one copy of the layout.
+Shared logic lives in `shared/` and is imported by both the browser and the functions.
+
+These functions need `SUPABASE_URL` and `SUPABASE_ANON_KEY` in the Vercel environment
+(the same variables the build step already uses).
+
+### Other pieces
+
+- `seo.js` keeps `<title>`, description, canonical, Open Graph and JSON-LD in sync
+  during client-side navigation.
+- `robots.txt` allows the major search and AI crawlers explicitly and blocks private
+  routes; `llms.txt` gives assistants a plain-text summary of the site.
+- Unknown paths render a real 404 view marked `noindex` rather than falling back to
+  the home feed, which search engines record as a soft 404.
+- Internal search results (`/discover?q=`) are `noindex` by design — thin, unbounded,
+  duplicate content.
+
+Run `npm run check:seo` to verify the rendered output, structured data and sitemap
+against live data.
+
 ## Project Structure
 
 ```
@@ -66,6 +121,7 @@ unblot/
 ├── index.html              # Main HTML file with UI layout
 ├── main.js                 # Application entry point and routing
 ├── router.js               # Client-side routing logic
+├── seo.js                  # Per-route head metadata for SPA navigation
 ├── auth.js                 # Authentication and user management
 ├── poems.js                # Poem CRUD operations
 ├── comments.js             # Comment functionality
@@ -74,7 +130,18 @@ unblot/
 ├── utils.js                # Utility functions
 ├── env.js                  # Environment configuration
 ├── env.loader.js           # Environment variable loader
+├── robots.txt              # Crawler permissions + sitemap pointer
+├── llms.txt                # Plain-text site summary for AI assistants
 ├── assets/                 # Static assets (images, icons)
+├── shared/
+│   ├── site.js            # Isomorphic URL/slug/escaping helpers + site constants
+│   └── content.js         # About/FAQ copy shared by the server and SPA renders
+├── api/                    # Vercel functions serving crawler-readable HTML
+│   ├── poem.js            # /poem/<slug>-<uuid>
+│   ├── poems.js           # /poems archive
+│   ├── about.js           # /about
+│   ├── sitemap.js         # /sitemap.xml
+│   └── _lib/              # Supabase reads, head builder, shell injector, markup
 ├── utils/
 │   ├── supabase.js        # Supabase client configuration
 │   └── imageExport.js     # Image export utilities
@@ -93,7 +160,10 @@ unblot/
     ├── admin.js           # Admin panel
     ├── login.js           # Login page
     ├── register.js        # Registration page
-    └── reset.js           # Password reset
+    ├── reset.js           # Password reset
+    ├── about.js           # About + FAQ (mirrors the server render)
+    ├── archive.js         # /poems full archive
+    └── notFound.js        # 404 view
 ```
 
 ## Technology Stack

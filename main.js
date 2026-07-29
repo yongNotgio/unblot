@@ -19,24 +19,47 @@ import { renderCollections } from './views/collections.js';
 import { renderNotifications } from './views/notifications.js';
 import { renderLiked } from './views/liked.js';
 import { renderHistory } from './views/history.js';
+import { renderAbout } from './views/about.js';
+import { renderArchive } from './views/archive.js';
+import { renderNotFound } from './views/notFound.js';
+import { setRouteSeo } from './seo.js';
 
 // --- VIEWS ---
+// Each route sets its own head metadata before rendering. renderViewPoem sets
+// its own (it needs the fetched poem to build the description and JSON-LD).
 const routes = {
-  '#home': async (param, page) => { renderHome(dom, page); },
-  '#login': async () => { renderLogin(dom); },
-  '#register': async () => { renderRegister(dom); },
-  '#reset': async () => { renderReset(dom); },
-  '#discover': async (search, page) => { renderDiscover(dom, search, page); },
-  '#my-poems': async (param, page) => { renderMyPoems(dom, page); },
-  '#add-poem': async (promptTitle) => { renderAddPoem(dom, promptTitle); },
+  '#home': async (param, page) => { setRouteSeo('/'); renderHome(dom, page); },
+  '#login': async () => { setRouteSeo('/login'); renderLogin(dom); },
+  '#register': async () => { setRouteSeo('/register'); renderRegister(dom); },
+  '#reset': async () => { setRouteSeo('/reset'); renderReset(dom); },
+  // Internal search results are deliberately kept out of the index — they are
+  // thin, unbounded, and duplicate content that already exists on poem pages.
+  '#discover': async (search, page) => {
+    setRouteSeo(
+      '/discover',
+      search
+        ? {
+            title: `Poems matching “${search}” — Unblot`,
+            path: `/discover?q=${encodeURIComponent(search)}`,
+            noindex: true,
+          }
+        : {}
+    );
+    renderDiscover(dom, search, page);
+  },
+  '#my-poems': async (param, page) => { setRouteSeo('/my-poems'); renderMyPoems(dom, page); },
+  '#add-poem': async (promptTitle) => { setRouteSeo('/add-poem'); renderAddPoem(dom, promptTitle); },
   '#view-poem': async (id) => { renderViewPoem(dom, id); },
-  '#edit-poem': async (id) => { renderEditPoem(dom, id); },
-  '#admin': async () => { renderAdmin(dom); },
-  '#trending': async () => { renderTrending(dom); },
-  '#collections': async () => { renderCollections(dom); },
-  '#notifications': async () => { renderNotifications(dom); },
-  '#liked': async () => { renderLiked(dom); },
-  '#history': async () => { renderHistory(dom); },
+  '#edit-poem': async (id) => { setRouteSeo('/edit-poem'); renderEditPoem(dom, id); },
+  '#admin': async () => { setRouteSeo('/admin'); renderAdmin(dom); },
+  '#trending': async () => { setRouteSeo('/trending'); renderTrending(dom); },
+  '#collections': async () => { setRouteSeo('/collections'); renderCollections(dom); },
+  '#notifications': async () => { setRouteSeo('/notifications'); renderNotifications(dom); },
+  '#liked': async () => { setRouteSeo('/liked'); renderLiked(dom); },
+  '#history': async () => { setRouteSeo('/history'); renderHistory(dom); },
+  '#about': async () => { renderAbout(dom); },
+  '#poems': async (page) => { renderArchive(dom, page); },
+  '#not-found': async () => { renderNotFound(dom); },
 };
 
 // --- SIDEBAR NAV HANDLERS ---

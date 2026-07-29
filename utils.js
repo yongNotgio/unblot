@@ -171,14 +171,16 @@ export const utils = {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const page = parseInt(btn.getAttribute('data-page'));
-        const baseRoute = btn.getAttribute('data-base-route') || '';
+        const baseRoute = btn.getAttribute('data-base-route') || window.location.pathname;
         if (page && !btn.disabled) {
-          let newHash = baseRoute;
+          let newPath = baseRoute;
           if (page > 1) {
-            const separator = newHash.includes('?') ? '&' : '?';
-            newHash += `${separator}page=${page}`;
+            const separator = newPath.includes('?') ? '&' : '?';
+            newPath += `${separator}page=${page}`;
           }
-          window.location.hash = newHash;
+          // Keep the address bar in step without re-resolving the route —
+          // onPageChange already re-renders the list in place.
+          window.history.pushState({}, '', newPath);
           if (onPageChange) onPageChange(page);
         }
       });

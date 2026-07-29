@@ -1,7 +1,7 @@
 import { fetchViewHistory } from '../poems.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
-import { navigate } from '../router.js';
+import { poemPath } from '../shared/site.js';
 
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
 function getAvatarColor(str) {
@@ -42,7 +42,7 @@ export async function renderHistory(dom) {
           ${viewedAt}
         </div>
         ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
-        <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+        <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
         <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
         ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
         <div class="card-actions">
@@ -57,7 +57,7 @@ export async function renderHistory(dom) {
           <button class="card-action-btn share-btn" data-id="${poem.id}">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </button>
-          <a class="card-action-btn card-read-more" data-poem-id="${poem.id}" style="cursor:pointer;">Read More</a>
+          <a class="card-action-btn card-read-more" href="${poemPath(poem)}" data-poem-id="${poem.id}" style="cursor:pointer;">Read More</a>
         </div>
         <div class="comments-section hidden" id="comments-section-${poem.id}">
           <div style="font-weight: 600; font-size: 0.875rem; color: var(--primary); margin-bottom: 0.75rem;">Comments</div>
@@ -88,12 +88,6 @@ export async function renderHistory(dom) {
     </div>`;
 
     setTimeout(() => {
-      dom.app.querySelectorAll('.card-poem-title').forEach(el => {
-        el.addEventListener('click', () => navigate('/view-poem/' + el.dataset.poemId));
-      });
-      dom.app.querySelectorAll('.card-read-more').forEach(el => {
-        el.addEventListener('click', (e) => { e.preventDefault(); navigate('/view-poem/' + el.dataset.poemId); });
-      });
       dom.app.querySelectorAll('.card-poem-image').forEach(el => {
         el.addEventListener('click', () => { const img = el.querySelector('img'); if (img && img.src) utils.openImageLightbox(img.src); });
       });
@@ -142,7 +136,7 @@ function attachInteractions(poems, dom) {
           const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
           if (shareBtn) {
             shareBtn.onclick = () => {
-              const url = window.location.origin + '/#view-poem/' + poem.id;
+              const url = window.location.origin + poemPath(poem);
               utils.showModal(dom, 'Share this poem', [
                 { label: 'Copy Link', class: 'nav-btn px-2 py-1 text-xs', onClick: () => { navigator.clipboard.writeText(url); utils.showToast(dom, 'Link copied!'); utils.hideModal(dom); } },
                 { label: 'Download as Image', class: 'nav-btn px-2 py-1 text-xs', onClick: async () => { utils.hideModal(dom); if (exportPoemAsImage) await exportPoemAsImage(poem.id); } }

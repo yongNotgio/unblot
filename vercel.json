@@ -1,4 +1,46 @@
 {
   "buildCommand": "node scripts/generate-runtime-env.mjs",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "trailingSlash": false,
+  "functions": {
+    "api/*.js": {
+      "includeFiles": "index.html"
+    }
+  },
+  "redirects": [
+    { "source": "/view-poem/:id", "destination": "/poem/:id", "permanent": true },
+    { "source": "/home", "destination": "/", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/poem/:slug", "destination": "/api/poem?slug=:slug" },
+    { "source": "/poems", "destination": "/api/poems" },
+    { "source": "/about", "destination": "/api/about" },
+    { "source": "/((?!api/|assets/|_vercel/|views/|utils/|shared/|scripts/).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, must-revalidate" }]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, s-maxage=3600" }]
+    },
+    {
+      "source": "/llms.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=3600" }
+      ]
+    }
+  ]
 }

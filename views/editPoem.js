@@ -3,6 +3,7 @@ import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
 import { navigate } from '../router.js';
 import { supabase } from '../utils/supabase.js';
+import { poemPath } from '../shared/site.js';
 
 export async function renderEditPoem(dom, poemId) {
   dom.app.innerHTML = `<div class="text-center text-lg">Loading poem...</div>`;
@@ -69,7 +70,7 @@ export async function renderEditPoem(dom, poemId) {
         </form>
       </div>
     `;
-    document.getElementById('cancel-btn').onclick = () => navigate(`/view-poem/${poemId}`);
+    document.getElementById('cancel-btn').onclick = () => navigate(poemPath(poemId));
 
     // Image upload handling
     const imageInput = document.getElementById('poem-image');
@@ -201,7 +202,7 @@ export async function renderEditPoem(dom, poemId) {
         }
         await updatePoem(poemId, { title, content, tags, image: imageUrl, original_image: originalImageUrl, aspect_ratio: imageUrl ? chosenAspectRatio : null });
         utils.showToast(dom, 'Poem updated!');
-        setTimeout(() => navigate(`/view-poem/${poemId}`), 1000);
+        setTimeout(() => navigate(poemPath(poemId)), 1000);
       } catch (err) {
         utils.showModal(dom, 'Failed to update poem: ' + (err.message || err));
       } finally {

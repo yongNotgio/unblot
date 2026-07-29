@@ -1,0 +1,6 @@
+# Keep design docs and superseded page snapshots out of the deployment —
+# they were publicly reachable and duplicated the live markup.
+*.md
+index_backup.html
+index_topbar.html
+.vscode

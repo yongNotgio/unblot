@@ -1,7 +1,14 @@
-// Router module using Navigo for Poetry Share app
+// Router module using Navigo for Poetry Share app.
+//
+// Uses the History API (clean paths like /poem/<slug>-<uuid>) rather than hash
+// fragments. Search engines never treat a #fragment as a distinct URL, so hash
+// routing made every page but the home page impossible to index. Vercel rewrites
+// unknown paths to index.html so deep links resolve.
+
 import { fetchCurrentUser, currentUser } from './auth.js';
 import { utils } from './utils.js';
 import { dom } from './dom.js';
+import { extractPoemId } from './shared/site.js';
 
 let router = null;
 
@@ -11,6 +18,8 @@ let router = null;
 export function navigate(path) {
   if (router) {
     router.navigate(path);
+  } else {
+    window.location.assign(path);
   }
 }
 
@@ -62,11 +71,11 @@ function updateNavActiveState(route) {
     'register': 'nav-register',
     'admin': 'nav-admin',
   };
-  
+
   // Remove all active states from nav links
   const allNavBtns = document.querySelectorAll('.nav-sidebar-btn, .compose-btn');
   allNavBtns.forEach(btn => btn.classList.remove('nav-active'));
-  
+
   // Set active on matching button
   const activeId = navMap[route];
   if (activeId) {
@@ -76,11 +85,41 @@ function updateNavActiveState(route) {
 }
 
 /**
+ * Treat ordinary in-app <a href="/..."> clicks as SPA navigation.
+ *
+ * Poem links are rendered as real anchors so that crawlers can follow them and
+ * users can middle-click or copy them; this keeps that markup from costing a
+ * full page reload.
+ */
+function interceptInternalLinks() {
+  document.addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    if (link.target && link.target !== '_self') return;
+    if (link.hasAttribute('download') || link.getAttribute('rel') === 'external') return;
+
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+    const url = new URL(href, window.location.origin);
+    if (url.origin !== window.location.origin) return;
+    // Anything the SPA does not own (assets, the APK download) should load normally.
+    if (/\.[a-z0-9]+$/i.test(url.pathname) || url.pathname.startsWith('/api/')) return;
+
+    e.preventDefault();
+    navigate(url.pathname + url.search);
+  });
+}
+
+/**
  * Setup Navigo router with routes
  */
 export function setupRouter(routes) {
-  router = new Navigo('/', { hash: true });
-  
+  router = new Navigo('/');
+
   // Before hook - runs before every route, fetches user with caching
   router.hooks({
     before: async (done) => {
@@ -88,27 +127,20 @@ export function setupRouter(routes) {
       await fetchCurrentUser();
       hideViewToggles();
       cleanupViewHandlers();
-      
+
       // Scroll to top on every route change
       window.scrollTo(0, 0);
-      
+
       done();
     },
     after: () => {
       // Update nav active state after route completes
       setTimeout(() => {
-        const hash = window.location.hash.replace('#/', '').replace('#', '').split('/')[0].split('?')[0];
-        updateNavActiveState(hash || 'home');
+        const segment = window.location.pathname.split('/').filter(Boolean)[0] || 'home';
+        updateNavActiveState(segment);
       }, 10);
     }
   });
-
-  // Protected routes that require authentication
-  const protectedRoutes = ['/my-poems', '/add-poem', '/edit-poem', '/admin'];
-  
-  function isProtected(path) {
-    return protectedRoutes.some(r => path.startsWith(r));
-  }
 
   // Define routes
   router
@@ -118,6 +150,13 @@ export function setupRouter(routes) {
     .on('/home', async ({ params }) => {
       const page = params?.page ? parseInt(params.page) : 1;
       await routes['#home'](null, page);
+    })
+    .on('/about', async () => {
+      await routes['#about']();
+    })
+    .on('/poems', async ({ params }) => {
+      const page = params?.page ? parseInt(params.page) : 1;
+      await routes['#poems'](page);
     })
     .on('/login', async () => {
       await routes['#login']();
@@ -165,7 +204,17 @@ export function setupRouter(routes) {
         }
       }
     })
-    .on('/view-poem/:id', async ({ data, params }) => {
+    // Canonical poem URL. The slug is decorative; the trailing UUID identifies the poem.
+    .on('/poem/:slug', async ({ data }) => {
+      const id = extractPoemId(data.slug);
+      if (!id) {
+        await routes['#not-found']();
+        return;
+      }
+      await routes['#view-poem'](id);
+    })
+    // Pre-clean-URL links still in the wild.
+    .on('/view-poem/:id', async ({ data }) => {
       await routes['#view-poem'](data.id);
     })
     .on('/edit-poem/:id', async ({ data }) => {
@@ -231,12 +280,15 @@ export function setupRouter(routes) {
       }
     })
     .notFound(async () => {
-      // Fallback to home
-      await routes['#home'](null, 1);
+      // A real 404 view. Falling back to the home feed made every mistyped URL
+      // look like a valid page, which search engines record as a soft 404.
+      await routes['#not-found']();
     });
+
+  interceptInternalLinks();
 
   // Resolve the initial route
   router.resolve();
-  
+
   return router;
 }

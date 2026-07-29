@@ -3,6 +3,7 @@ import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
 import { navigate } from '../router.js';
 import { supabase } from '../utils/supabase.js';
+import { poemPath } from '../shared/site.js';
 
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
 function getAvatarColor(str) {
@@ -53,7 +54,7 @@ export async function renderMyPoems(dom, page = 1) {
         return `
         <article class="poem-card-grid animate-fade-in" data-poem-id="${poem.id}">
           ${poem.prompt_date ? `<div style="margin-bottom: 0.5rem;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
-          <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+          <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="card-poem-preview">${preview.replace(/\n/g, ' ')}</div>
           ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           <div class="card-meta">
@@ -98,7 +99,7 @@ export async function renderMyPoems(dom, page = 1) {
             </div>
             ${poem.prompt_date ? `<div style="margin-left: auto;">${utils.promptDayTag(poem.prompt_date, poem.prompt_title)}</div>` : ''}
           </div>
-          <div class="card-poem-title" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</div>
+          <a class="card-poem-title" href="${poemPath(poem)}" data-poem-id="${poem.id}">${utils.escapeHTML(poem.title)}</a>
           <div class="card-poem-preview">${preview.replace(/\n/g, '<br>')}</div>
           ${poem.image ? `<div class="card-poem-image" style="aspect-ratio: ${poem.aspect_ratio ? poem.aspect_ratio.replace(':', '/') : '4/3'};"><img src="${poem.image}" alt="Poem image" loading="lazy" /></div>` : ''}
           ${tags.length > 0 ? `<div class="card-tags">${tags.map(tag => `<span class="tag-pill">${tag}</span>`).join('')}</div>` : ''}
@@ -242,12 +243,6 @@ export async function renderMyPoems(dom, page = 1) {
 
     // === INTERACTION WIRING ===
     function attachPoemInteractions(poemBatch, dom) {
-      // Title click handlers
-      poemBatch.forEach(poem => {
-        const titleEl = dom.app.querySelector(`.card-poem-title[data-poem-id='${poem.id}']`);
-        if (titleEl) titleEl.addEventListener('click', () => navigate('/view-poem/' + poem.id));
-      });
-
       // Prompt day tag click handlers
       dom.app.querySelectorAll('.prompt-day-tag').forEach(tag => {
         if (!tag.dataset.bound) {
@@ -322,7 +317,7 @@ export async function renderMyPoems(dom, page = 1) {
             const shareBtn = dom.app.querySelector(`.share-btn[data-id='${poem.id}']`);
             if (shareBtn) {
               shareBtn.onclick = () => {
-                const url = window.location.origin + '/#view-poem/' + poem.id;
+                const url = window.location.origin + poemPath(poem);
                 utils.showModal(dom, 'Share this poem', [
                   {
                     label: 'Copy Link',
