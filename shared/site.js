@@ -6,6 +6,7 @@ export const SITE_URL = 'https://www.unblot.app';
 export const SITE_NAME = 'Unblot';
 export const SITE_TAGLINE = 'Anonymous poetry, published in the open';
 export const SITE_LOCALE = 'en_US';
+export const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/_stillgio';
 
 export const SITE_DESCRIPTION =
   'Unblot is a free anonymous poetry platform where anyone can publish a poem without a byline, ' +

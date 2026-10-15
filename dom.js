@@ -42,4 +42,13 @@ export const dom = {
   headerSearchIcon: document.getElementById('header-search-icon'),
   headerSearchFormMobile: document.getElementById('header-search-form-mobile'),
   headerSearchInputMobile: document.getElementById('header-search-input-mobile'),
+
+  // Coffee Support
+  navCoffee: document.getElementById('nav-coffee'),
+  footerCoffee: document.getElementById('footer-coffee'),
+  coffeeModalBg: document.getElementById('coffee-modal-bg'),
+  coffeeModal: document.getElementById('coffee-modal'),
+  coffeeModalClose: document.getElementById('coffee-modal-close'),
+  coffeeModalBtn: document.getElementById('coffee-modal-btn'),
+  coffeeModalLater: document.getElementById('coffee-modal-later'),
 };

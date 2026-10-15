@@ -23,6 +23,7 @@ import { renderAbout } from './views/about.js';
 import { renderArchive } from './views/archive.js';
 import { renderNotFound } from './views/notFound.js';
 import { setRouteSeo } from './seo.js';
+import { initCoffeeSupport } from './coffee.js';
 
 // --- VIEWS ---
 // Each route sets its own head metadata before rendering. renderViewPoem sets
@@ -99,6 +100,9 @@ export async function handleLogout(e) {
 if (dom.navLogout) dom.navLogout.onclick = handleLogout;
 
 dom.modalBg.onclick = e => { if (e.target === dom.modalBg) utils.hideModal(dom); };
+
+// --- BUY ME A COFFEE SUPPORT ---
+initCoffeeSupport();
 
 // --- INITIAL LOAD ---
 // Router initializes and handles initial route automatically

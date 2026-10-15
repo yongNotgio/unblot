@@ -9,6 +9,8 @@
     "node": ">=20"
   },
   "scripts": {
+    "dev": "npx serve -s .",
+    "start": "npx serve -s .",
     "build": "node scripts/generate-runtime-env.mjs",
     "check:seo": "node scripts/check-seo.mjs"
   }
