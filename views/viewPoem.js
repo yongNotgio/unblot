@@ -1,5 +1,5 @@
 import { fetchPoemById, deletePoem, incrementPoemViews, recordPoemView } from '../poems.js';
-import { fetchComments, addComment } from '../comments.js';
+import { fetchComments, addComment, renderCommentItem } from '../comments.js';
 import { fetchLikeCount, hasUserLiked, likePoem, unlikePoem } from '../likes.js';
 import { currentUser } from '../auth.js';
 import { utils } from '../utils.js';
@@ -99,21 +99,10 @@ export async function renderViewPoem(dom, poemId) {
       </footer>
       
       <div id="comments-section" class="comments-section hidden" style="margin-top: 1rem;">
-        <ul class="comments-list" id="comments-list-${poemId}" style="margin-bottom: 1rem;">
-            ${comments.map(c => `
-              <li class="flex flex-col gap-1 py-3" style="border-bottom: 1px solid var(--border);">
-                <div class="flex items-center gap-2">
-                  <span class="date-text">${utils.formatDate(c.created_at)}</span>
-                </div>
-                <div style="color: var(--text-primary); font-size: 0.9rem; line-height: 1.5; margin-top: 0.5rem;">${utils.escapeHTML(c.comment_text)}</div>
-                ${(currentUser && currentUser.id === c.user_id) ? `
-                  <div class="flex gap-2 mt-2">
-                    <button class="edit-comment-btn" data-cid="${c.id}" data-pid="${poemId}" style="font-size: 0.75rem; color: var(--primary); font-weight: 600; background: none; border: none; cursor: pointer;">Edit</button>
-                    <button class="delete-comment-btn" data-cid="${c.id}" data-pid="${poemId}" style="font-size: 0.75rem; color: #ef4444; font-weight: 600; background: none; border: none; cursor: pointer;">Delete</button>
-                  </div>
-                ` : ''}
-              </li>
-            `).join('')}
+        <ul class="comments-list" id="comments-list-${poemId}" style="margin-bottom: 1rem; list-style: none; padding: 0;">
+            ${comments.length === 0 
+              ? '<li style="font-size: 0.85rem; color: var(--text-muted); padding: 0.5rem 0; font-style: italic;">No comments yet. Be the first to share your thoughts!</li>' 
+              : comments.map(c => renderCommentItem(c, poem.user_id, currentUser)).join('')}
           </ul>
           <form id="comment-form" class="flex gap-2 mt-4">
             <input id="comment-input" class="comment-input modern-input flex-1" placeholder="Share your thoughts..." required style="padding: 0.625rem 1rem; font-size: 0.875rem;" ${!currentUser ? 'disabled' : ''} />

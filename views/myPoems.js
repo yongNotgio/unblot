@@ -284,7 +284,7 @@ export async function renderMyPoems(dom, page = 1) {
       let exportPoemAsImage;
       import('../utils/imageExport.js').then(mod => { exportPoemAsImage = mod.exportPoemAsImage; });
       import('../poems.js').then(({ deletePoem }) => {
-        import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment }) => {
+        import('../comments.js').then(({ fetchComments, addComment, deleteComment, updateComment, renderCommentItem }) => {
           poemBatch.forEach(poem => {
             // Like buttons
             import('../likes.js').then(({ hasUserLiked, likePoem, unlikePoem, fetchLikeCount }) => {
@@ -376,20 +376,9 @@ export async function renderMyPoems(dom, page = 1) {
 
             async function renderComments() {
               comments = await fetchComments(poem.id);
-              commentsList.innerHTML = comments.map(c => `
-                <li style="display: flex; flex-direction: column; gap: 0.25rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">${utils.formatDate(c.created_at)}</div>
-                  <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
-                    <span style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">${utils.escapeHTML(c.comment_text)}</span>
-                  </div>
-                  ${currentUser && currentUser.id === c.user_id ? `
-                    <div style="display: flex; gap: 0.5rem; margin-left: 3rem;">
-                      <button class="edit-comment-btn" style="font-size: 0.7rem; color: var(--primary); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Edit</button>
-                      <button class="delete-comment-btn" style="font-size: 0.7rem; color: var(--error); background: none; border: none; cursor: pointer;" data-cid="${c.id}" data-pid="${poem.id}">Delete</button>
-                    </div>
-                  ` : ''}
-                </li>
-              `).join('');
+              commentsList.innerHTML = comments.length === 0
+                ? '<li style="font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem 0; font-style: italic;">No comments yet.</li>'
+                : comments.map(c => renderCommentItem(c, poem.user_id, currentUser)).join('');
 
               commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
                 btn.onclick = () => {
