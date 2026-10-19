@@ -2,6 +2,7 @@
 // Comment logic for Poetry Share app
 import { supabase } from './utils/supabase.js';
 import { utils } from './utils.js';
+import { createNotification } from './notifications.js';
 
 // Color palette for avatars
 export const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
@@ -57,11 +58,23 @@ export async function fetchComments(poem_id) {
 }
 
 /**
- * Add a new comment to a poem
+ * Add a new comment to a poem — also creates a notification for the poem author
  */
-export async function addComment({ poem_id, user_id, comment_text }) {
+export async function addComment({ poem_id, user_id, comment_text, poem_author_id = null }) {
   const { data, error } = await supabase.from('comments').insert([{ poem_id, user_id, comment_text }]).select().single();
   if (error) throw error;
+
+  // Fire-and-forget notification for comment
+  createNotification({
+    user_id: poem_author_id,
+    actor_id: user_id,
+    type: 'comment',
+    poem_id,
+    comment_id: data.id,
+  }).catch((err) => {
+    console.warn('Comment notification failed:', err);
+  });
+
   return data;
 }
 
@@ -71,6 +84,9 @@ export async function addComment({ poem_id, user_id, comment_text }) {
 export async function deleteComment(id) {
   const { error } = await supabase.from('comments').delete().eq('id', id);
   if (error) throw error;
+
+  // Fire-and-forget cleanup of comment notification
+  supabase.from('notifications').delete().eq('comment_id', id).then(() => {}).catch(() => {});
 }
 
 export async function updateComment(id, comment_text) {

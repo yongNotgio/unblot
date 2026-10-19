@@ -43,6 +43,13 @@ export const dom = {
   headerSearchFormMobile: document.getElementById('header-search-form-mobile'),
   headerSearchInputMobile: document.getElementById('header-search-input-mobile'),
 
+  // Notifications
+  mobileNotifBtn: document.getElementById('mobile-notif-btn'),
+  mobileNotifDot: document.getElementById('mobile-notif-dot'),
+  topbarNotifBtn: document.getElementById('topbar-notif-btn'),
+  topbarNotifDot: document.getElementById('topbar-notif-dot'),
+  navNotifBadge: document.getElementById('nav-notif-badge'),
+
   // Coffee Support
   navCoffee: document.getElementById('nav-coffee'),
   footerCoffee: document.getElementById('footer-coffee'),

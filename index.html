@@ -486,13 +486,157 @@
     .topbar-icon-btn:hover { background: var(--surface-hover); color: var(--ink); }
     .topbar-notif-dot {
       position: absolute;
-      top: 6px; right: 6px;
-      width: 8px; height: 8px;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
       background: var(--rust);
       border-radius: 50%;
       border: 2px solid var(--paper);
+      box-sizing: content-box;
       display: none;
+      pointer-events: none;
     }
+    .mobile-notif-dot {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      background: var(--rust);
+      border-radius: 50%;
+      border: 2px solid var(--paper);
+      box-sizing: content-box;
+      display: none;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Notifications */
+    .notif-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: var(--font-mono);
+    }
+    .notif-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      font-family: var(--font-mono);
+    }
+    .notif-item:hover {
+      background: var(--surface-hover);
+      border-color: var(--ink);
+    }
+    .notif-unread {
+      background: rgba(196, 67, 10, 0.05);
+      border-color: rgba(196, 67, 10, 0.35);
+    }
+    .notif-unread:hover {
+      background: rgba(196, 67, 10, 0.09);
+    }
+    .notif-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--ink);
+    }
+    .notif-body {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--font-mono);
+    }
+    .notif-text {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .notif-alias {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .notif-poem-title {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--rust);
+    }
+    .notif-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      color: var(--text-muted);
+    }
+    .notif-type-icon {
+      display: flex;
+      align-items: center;
+    }
+    .notif-time {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .notif-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--rust);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .notif-mark-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .notif-mark-all-btn:hover {
+      border-color: var(--rust);
+      color: var(--rust);
+    }
+    .notif-more-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.4rem 1.25rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .notif-more-btn:hover {
+      border-color: var(--rust);
+      color: var(--rust);
+    }
+
 
     /* Mobile top bar (shown on small screens) */
     .mobile-topbar {
@@ -2023,11 +2167,7 @@
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
         Collections
       </button>
-      <button id="nav-notifications" class="nav-sidebar-btn">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        Notifications
-        <span id="nav-notif-badge" class="nav-badge" style="display:none;">0</span>
-      </button>
+      
 
       <!-- YOUR LIBRARY Section -->
       <div class="nav-section-label" style="margin-top: 8px;">YOUR LIBRARY</div>
@@ -2050,7 +2190,7 @@
       </button>
 
       <!-- SUPPORT Section -->
-      <div class="nav-section-label" style="margin-top: 8px;">SUPPORT</div>
+      <div class="nav-section-label">SUPPORT</div>
       <button id="nav-coffee" class="nav-sidebar-btn" title="Buy me a coffee">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
         Buy Me a Coffee
@@ -2097,6 +2237,10 @@
       <strong class="nav-brand-text" style="font-size:1.2rem;">Un<span class="rust">blot</span></strong>
     </div>
     <div class="mobile-topbar-right">
+      <button id="mobile-notif-btn" class="nav-theme-btn" title="Notifications" style="width:30px;height:30px;position:relative;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="mobile-notif-dot" id="mobile-notif-dot"></span>
+      </button>
       <button id="mobile-theme-toggle" class="nav-theme-btn" title="Toggle theme" style="width:30px;height:30px;">
         <svg id="mobile-theme-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       </button>

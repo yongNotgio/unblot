@@ -24,6 +24,7 @@ import { renderArchive } from './views/archive.js';
 import { renderNotFound } from './views/notFound.js';
 import { setRouteSeo } from './seo.js';
 import { initCoffeeSupport } from './coffee.js';
+import { initNotifications, updateNotifBadges } from './notifications.js';
 
 // --- VIEWS ---
 // Each route sets its own head metadata before rendering. renderViewPoem sets
@@ -76,6 +77,35 @@ if (dom.navAddPoem) dom.navAddPoem.onclick = (e) => { e.preventDefault(); naviga
 if (dom.navAdmin) dom.navAdmin.onclick = (e) => { e.preventDefault(); navigate('/admin'); };
 if (dom.navLogin) dom.navLogin.onclick = (e) => { e.preventDefault(); navigate('/login'); };
 if (dom.navRegister) dom.navRegister.onclick = (e) => { e.preventDefault(); navigate('/register'); };
+if (dom.mobileNotifBtn) dom.mobileNotifBtn.onclick = (e) => { e.preventDefault(); navigate('/notifications'); };
+if (dom.topbarNotifBtn) dom.topbarNotifBtn.onclick = (e) => { e.preventDefault(); navigate('/notifications'); };
+
+// --- NOTIFICATIONS REALTIME & BADGES ---
+let notifCleanup = null;
+
+async function setupNotifications(user) {
+  if (notifCleanup) {
+    notifCleanup();
+    notifCleanup = null;
+  }
+  if (user && user.id) {
+    try {
+      notifCleanup = await initNotifications(user.id);
+    } catch (e) {
+      console.warn('Notifications init failed:', e);
+    }
+  } else {
+    updateNotifBadges(0);
+  }
+}
+
+window.addEventListener('authStateChanged', (e) => {
+  setupNotifications(e.detail?.user);
+});
+
+fetchCurrentUser().then((user) => {
+  if (user) setupNotifications(user);
+});
 
 // --- ROUTER ---
 const router = setupRouter(routes);

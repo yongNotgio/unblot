@@ -342,7 +342,7 @@ export async function renderHome(dom, page = 1) {
                       await unlikePoem(poem.id, currentUser.id);
                       likeBtn.classList.remove('like-active');
                     } else {
-                      await likePoem(poem.id, currentUser.id);
+                      await likePoem(poem.id, currentUser.id, poem.user_id);
                       likeBtn.classList.add('like-active');
                     }
                     const newCount = await fetchLikeCount(poem.id);
@@ -532,7 +532,7 @@ export async function renderHome(dom, page = 1) {
                     utils.showModal(dom, 'Login to comment on poems!');
                     return;
                   }
-                  await addComment({ poem_id: poem.id, user_id: currentUser.id, comment_text: text });
+                  await addComment({ poem_id: poem.id, user_id: currentUser.id, comment_text: text, poem_author_id: poem.user_id });
                   input.value = '';
                   await renderComments();
                 } catch (err) {

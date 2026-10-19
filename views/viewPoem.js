@@ -151,7 +151,7 @@ export async function renderViewPoem(dom, poemId) {
         if (userLiked) {
           await unlikePoem(poemId, currentUser.id);
         } else {
-          await likePoem(poemId, currentUser.id);
+          await likePoem(poemId, currentUser.id, poem.user_id);
         }
         renderViewPoem(dom, poemId); // Refresh
       } catch (err) {
@@ -323,7 +323,7 @@ export async function renderViewPoem(dom, poemId) {
         const text = commentInput.value.trim();
         if (!text) return;
         try {
-          await addComment({ poem_id: poemId, user_id: currentUser.id, comment_text: text });
+          await addComment({ poem_id: poemId, user_id: currentUser.id, comment_text: text, poem_author_id: poem.user_id });
           renderViewPoem(dom, poemId); // Refresh
         } catch (err) {
           utils.showModal(dom, 'Failed to add comment: ' + (err.message || err));
