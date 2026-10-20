@@ -8,13 +8,13 @@ import { listPoemStubs } from './_lib/db.js';
 const MAX_POEMS = 49000;
 
 const STATIC_ROUTES = [
-  { path: '/', changefreq: 'hourly', priority: '1.0' },
+  { path: '/submit-poem', changefreq: 'daily', priority: '1.0' },
+  { path: '/feed', changefreq: 'hourly', priority: '0.9' },
   { path: '/poems', changefreq: 'hourly', priority: '0.9' },
   { path: '/trending', changefreq: 'daily', priority: '0.8' },
   { path: '/discover', changefreq: 'daily', priority: '0.7' },
   { path: '/collections', changefreq: 'weekly', priority: '0.6' },
   { path: '/about', changefreq: 'monthly', priority: '0.6' },
-  { path: '/submit-poem', changefreq: 'daily', priority: '0.9' },
 ];
 
 function escapeXml(value) {

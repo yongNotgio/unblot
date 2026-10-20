@@ -126,6 +126,10 @@ const ROUTE_SEO = {
     title: `Poetry collections — curated anonymous poems on ${SITE_NAME}`,
     description: `Curated collections of anonymous poetry on ${SITE_NAME}, grouped by theme and form.`,
   },
+  '/feed': {
+    title: `Poem Feed — latest anonymous poems on ${SITE_NAME}`,
+    description: `Read the latest anonymous poems published on ${SITE_NAME}. Free to read, no account needed.`,
+  },
   '/about': {
     title: `About ${SITE_NAME} — the anonymous poetry platform`,
     description: `${SITE_NAME} is a free platform for publishing and reading anonymous poetry. Poems carry no byline, reading needs no account, and writers keep full copyright.`,

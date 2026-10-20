@@ -9,6 +9,7 @@ export const dom = {
   modalActions: document.getElementById('modal-actions'),
   // Sidebar nav buttons
   navHome: document.getElementById('nav-home'),
+  navFeed: document.getElementById('nav-feed'),
   navDiscover: document.getElementById('nav-discover'),
   navTrending: document.getElementById('nav-trending'),
   navCollections: document.getElementById('nav-collections'),

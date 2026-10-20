@@ -18,10 +18,10 @@ Site: https://www.unblot.app
 
 ## Pages
 
-- [Latest poems](https://www.unblot.app/): Newest anonymous poems published to the public feed.
+- [Poetry Submissions (Home)](https://www.unblot.app/submit-poem): Free poetry submission portal with instant publishing, $0 reading fees, and no gatekeeping.
+- [Feed](https://www.unblot.app/feed): Public feed of newest anonymous poems.
 - [All poems](https://www.unblot.app/poems): Complete archive of every published poem, newest first, paginated.
 - [About and FAQ](https://www.unblot.app/about): What Unblot is, how anonymity works, rights, and how to publish.
-- [Poetry Submissions](https://www.unblot.app/submit-poem): Free poetry submission portal with instant publishing, $0 reading fees, and no gatekeeping.
 - [Trending](https://www.unblot.app/trending): Poems with the most reader engagement recently.
 - [Discover](https://www.unblot.app/discover): Full-text search across titles, poem text, and tags.
 - [Collections](https://www.unblot.app/collections): Curated groupings of poems.

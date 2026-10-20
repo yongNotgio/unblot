@@ -9,8 +9,9 @@
   },
   "redirects": [
     { "source": "/view-poem/:id", "destination": "/poem/:id", "permanent": true },
-    { "source": "/home", "destination": "/", "permanent": true },
-    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/", "destination": "/submit-poem", "permanent": true },
+    { "source": "/home", "destination": "/submit-poem", "permanent": true },
+    { "source": "/index.html", "destination": "/submit-poem", "permanent": true },
     { "source": "/submit-poetry", "destination": "/submit-poem", "permanent": true },
     { "source": "/submit-poems", "destination": "/submit-poem", "permanent": true },
     { "source": "/poetry-submission", "destination": "/submit-poem", "permanent": true },

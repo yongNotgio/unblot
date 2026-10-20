@@ -313,14 +313,11 @@ export function submissionsBodyHtml(topPoem = null) {
   return `<div class="submissions-view">
   <!-- Top Navigation Trail -->
   <div class="submissions-header-meta">
-    <a href="/" class="submissions-back-link">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Home
-    </a>
-    <span class="submissions-sep">&bull;</span>
     <span class="submissions-pill">Poetry Submissions</span>
-    <span class="submissions-sep">&bull;</span>
-    <span style="color:var(--text-muted);">$0 Fee &bull; Instant Publishing</span>
+    <a href="/feed" class="submissions-back-link" style="white-space:nowrap;margin-left:auto;">
+      Read Poems Feed
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
   </div>
 
   <!-- Hero Section: Split 2-Column Hero matching the requested mockup -->
@@ -328,12 +325,10 @@ export function submissionsBodyHtml(topPoem = null) {
     <!-- Left Column: Title, Subtitle, Buttons, Kicker -->
     <div class="submissions-hero-left">
       <h1 class="submissions-hero-headline">
-        Ready to<br>
-        inspire<br>
-        today?
+        Ready to <br class="hero-br-desktop">inspire <br class="hero-br-desktop">today?
       </h1>
       <p class="submissions-hero-desc">
-        Unblot is a home for poems. Write a few lines, post them under an anonymous poet name, and see who reads them. Free online poetry submissions with instant publishing and no rejection.
+        Unblot is a home for anonymous poems. Write a few lines, publish instantly, and see who reads them.
       </p>
       <div class="submissions-hero-actions">
         <a href="/add-poem" class="submit-btn-rust">

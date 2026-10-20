@@ -58,7 +58,9 @@ function updateNavActiveState(route) {
   // Sidebar nav buttons
   const navMap = {
     'home': 'nav-home',
+    'submit-poem': 'nav-home',
     '': 'nav-home',
+    'feed': 'nav-feed',
     'discover': 'nav-discover',
     'trending': 'nav-trending',
     'collections': 'nav-collections',
@@ -144,12 +146,15 @@ export function setupRouter(routes) {
 
   // Define routes
   router
-    .on('/', async () => {
-      await routes['#home'](null, 1);
+    .on('/', () => {
+      navigate('/submit-poem');
     })
-    .on('/home', async ({ params }) => {
+    .on('/home', () => {
+      navigate('/submit-poem');
+    })
+    .on('/feed', async ({ params }) => {
       const page = params?.page ? parseInt(params.page) : 1;
-      await routes['#home'](null, page);
+      await routes['#feed'](null, page);
     })
     .on('/about', async () => {
       await routes['#about']();

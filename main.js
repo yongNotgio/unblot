@@ -31,7 +31,8 @@ import { initNotifications, updateNotifBadges } from './notifications.js';
 // Each route sets its own head metadata before rendering. renderViewPoem sets
 // its own (it needs the fetched poem to build the description and JSON-LD).
 const routes = {
-  '#home': async (param, page) => { setRouteSeo('/'); renderHome(dom, page); },
+  '#home': async (param, page) => { setRouteSeo('/submit-poem'); renderSubmitPoetry(dom); },
+  '#feed': async (param, page) => { setRouteSeo('/feed'); renderHome(dom, page); },
   '#login': async () => { setRouteSeo('/login'); renderLogin(dom); },
   '#register': async () => { setRouteSeo('/register'); renderRegister(dom); },
   '#reset': async () => { setRouteSeo('/reset'); renderReset(dom); },
@@ -67,7 +68,8 @@ const routes = {
 };
 
 // --- SIDEBAR NAV HANDLERS ---
-if (dom.navHome) dom.navHome.onclick = (e) => { e.preventDefault(); navigate('/home'); };
+if (dom.navHome) dom.navHome.onclick = (e) => { e.preventDefault(); navigate('/submit-poem'); };
+if (dom.navFeed) dom.navFeed.onclick = (e) => { e.preventDefault(); navigate('/feed'); };
 if (dom.navDiscover) dom.navDiscover.onclick = (e) => { e.preventDefault(); navigate('/discover'); };
 if (dom.navTrending) dom.navTrending.onclick = (e) => { e.preventDefault(); navigate('/trending'); };
 if (dom.navCollections) dom.navCollections.onclick = (e) => { e.preventDefault(); navigate('/collections'); };
