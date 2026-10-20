@@ -121,10 +121,11 @@ export function aboutBodyHtml() {
       ${faqs}
     </div>
 
-    <h2>Start reading</h2>
+    <h2>Submit poetry or start reading</h2>
     <p>
-      Browse the <a href="/poems">complete poem archive</a>, see what is
-      <a href="/trending">trending this week</a>, or
+      Looking to publish? Read our <a href="/submit-poetry">poetry submission guidelines</a> for instant, $0-fee publishing with full copyright retention.
+      Or browse the <a href="/poems">complete poem archive</a>, see what is
+      <a href="/trending">trending this week</a>, and
       <a href="/discover">search the collection</a> by title, line or tag.
       Ready to publish? <a href="/register">Create a free account</a> and post your first poem anonymously.
     </p>

@@ -21,9 +21,24 @@ Site: https://www.unblot.app
 - [Latest poems](https://www.unblot.app/): Newest anonymous poems published to the public feed.
 - [All poems](https://www.unblot.app/poems): Complete archive of every published poem, newest first, paginated.
 - [About and FAQ](https://www.unblot.app/about): What Unblot is, how anonymity works, rights, and how to publish.
+- [Poetry Submissions](https://www.unblot.app/submit-poetry): Free poetry submission portal with instant publishing, $0 reading fees, and no gatekeeping.
 - [Trending](https://www.unblot.app/trending): Poems with the most reader engagement recently.
 - [Discover](https://www.unblot.app/discover): Full-text search across titles, poem text, and tags.
 - [Collections](https://www.unblot.app/collections): Curated groupings of poems.
+
+## Poetry submissions & publishing
+
+Unblot is an open website for poetry submissions with $0 reading fees, zero rejection, and instant publishing.
+
+- **URL:** https://www.unblot.app/submit-poetry
+- **Submission Fee:** $0 (Free forever; no submission or reading fees).
+- **Publishing Speed:** Instant (poems go live immediately upon submission; no 3–6 month editorial backlog).
+- **Acceptance Policy:** 100% open (no editorial gatekeeping, credential requirements, or slush pile rejections).
+- **Attribution:** 100% Anonymous (no author byline, handle, or bio displayed to readers).
+- **Copyright:** Authors retain 100% full copyright. Writers can edit, revise, or permanently delete work at any time.
+- **Accepted Forms:** All poetic styles, lengths, and forms — free verse, haiku, sonnets, spoken word, and multilingual poetry.
+- **Simultaneous Submissions:** Permitted without restriction.
+- **Audience & Community:** Readers interact through likes, comments, bookmarks, and collections.
 
 ## For crawlers
 

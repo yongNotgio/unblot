@@ -17,6 +17,8 @@
     { "source": "/poem/:slug", "destination": "/api/poem?slug=:slug" },
     { "source": "/poems", "destination": "/api/poems" },
     { "source": "/about", "destination": "/api/about" },
+    { "source": "/submit-poetry", "destination": "/api/submit" },
+    { "source": "/poetry-submissions", "destination": "/api/submit" },
     { "source": "/((?!api/|assets/|_vercel/|views/|utils/|shared/|scripts/).*)", "destination": "/index.html" }
   ],
   "headers": [

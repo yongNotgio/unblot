@@ -74,6 +74,28 @@ export async function getEngagement(poemId) {
   return { likes, comments };
 }
 
+/** The poem with the highest engagement score (likes, comments, views). */
+export async function getTopEngagedPoem() {
+  try {
+    const res = await rest(`poems?select=${POEM_COLUMNS},user_id&order=views_count.desc&limit=10`);
+    const rows = await res.json();
+    if (!rows || !rows.length) return null;
+
+    const scored = await Promise.all(
+      rows.map(async (poem) => {
+        const { likes, comments } = await getEngagement(poem.id);
+        const score = (likes * 3) + (comments * 2) + (poem.views_count || 0);
+        return { ...poem, _likes: likes, _comments: comments, _views: poem.views_count || 0, _score: score };
+      })
+    );
+    scored.sort((a, b) => b._score - a._score);
+    return scored[0];
+  } catch (err) {
+    console.error('getTopEngagedPoem error:', err);
+    return null;
+  }
+}
+
 /** A few other poems to link to, so every rendered page feeds the crawl graph. */
 export async function listRelatedPoems(excludeId, limit = 6) {
   const rows = await listPoems({ limit: limit + 1 });

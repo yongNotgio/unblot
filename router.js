@@ -154,6 +154,12 @@ export function setupRouter(routes) {
     .on('/about', async () => {
       await routes['#about']();
     })
+    .on('/submit-poetry', async () => {
+      await routes['#submit-poetry']();
+    })
+    .on('/poetry-submissions', async () => {
+      await routes['#submit-poetry']();
+    })
     .on('/poems', async ({ params }) => {
       const page = params?.page ? parseInt(params.page) : 1;
       await routes['#poems'](page);

@@ -14,6 +14,7 @@ const STATIC_ROUTES = [
   { path: '/discover', changefreq: 'daily', priority: '0.7' },
   { path: '/collections', changefreq: 'weekly', priority: '0.6' },
   { path: '/about', changefreq: 'monthly', priority: '0.6' },
+  { path: '/submit-poetry', changefreq: 'daily', priority: '0.9' },
 ];
 
 function escapeXml(value) {

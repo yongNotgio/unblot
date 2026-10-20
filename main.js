@@ -20,6 +20,7 @@ import { renderNotifications } from './views/notifications.js';
 import { renderLiked } from './views/liked.js';
 import { renderHistory } from './views/history.js';
 import { renderAbout } from './views/about.js';
+import { renderSubmitPoetry } from './views/submitPoetry.js';
 import { renderArchive } from './views/archive.js';
 import { renderNotFound } from './views/notFound.js';
 import { setRouteSeo } from './seo.js';
@@ -60,6 +61,7 @@ const routes = {
   '#liked': async () => { setRouteSeo('/liked'); renderLiked(dom); },
   '#history': async () => { setRouteSeo('/history'); renderHistory(dom); },
   '#about': async () => { renderAbout(dom); },
+  '#submit-poetry': async () => { renderSubmitPoetry(dom); },
   '#poems': async (page) => { renderArchive(dom, page); },
   '#not-found': async () => { renderNotFound(dom); },
 };
