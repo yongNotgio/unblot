@@ -222,7 +222,7 @@
     }
 
     /* === LEFT SIDEBAR NAVIGATION === */
-    nav:not(.seo-breadcrumb):not(.submissions-breadcrumb) {
+    nav, #main-sidebar {
       position: fixed;
       top: 0;
       left: 0;
@@ -1978,8 +1978,8 @@
 
     /* === RESPONSIVE === */
     @media (max-width: 900px) {
-      nav:not(.seo-breadcrumb):not(.submissions-breadcrumb) { transform: translateX(-100%); z-index: 1000; }
-      nav.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
+      nav, #main-sidebar { transform: translateX(-100%); z-index: 1000; }
+      nav.open, #main-sidebar.open { transform: translateX(0) !important; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
       .mobile-topbar { display: flex !important; }
       .content-topbar { display: none; }
       .page-wrapper { margin-left: 0 !important; }
@@ -1997,7 +1997,7 @@
     }
     @media (min-width: 901px) {
       .mobile-topbar { display: none !important; }
-      nav:not(.seo-breadcrumb):not(.submissions-breadcrumb) { transform: translateX(0) !important; }
+      nav, #main-sidebar { transform: translateX(0) !important; }
     }
     @media (max-width: 600px) {
       .poems-grid-view { grid-template-columns: repeat(2, 1fr); }
@@ -2571,7 +2571,7 @@
   <div class="cursor" id="cursor"></div>
 
   <!-- ===== LEFT SIDEBAR NAVIGATION ===== -->
-  <nav>
+  <nav id="main-sidebar">
     <div class="nav-bar">
       <!-- Brand -->
       <div id="nav-title" class="nav-logo" style="cursor: none;">
@@ -3003,7 +3003,7 @@
 
       // === MOBILE SIDEBAR TOGGLE ===
       var hamburger = document.getElementById('hamburger-menu');
-      var navSidebar = document.querySelector('nav');
+      var navSidebar = document.getElementById('main-sidebar') || document.querySelector('nav');
       var overlay = document.getElementById('sidebar-overlay');
 
       function openSidebar() {
