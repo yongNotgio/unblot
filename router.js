@@ -154,11 +154,20 @@ export function setupRouter(routes) {
     .on('/about', async () => {
       await routes['#about']();
     })
-    .on('/submit-poetry', async () => {
+    .on('/submit-poem', async () => {
       await routes['#submit-poetry']();
     })
-    .on('/poetry-submissions', async () => {
-      await routes['#submit-poetry']();
+    .on('/submit-poetry', () => {
+      navigate('/submit-poem');
+    })
+    .on('/submit-poems', () => {
+      navigate('/submit-poem');
+    })
+    .on('/poetry-submissions', () => {
+      navigate('/submit-poem');
+    })
+    .on('/poetry-submission', () => {
+      navigate('/submit-poem');
     })
     .on('/poems', async ({ params }) => {
       const page = params?.page ? parseInt(params.page) : 1;

@@ -1,4 +1,4 @@
-// Client-side /submit-poetry view.
+// Client-side /submit-poem view.
 // Renders the exact same markup the server emits from api/submit.js,
 // and dynamically updates the hero poem card with the most-interacted poem in real-time.
 
@@ -8,7 +8,7 @@ import { fetchTrendingPoems } from '../poems.js';
 
 export async function renderSubmitPoetry(dom) {
   dom.app.innerHTML = submissionsBodyHtml();
-  setRouteSeo('/submit-poetry');
+  setRouteSeo('/submit-poem');
   window.scrollTo(0, 0);
 
   // Dynamically load the poem with the most interactions and show live metrics

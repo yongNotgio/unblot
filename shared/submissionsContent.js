@@ -142,7 +142,7 @@ export const SUBMISSION_FAQ = [
   {
     question: 'Where can I submit poetry online for free?',
     answer:
-      `You can submit poetry online for free on ${SITE_NAME} (https://www.unblot.app/submit-poetry). ` +
+      `You can submit poetry online for free on ${SITE_NAME} (https://www.unblot.app/submit-poem). ` +
       'There are no reading fees, no contest entry fees, and no paid tiers. Publishing is entirely free for all writers.',
   },
   {

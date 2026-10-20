@@ -26,15 +26,15 @@ import { renderShell, sendHtml } from './_lib/shell.js';
 export default async function handler(req, res) {
   const trail = [
     { name: 'Home', path: '/' },
-    { name: 'Poetry Submissions', path: '/submit-poetry' },
+    { name: 'Poetry Submissions', path: '/submit-poem' },
   ];
 
   const submitPageSchema = {
     '@type': 'WebPage',
-    '@id': `${SITE_URL}/submit-poetry#webpage`,
+    '@id': `${SITE_URL}/submit-poem#webpage`,
     name: SUBMIT_TITLE,
     description: SUBMIT_DESCRIPTION,
-    url: absoluteUrl('/submit-poetry'),
+    url: absoluteUrl('/submit-poem'),
     inLanguage: 'en',
     isPartOf: { '@id': `${SITE_URL}/#website` },
     mainEntity: { '@id': ORGANIZATION_ID },
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
   const howToSchema = {
     '@type': 'HowTo',
-    '@id': `${SITE_URL}/submit-poetry#howto`,
+    '@id': `${SITE_URL}/submit-poem#howto`,
     name: 'How to Submit Poetry Online for Free on Unblot',
     description: 'A step-by-step guide to publishing anonymous poetry online with zero fees and instant response times.',
     totalTime: 'PT2M',
@@ -52,13 +52,13 @@ export default async function handler(req, res) {
       position: s.step,
       name: s.name,
       text: s.text,
-      url: `${SITE_URL}/submit-poetry#step-${s.step}`,
+      url: `${SITE_URL}/submit-poem#step-${s.step}`,
     })),
   };
 
   const faqSchema = {
     '@type': 'FAQPage',
-    '@id': `${SITE_URL}/submit-poetry#faq`,
+    '@id': `${SITE_URL}/submit-poem#faq`,
     mainEntity: SUBMISSION_FAQ.map((item) => ({
       '@type': 'Question',
       name: item.question,
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
   const head = buildHead({
     title: SUBMIT_TITLE,
     description: SUBMIT_DESCRIPTION,
-    path: '/submit-poetry',
+    path: '/submit-poem',
     schema: [
       graph([
         organizationSchema(),

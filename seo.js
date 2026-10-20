@@ -130,6 +130,10 @@ const ROUTE_SEO = {
     title: `About ${SITE_NAME} — the anonymous poetry platform`,
     description: `${SITE_NAME} is a free platform for publishing and reading anonymous poetry. Poems carry no byline, reading needs no account, and writers keep full copyright.`,
   },
+  '/submit-poem': {
+    title: `Poetry Submissions — Where to Submit Poetry Online for Free | ${SITE_NAME}`,
+    description: `Looking for websites for poetry submission? ${SITE_NAME} offers instant, free ($0 fee) poetry publishing with no rejection, zero editorial wait times, complete anonymity, and 100% author copyright retention.`,
+  },
   '/submit-poetry': {
     title: `Poetry Submissions — Where to Submit Poetry Online for Free | ${SITE_NAME}`,
     description: `Looking for websites for poetry submission? ${SITE_NAME} offers instant, free ($0 fee) poetry publishing with no rejection, zero editorial wait times, complete anonymity, and 100% author copyright retention.`,

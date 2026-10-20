@@ -123,7 +123,7 @@ export function aboutBodyHtml() {
 
     <h2>Submit poetry or start reading</h2>
     <p>
-      Looking to publish? Read our <a href="/submit-poetry">poetry submission guidelines</a> for instant, $0-fee publishing with full copyright retention.
+      Looking to publish? Read our <a href="/submit-poem">poetry submission guidelines</a> for instant, $0-fee publishing with full copyright retention.
       Or browse the <a href="/poems">complete poem archive</a>, see what is
       <a href="/trending">trending this week</a>, and
       <a href="/discover">search the collection</a> by title, line or tag.

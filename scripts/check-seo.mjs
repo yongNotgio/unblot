@@ -93,14 +93,14 @@ check('about: questions rendered visibly', about.body.includes('What is Unblot?'
 check('about: canonical', about.body.includes('href="https://www.unblot.app/about"'));
 
 // 4b. Poetry Submissions
-const submit = await run('GET /submit-poetry', '../api/submit.js', {});
+const submit = await run('GET /submit-poem', '../api/submit.js', {});
 check('submit: 200', submit.statusCode === 200);
 check('submit: FAQPage schema', submit.body.includes('"@type":"FAQPage"'));
 check('submit: HowTo schema', submit.body.includes('"@type":"HowTo"'));
 check('submit: WebPage schema', submit.body.includes('"@type":"WebPage"'));
 check('submit: comparison table rendered', submit.body.includes('Traditional Journals (Submittable)'));
 check('submit: steps rendered', submit.body.includes('Step 1'));
-check('submit: canonical', submit.body.includes('href="https://www.unblot.app/submit-poetry"'));
+check('submit: canonical', submit.body.includes('href="https://www.unblot.app/submit-poem"'));
 check('submit: title contains Poetry Submissions', submit.body.includes('Poetry Submissions'));
 
 // 5. Sitemap
@@ -109,7 +109,7 @@ check('sitemap: xml content type', String(sitemap.headers['content-type']).inclu
 check('sitemap: declares urlset', sitemap.body.includes('<urlset'));
 const urlCount = (sitemap.body.match(/<loc>/g) || []).length;
 check('sitemap: includes all poems + static routes', urlCount >= 58, `${urlCount} urls`);
-check('sitemap: includes /submit-poetry', sitemap.body.includes('https://www.unblot.app/submit-poetry'));
+check('sitemap: includes /submit-poem', sitemap.body.includes('https://www.unblot.app/submit-poem'));
 check('sitemap: uses canonical poem paths', sitemap.body.includes(`https://www.unblot.app/poem/${slug}`));
 check('sitemap: has lastmod', sitemap.body.includes('<lastmod>'));
 check('sitemap: no private routes', !/<loc>[^<]*\/(admin|my-poems|login)/.test(sitemap.body));
