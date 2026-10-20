@@ -331,9 +331,9 @@ export function submissionsBodyHtml(topPoem = null) {
         Unblot is a home for anonymous poems. Write a few lines, publish instantly, and see who reads them.
       </p>
       <div class="submissions-hero-actions">
-        <a href="/add-poem" class="submit-btn-rust">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          New Poem
+        <a href="/feed" class="submit-btn-rust">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Go to Feed
         </a>
         <a href="#how-it-works" class="submit-btn-outlined">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -426,7 +426,7 @@ export function submissionsBodyHtml(topPoem = null) {
     </p>
     <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
       <a href="/add-poem" class="submit-btn-rust">Submit a Poem Now</a>
-      <a href="/poems" class="submit-btn-outlined">Read Recent Submissions</a>
+      <a href="/feed" class="submit-btn-outlined">Read Recent Submissions</a>
     </div>
   </section>
 </div>`;
